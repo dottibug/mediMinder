@@ -6,6 +6,6 @@ import androidx.room.Dao
 // https://developer.android.com/training/data-storage/room/accessing-data
 
 @Dao
-class MedicationLogDao {
+interface MedicationLogDao {
     // todo: add methods here
 }

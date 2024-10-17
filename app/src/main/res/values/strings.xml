@@ -1,3 +1,23 @@
 <resources>
+    <!-- App -->
     <string name="app_name">MediMinder</string>
+    <string name="app_logo_description">MediMinder Logo</string>
+    <string name="menu_button_description">Main Menu</string>
+
+    <!-- Main Menu -->
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="medications">Medications</string>
+    <string name="schedule">Schedule</string>
+    <string name="tracking">Tracking</string>
+    <string name="refills">Refills</string>
+    <string name="settings">Settings</string>
+
+    <!-- Main Activity -->
+    <string name="user_greeting">Hello, Username</string>
+
+    <!-- Navigation Drawer -->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
 </resources>
