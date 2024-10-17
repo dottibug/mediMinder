@@ -2,13 +2,9 @@ package com.example.mediminder
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.utils.WindowInsetsUtil
@@ -30,38 +26,59 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         observeViewModel()
-        setupBackNavigation()
+//        setupBackNavigation()
     }
 
     private fun setupUI() {
-        setupToolbar()
+        setupAppBar()
+//        setupToolbar()
         setupNavigationView()
     }
 
-    // Set up toolbar (replace back button with menu button that opens navigation drawer)
-    private fun setupToolbar() {
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.title = getString(R.string.app_name)
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
+    private fun setupAppBar() {
+        binding.topAppBar.setNavigationOnClickListener {
+            binding.drawerLayout.open()
+        }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_menu -> {
-                if (binding.main.isDrawerOpen(GravityCompat.END)) {
-                    binding.main.closeDrawer(GravityCompat.END)
-                } else {
-                    binding.main.openDrawer(GravityCompat.END)
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.settings -> {
+                    // todo: navigate to settings
+                    Log.i("testcat", "Navigate to settings")
+                    true
                 }
-                true
+                else -> false
             }
-            else -> super.onOptionsItemSelected(item)
         }
     }
+
+
+
+    // Set up toolbar (replace back button with menu button that opens navigation drawer)
+//    private fun setupToolbar() {
+//        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+//        supportActionBar?.title = getString(R.string.app_name)
+//    }
+
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        menuInflater.inflate(R.menu.main_menu, menu)
+//        return true
+//    }
+
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.action_menu -> {
+//                if (binding.main.isDrawerOpen(GravityCompat.END)) {
+//                    binding.main.closeDrawer(GravityCompat.END)
+//                } else {
+//                    binding.main.openDrawer(GravityCompat.END)
+//                }
+//                true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     // Set up navigation drawer menu items
     private fun setupNavigationView() {
@@ -96,22 +113,24 @@ class MainActivity : AppCompatActivity() {
                     Log.i("testcat", "Navigate to settings")
                 }
             }
-            binding.main.closeDrawer(GravityCompat.END)
+
+            menuItem.isChecked = true
+            binding.drawerLayout.close()
             true
         }
     }
 
     // Handle back button press: Close navigation drawer if open, otherwise go back to previous screen
-    private fun setupBackNavigation() {
-        onBackPressedDispatcher.addCallback(this) {
-            if (binding.main.isDrawerOpen(GravityCompat.END)) {
-                binding.main.closeDrawer(GravityCompat.END)
-            } else {
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
-        }
-    }
+//    private fun setupBackNavigation() {
+//        onBackPressedDispatcher.addCallback(this) {
+//            if (binding.main.isDrawerOpen(GravityCompat.END)) {
+//                binding.main.closeDrawer(GravityCompat.END)
+//            } else {
+//                isEnabled = false
+//                onBackPressedDispatcher.onBackPressed()
+//            }
+//        }
+//    }
 
     // https://developer.android.com/topic/libraries/architecture/viewmodel
     private fun observeViewModel() {

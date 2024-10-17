@@ -14,7 +14,8 @@
     <string name="settings">Settings</string>
 
     <!-- Main Activity -->
-    <string name="user_greeting">Hello, Username</string>
+    <string name="main_page_title">MediMinder Page Title</string>
+    <string name="selected_date">Selected Date</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

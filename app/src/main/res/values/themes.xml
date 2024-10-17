@@ -1,14 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MediMinder" parent="Theme.Material3.DayNight">
+    <style name="Base.Theme.MediMinder" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/indigoDye</item>
         <item name="colorPrimaryVariant">@color/indigoDye</item>
         <item name="colorOnPrimary">@color/white</item>
 
-<!--        <item name="android:windowActionBarOverlay">false</item>-->
-<!--        <item name="actionBarStyle">@style/Widget.App.ActionBar</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+
 
     <style name="Theme.MediMinder" parent="Base.Theme.MediMinder" />
 </resources>
