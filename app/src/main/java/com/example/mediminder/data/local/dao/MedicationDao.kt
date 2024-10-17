@@ -7,20 +7,32 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.mediminder.data.local.classes.Medication
+import java.time.LocalDate
 
 // Abstraction layer for the medication table in the database
 // https://developer.android.com/training/data-storage/room/accessing-data
 @Dao
 interface MedicationDao {
     @Query("SELECT * FROM medications")
-    fun getAll(): List<Medication>
+    suspend fun getAll(): List<Medication>
+
+    @Query("SELECT DISTINCT m.* FROM medications m " +
+            "JOIN schedules s ON m.id = s.medication_id " +
+            "WHERE s.start_date <= :date AND (s.end_date IS NULL OR s.end_date >= :date)")
+    suspend fun getMedicationsForDate(date: LocalDate): List<Medication>
+
+    @Query("SELECT COUNT(*) FROM medications")
+    suspend fun getMedicationCount(): Int
+
+    @Query("DELETE FROM medications")
+    suspend fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(medication: Medication)
+    suspend fun insert(medication: Medication): Long
 
     @Update
-    fun update(medication: Medication)
+    suspend fun update(medication: Medication)
 
     @Delete
-    fun delete(medication: Medication)
+    suspend fun delete(medication: Medication)
 }

@@ -1,10 +1,18 @@
 package com.example.mediminder.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.example.mediminder.data.local.classes.Dosage
 
 // Abstraction layer for the dosages table in the database
 // https://developer.android.com/training/data-storage/room/accessing-data
 @Dao
 interface DosageDao {
-    // todo: add methods here
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(dosage: Dosage): Long
+
+    @Query("DELETE FROM dosages")
+    suspend fun deleteAll()
 }

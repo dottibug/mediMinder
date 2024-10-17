@@ -6,6 +6,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mediminder.adapters.MainDateSelectorAdapter
+import com.example.mediminder.adapters.MainMedicationAdapter
+import com.example.mediminder.data.local.AppDatabase
+import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
@@ -15,6 +20,8 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
     private lateinit var binding: ActivityMainBinding
+    private lateinit var medicationAdapter: MainMedicationAdapter
+    private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,18 +31,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         WindowInsetsUtil.setupWindowInsets(binding.root)
 
+        setupDatabase()
         setupUI()
         observeViewModel()
-//        setupBackNavigation()
+    }
+
+    private fun setupDatabase() {
+        val database = AppDatabase.getDatabase(this)
+        val seeder = DatabaseSeeder(database.medicationDao(), database.dosageDao(), database.scheduleDao(), database.medicationLogDao())
+
+        lifecycleScope.launch {
+            seeder.clearDatabase()
+            seeder.seedDatabase()
+        }
     }
 
     private fun setupUI() {
         setupAppBar()
-//        setupToolbar()
         setupNavigationView()
+        setupRecyclerViews()
     }
 
-
+    // Set up the top app bar
     private fun setupAppBar() {
         binding.topAppBar.setNavigationOnClickListener {
             binding.drawerLayout.open()
@@ -52,33 +69,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
-    // Set up toolbar (replace back button with menu button that opens navigation drawer)
-//    private fun setupToolbar() {
-//        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-//        supportActionBar?.title = getString(R.string.app_name)
-//    }
-
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        menuInflater.inflate(R.menu.main_menu, menu)
-//        return true
-//    }
-
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.action_menu -> {
-//                if (binding.main.isDrawerOpen(GravityCompat.END)) {
-//                    binding.main.closeDrawer(GravityCompat.END)
-//                } else {
-//                    binding.main.openDrawer(GravityCompat.END)
-//                }
-//                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
 
     // Set up navigation drawer menu items
     private fun setupNavigationView() {
@@ -120,31 +110,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Handle back button press: Close navigation drawer if open, otherwise go back to previous screen
-//    private fun setupBackNavigation() {
-//        onBackPressedDispatcher.addCallback(this) {
-//            if (binding.main.isDrawerOpen(GravityCompat.END)) {
-//                binding.main.closeDrawer(GravityCompat.END)
-//            } else {
-//                isEnabled = false
-//                onBackPressedDispatcher.onBackPressed()
-//            }
-//        }
-//    }
+    private fun setupRecyclerViews() {
+        // Medications recycler view
+        medicationAdapter = MainMedicationAdapter()
+
+        binding.medicationList.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = medicationAdapter
+        }
+
+        // Date selector recycler view
+        dateSelectorAdapter = MainDateSelectorAdapter(emptyList()) { date ->
+            viewModel.selectDate(date)
+        }
+
+        binding.dateSelector.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = dateSelectorAdapter
+        }
+    }
 
     // https://developer.android.com/topic/libraries/architecture/viewmodel
     private fun observeViewModel() {
-        // Collect date changes from the view model
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
-                // todo: update ui with the selected date
+                binding.topAppBar.title = date.toString()
             }
         }
 
-        // Collect medication changes from the view model
         lifecycleScope.launch {
             viewModel.medications.collectLatest { medications ->
-                // todo: update ui with the medications for the selected date
+                medicationAdapter.updateMedications(medications)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.dateSelectorDates.collectLatest { dates ->
+                dateSelectorAdapter.updateDates(dates)
             }
         }
     }
