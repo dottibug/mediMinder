@@ -2,16 +2,21 @@ package com.example.mediminder
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
+import com.example.mediminder.data.repositories.MedicationWithDosage
 import com.example.mediminder.databinding.ActivityMainBinding
+import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -50,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         setupAppBar()
         setupNavigationView()
         setupRecyclerViews()
+        setupFab()
     }
 
     // Set up the top app bar
@@ -130,16 +136,71 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupFab() {
+        binding.fabAddMedication.setOnClickListener {
+            val addAsNeededMedicationDialog = AddAsNeededMedicationDialog()
+            addAsNeededMedicationDialog.show(supportFragmentManager, AddAsNeededMedicationDialog.TAG)
+        }
+    }
+
+    private fun showAddMedicationDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Add As-Needed Medication")
+            .setItems(arrayOf("Choose Existing", "Add New")) { _, option ->
+                when (option) {
+                    0 -> showExistingMedicationsDialog()
+                    1 -> showNewMedicationDialog()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+        dialog.show()
+    }
+
+    private fun showExistingMedicationsDialog() {
+        viewModel.viewModelScope.launch {
+            val asNeededMedications = viewModel.asNeededMedications.value
+            if (asNeededMedications.isEmpty()) {
+                Toast.makeText(this@MainActivity, "No as-needed medications available", Toast.LENGTH_SHORT).show()
+            } else {
+                val medicationNames = asNeededMedications.map { it.medication.name }.toTypedArray()
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Choose Medication")
+                    .setItems(medicationNames) { _, med ->
+                        val selectedMedication = asNeededMedications[med]
+                        addMedicationLog(selectedMedication)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun showNewMedicationDialog() {
+        // Implement this method to add a new as-needed medication
+        // This will involve creating a custom dialog or navigating to a new activity/fragment
+        Toast.makeText(this, "Add new medication feature not implemented yet", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun addMedicationLog(medicationWithDosage: MedicationWithDosage) {
+        viewModel.viewModelScope.launch {
+            // Implement this method to add a new medication log for the selected as-needed medication
+            // This should update the database and refresh the medication list
+            Toast.makeText(this@MainActivity, "Added ${medicationWithDosage.medication.name}", Toast.LENGTH_SHORT).show()
+            // TODO: Update database and refresh medication list
+        }
+    }
+
     // https://developer.android.com/topic/libraries/architecture/viewmodel
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
-                binding.topAppBar.title = date.toString()
+                binding.selectedDateText.text = date.toString()
             }
         }
 
         lifecycleScope.launch {
-            viewModel.medications.collectLatest { medications ->
+            viewModel.scheduledMedications.collectLatest { medications ->
                 medicationAdapter.updateMedications(medications)
             }
         }

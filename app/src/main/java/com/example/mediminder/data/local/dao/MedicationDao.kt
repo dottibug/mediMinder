@@ -13,6 +13,24 @@ import java.time.LocalDate
 // https://developer.android.com/training/data-storage/room/accessing-data
 @Dao
 interface MedicationDao {
+
+    // Get the scheduled medications for a given date (excludes as-needed medications)
+    @Query("SELECT DISTINCT m.* FROM medications m " +
+            "JOIN schedules s ON m.id = s.medication_id " +
+            "WHERE s.frequency_type != 'as_needed' AND s.start_date <= :date AND (s.end_date IS NULL OR s.end_date >= :date)")
+    suspend fun getScheduledMedicationsForDate(date: LocalDate): List<Medication>
+
+    // Get as-needed medications
+    @Query("SELECT DISTINCT m.* FROM medications m " +
+            "JOIN schedules s ON m.id = s.medication_id " +
+            "WHERE s.frequency_type = 'as_needed'")
+    suspend fun getAsNeededMedications(): List<Medication>
+
+
+
+
+
+    /////////////////////////
     @Query("SELECT * FROM medications")
     suspend fun getAll(): List<Medication>
 
