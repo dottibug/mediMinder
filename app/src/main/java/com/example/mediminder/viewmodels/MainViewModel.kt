@@ -92,8 +92,6 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
-
-
     // View model factory: Creates the main view model with medication repository as a dependency injection
     // https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-factories
     companion object {

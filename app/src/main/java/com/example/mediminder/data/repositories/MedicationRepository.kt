@@ -13,6 +13,12 @@ class MedicationRepository(
     private val scheduleDao: ScheduleDao
 ) {
 
+
+
+
+
+
+    //////////////////
     // TODO: this is used to check if the table is empty (but we maybe only need to count scheduled meds?)
     suspend fun getMedicationCount(): Int {
         return medicationDao.getMedicationCount()

@@ -18,6 +18,37 @@
     <string name="selected_date">Selected Date</string>
     <string name="add_medication">Add Medication</string>
 
+    <!-- Add New Medication Dialog -->
+    <string name="close_dialog">Close</string>
+    <string name="add_new_medication">Add New Medication</string>
+    <string name="medication_name_hint">Medication Name</string>
+    <string name="prescribing_doctor_hint">Prescribing Doctor</string>
+    <string name="notes_hint">Notes</string>
+    <string name="dosage">Dosage</string>
+    <string name="amount_hint">Amount</string>
+    <string name="units_hint">Units</string>
+
+    <array name="dosage_units">
+        <item>mcg</item>
+        <item>mg</item>
+        <item>mL</item>
+        <item>capsules</item>
+        <item>drops</item>
+        <item>puffs</item>
+        <item>tablets</item>
+        <item>units</item>
+    </array>
+
+    <string name="frequency">Frequency</string>
+
+    <array name="frequency_type">
+        <item>as needed</item>
+        <item>hourly</item>
+        <item>daily</item>
+        <item>weekly</item>
+        <item>monthly</item>
+    </array>
+
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

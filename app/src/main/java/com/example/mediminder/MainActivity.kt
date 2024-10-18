@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +17,7 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.data.repositories.MedicationWithDosage
 import com.example.mediminder.databinding.ActivityMainBinding
-import com.example.mediminder.fragments.AddAsNeededMedicationDialog
+import com.example.mediminder.fragments.AddMedicationDialog
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -137,24 +138,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFab() {
-        binding.fabAddMedication.setOnClickListener {
-            val addAsNeededMedicationDialog = AddAsNeededMedicationDialog()
-            addAsNeededMedicationDialog.show(supportFragmentManager, AddAsNeededMedicationDialog.TAG)
-        }
+        binding.fabAddMedication.setOnClickListener { showAddMedicationDialog() }
     }
 
+    // Show the "Add Medication" dialog
     private fun showAddMedicationDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Add As-Needed Medication")
-            .setItems(arrayOf("Choose Existing", "Add New")) { _, option ->
-                when (option) {
-                    0 -> showExistingMedicationsDialog()
-                    1 -> showNewMedicationDialog()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
-        dialog.show()
+        val addMedicationDialog = AddMedicationDialog()
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+        transaction
+            .add(android.R.id.content, addMedicationDialog)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun showExistingMedicationsDialog() {
@@ -174,12 +169,6 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         }
-    }
-
-    private fun showNewMedicationDialog() {
-        // Implement this method to add a new as-needed medication
-        // This will involve creating a custom dialog or navigating to a new activity/fragment
-        Toast.makeText(this, "Add new medication feature not implemented yet", Toast.LENGTH_SHORT).show()
     }
 
     private fun addMedicationLog(medicationWithDosage: MedicationWithDosage) {

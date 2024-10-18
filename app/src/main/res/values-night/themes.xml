@@ -6,6 +6,7 @@
         <item name="colorPrimaryVariant">@color/indigoDye</item>
         <item name="colorOnPrimary">@color/white</item>
 
-        <item name="android:windowTranslucentStatus">true</item>
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
+        <item name="colorSurface">@color/jet</item>
     </style>
 </resources>
