@@ -18,9 +18,9 @@
     <string name="selected_date">Selected Date</string>
     <string name="add_medication">Add Medication</string>
 
-    <!-- Add New Medication Dialog -->
-    <string name="close_dialog">Close</string>
+    <!-- Add Medication Activity -->
     <string name="add_new_medication">Add New Medication</string>
+    <string name="med_info">Medication Info</string>
     <string name="medication_name_hint">Medication Name</string>
     <string name="prescribing_doctor_hint">Prescribing Doctor</string>
     <string name="notes_hint">Notes</string>
@@ -39,15 +39,70 @@
         <item>units</item>
     </array>
 
-    <string name="frequency">Frequency</string>
+    <string name="set_reminder_frequency">Set Hourly or Daily Reminders</string>
+    <string name="reminder_frequency_menu_hint">Reminder frequency</string>
 
-    <array name="frequency_type">
-        <item>as needed</item>
-        <item>hourly</item>
-        <item>daily</item>
-        <item>weekly</item>
-        <item>monthly</item>
+    <array name="reminder_frequency_options">
+        <item>every x hours</item>
+        <item>x times daily</item>
     </array>
+
+    <!-- Hourly Reminder Popup Menu -->
+    <string name="hourly_30">30 minutes</string>
+    <string name="hourly_1">1 hour</string>
+    <string name="hourly_2">2 hours</string>
+    <string name="hourly_3">3 hours</string>
+    <string name="hourly_4">4 hours</string>
+    <string name="hourly_5">5 hours</string>
+    <string name="hourly_6">6 hours</string>
+    <string name="hourly_7">7 hours</string>
+    <string name="hourly_8">8 hours</string>
+    <string name="hourly_9">9 hours</string>
+    <string name="hourly_10">10 hours</string>
+    <string name="hourly_11">11 hours</string>
+    <string name="hourly_12">12 hours</string>
+
+    <!-- Reminder -->
+    <string name="reminder">Reminder</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="delete_reminder">Delete Reminder</string>
+    <string name="time_picker_button">Select Time</string>
+    <string name="add_reminder_time">Add Reminder Time</string>
+    <string name="reminder_type">Reminder Type</string>
+    <string name="reminder_type_info">Do you want an alarm or push notification?</string>
+    <string name="notification">Notify</string>
+    <string name="alarm">Alarm</string>
+
+    <string name="interval_placeholder">30 minutes</string>
+    <string name="start_time">Start time</string>
+
+    <array name="interval_options">
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>3 hours</item>
+        <item>4 hours</item>
+        <item>5 hours</item>
+        <item>6 hours</item>
+        <item>7 hours</item>
+        <item>8 hours</item>
+        <item>9 hours</item>
+        <item>10 hours</item>
+        <item>11 hours</item>
+        <item>12 hours</item>
+    </array>
+
+
+
+    <string name="start_date">Start Date</string>
+    <string name="date_picker_button">Select Date</string>
+    <string name="duration">Duration</string>
+    <string name="continuous">Continuous</string>
+    <string name="number_of_days">Number of Days</string>
+    <string name="days">Days</string>
+    <string name="every_day">Every day</string>
+    <string name="specific_days">Specific days</string>
+    <string name="interval">Remind every</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

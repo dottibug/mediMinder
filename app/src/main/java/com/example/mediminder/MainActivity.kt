@@ -1,23 +1,18 @@
 package com.example.mediminder
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
-import com.example.mediminder.data.repositories.MedicationWithDosage
 import com.example.mediminder.databinding.ActivityMainBinding
-import com.example.mediminder.fragments.AddMedicationDialog
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -138,45 +133,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFab() {
-        binding.fabAddMedication.setOnClickListener { showAddMedicationDialog() }
-    }
-
-    // Show the "Add Medication" dialog
-    private fun showAddMedicationDialog() {
-        val addMedicationDialog = AddMedicationDialog()
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-        transaction
-            .add(android.R.id.content, addMedicationDialog)
-            .addToBackStack(null)
-            .commit()
-    }
-
-    private fun showExistingMedicationsDialog() {
-        viewModel.viewModelScope.launch {
-            val asNeededMedications = viewModel.asNeededMedications.value
-            if (asNeededMedications.isEmpty()) {
-                Toast.makeText(this@MainActivity, "No as-needed medications available", Toast.LENGTH_SHORT).show()
-            } else {
-                val medicationNames = asNeededMedications.map { it.medication.name }.toTypedArray()
-                AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Choose Medication")
-                    .setItems(medicationNames) { _, med ->
-                        val selectedMedication = asNeededMedications[med]
-                        addMedicationLog(selectedMedication)
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
-        }
-    }
-
-    private fun addMedicationLog(medicationWithDosage: MedicationWithDosage) {
-        viewModel.viewModelScope.launch {
-            // Implement this method to add a new medication log for the selected as-needed medication
-            // This should update the database and refresh the medication list
-            Toast.makeText(this@MainActivity, "Added ${medicationWithDosage.medication.name}", Toast.LENGTH_SHORT).show()
-            // TODO: Update database and refresh medication list
+        binding.fabAddMedication.setOnClickListener {
+            val intent = Intent(this, AddMedicationActivity::class.java)
+            startActivity(intent)
         }
     }
 

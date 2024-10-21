@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/hourly_30"
+        android:title="@string/hourly_30" />
+    <item android:id="@+id/hourly_1"
+        android:title="@string/hourly_1" />
+    <item android:id="@+id/hourly_2"
+        android:title="@string/hourly_2"/>
+    <item android:id="@+id/hourly_3"
+        android:title="@string/hourly_3"/>
+    <item android:id="@+id/hourly_4"
+        android:title="@string/hourly_4"/>
+    <item android:id="@+id/hourly_5"
+        android:title="@string/hourly_5"/>
+    <item android:id="@+id/hourly_6"
+        android:title="@string/hourly_6"/>
+    <item android:id="@+id/hourly_7"
+        android:title="@string/hourly_7"/>
+    <item android:id="@+id/hourly_8"
+        android:title="@string/hourly_8"/>
+    <item android:id="@+id/hourly_9"
+        android:title="@string/hourly_9"/>
+    <item android:id="@+id/hourly_10"
+        android:title="@string/hourly_10"/>
+    <item android:id="@+id/hourly_11"
+        android:title="@string/hourly_11"/>
+    <item android:id="@+id/hourly_12"
+        android:title="@string/hourly_12"/>
+</menu>

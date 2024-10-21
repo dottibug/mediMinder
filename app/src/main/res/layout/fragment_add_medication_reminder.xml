@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutAddMedReminder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".fragments.AddMedicationReminderFragment">
+
+    <!-- Reminder -->
+    <TextView
+        android:id="@+id/headlineReminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reminder"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchReminder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/set_reminder" />
+
+    <LinearLayout
+        android:id="@+id/layoutReminderSetup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <!-- Frequency -->
+        <TextView
+            android:id="@+id/headlineFrequency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set_reminder_frequency"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputFrequencyType"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/reminder_frequency_menu_hint">
+
+        <AutoCompleteTextView
+            android:id="@+id/reminderFrequencyMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            app:simpleItems="@array/reminder_frequency_options" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Reminder: x times hourly -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/hourlyReminderOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Interval -->
+            <LinearLayout
+                android:id="@+id/layoutHourlyReminder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
+
+                <TextView
+                    android:id="@+id/textViewHourlyRemindEvery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval" />
+
+                <Button
+                    android:id="@+id/buttonHourlyRemindEvery"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval_placeholder" />
+            </LinearLayout>
+
+            <!-- Start Time -->
+            <LinearLayout
+                android:id="@+id/layoutReminderStartTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutHourlyReminder">
+
+                <TextView
+                    android:id="@+id/textViewStartTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/start_time" />
+
+                <Button
+                    android:id="@+id/buttonReminderStartTime"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_picker_button" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Reminder: x times daily -->
+        <LinearLayout
+            android:id="@+id/dailyReminderOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/dailyTimePickersContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <Button
+                android:id="@+id/buttonAddDailyTimeReminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_reminder_time"
+                app:icon="@drawable/ic_add" />
+
+        </LinearLayout>
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:id="@+id/dailyReminderOptions"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
+
+<!--            <LinearLayout-->
+<!--                android:id="@+id/layoutDailyTimePicker"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintVertical_bias="0.0">-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/buttonDeleteDailyTimeReminder"-->
+<!--                    style="?attr/materialIconButtonFilledStyle"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:contentDescription="@string/delete_reminder"-->
+<!--                    app:icon="@drawable/ic_close" />-->
+
+<!--                <Button-->
+<!--                    android:id="@+id/buttonDailyReminderTimePicker"-->
+<!--                    style="?attr/materialIconButtonOutlinedStyle"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@string/time_picker_button" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <Button-->
+<!--                android:id="@+id/buttonAddDailyTimeReminder"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/add_reminder_time"-->
+<!--                app:icon="@drawable/ic_add"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_bias="0.0"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/layoutDailyTimePicker" />-->
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <!-- Reminder Type -->
+    <TextView
+        android:id="@+id/headlineReminderType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reminder_type"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+    <TextView
+        android:id="@+id/reminderTypeInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reminder_type_info" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleReminderType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/buttonReminderTypeNotify"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/alarm" />
+
+        <Button
+            android:id="@+id/buttonReminderTypeAlarm"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notification" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+    </LinearLayout>
+</LinearLayout>

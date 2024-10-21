@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutAddMedSchedule"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".fragments.AddMedicationScheduleFragment">
+
+    <!-- Schedule -->
+    <TextView
+        android:id="@+id/headlineSchedule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/schedule"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+
+    <!-- Start Date -->
+    <LinearLayout
+        android:id="@+id/layoutAddMedStartDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textViewAddMedStartDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_date" />
+
+        <Button
+            android:id="@+id/buttonAddMedStartDate"
+            style="?attr/materialIconButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date_picker_button" />
+    </LinearLayout>
+
+    <!-- Duration -->
+    <TextView
+        android:id="@+id/textViewAddMedDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/duration" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupAddMedDuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@+id/radioDurationContinuous">
+
+        <RadioButton
+            android:id="@+id/radioDurationContinuous"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:enabled="true"
+            android:text="@string/continuous" />
+
+        <RadioButton
+            android:id="@+id/radioDurationNumDays"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checked="false"
+            android:enabled="true"
+            android:text="@string/number_of_days" />
+    </RadioGroup>
+
+    <!-- Days -->
+    <TextView
+        android:id="@+id/textViewAddMedDays"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/days" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupAddMedDays"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkedButton="@+id/radioDaysEveryDay">
+
+        <RadioButton
+            android:id="@+id/radioDaysEveryDay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:enabled="true"
+            android:text="@string/every_day" />
+
+        <RadioButton
+            android:id="@+id/radioDaysSpecificDays"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checked="false"
+            android:enabled="true"
+            android:text="@string/specific_days" />
+
+        <RadioButton
+            android:id="@+id/radioDaysInterval"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checked="false"
+            android:enabled="true"
+            android:text="@string/interval" />
+    </RadioGroup>
+
+</LinearLayout>
