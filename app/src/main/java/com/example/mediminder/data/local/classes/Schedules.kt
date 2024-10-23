@@ -20,8 +20,8 @@ data class Schedules (
     @ColumnInfo(name = "medication_id") val medicationId: Long,
     @ColumnInfo(name = "frequency_type") val frequencyType: String,
     @ColumnInfo(name = "frequency_amount") val frequencyAmount: Int?,
-    @ColumnInfo(name = "start_date") val startDate: LocalDate, // Stored as epoch day (days since epoch)
-    @ColumnInfo(name = "end_date") val endDate: LocalDate?, // Stored as epoch day (days since epoch)
+    @ColumnInfo(name = "start_date") val startDate: LocalDate, //
+    @ColumnInfo(name = "end_date") val endDate: LocalDate?,
     @ColumnInfo(name = "days_of_week") val daysOfWeek: String?, // Use comma-separated string of numbers (0-6) to represent days of the week
     @ColumnInfo(name = "time_of_day") val timeOfDay: LocalTime?,
     @ColumnInfo(name = "days_of_month") val daysOfMonth: String? // Use comma-separated string of numbers (1-31) to represent days of the month

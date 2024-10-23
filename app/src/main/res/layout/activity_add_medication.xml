@@ -7,7 +7,7 @@
     android:id="@+id/main"
     tools:context=".AddMedicationActivity">
 
-        <!-- Content -->
+    <!-- Content -->
     <ScrollView
         android:id="@+id/scrollAddMed"
         android:layout_width="match_parent"
@@ -35,7 +35,7 @@
                 android:id="@+id/headlineAddMed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/add_new_medication"
+                android:text="@string/add_new_medication_title"
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
@@ -73,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/add_medication" />
+                android:text="@string/button_add_medication" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

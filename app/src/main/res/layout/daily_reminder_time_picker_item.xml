@@ -10,7 +10,7 @@
         style="?attr/materialIconButtonFilledStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/delete_reminder"
+        android:contentDescription="@string/button_delete_reminder"
         app:icon="@drawable/ic_close" />
 
     <Button
@@ -18,6 +18,6 @@
         style="?attr/materialIconButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/time_picker_button" />
+        android:text="@string/button_time_picker" />
 
 </LinearLayout>

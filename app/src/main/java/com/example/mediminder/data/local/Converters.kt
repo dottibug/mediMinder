@@ -10,7 +10,7 @@ import java.time.ZoneOffset
 // https://developer.android.com/training/data-storage/room/referencing-data
 class Converters {
     // -------------------------------------------------------------
-    // Converters for LocalDate (epochDay: days since epoch)
+    // Converters for LocalDate
     // -------------------------------------------------------------
     @TypeConverter
     fun fromLongToLocalDate(dbValue: Long?): LocalDate? {

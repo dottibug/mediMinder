@@ -1,34 +1,22 @@
 <resources>
-    <!-- App -->
-    <string name="app_name">MediMinder</string>
-    <string name="app_logo_description">MediMinder Logo</string>
-    <string name="menu_button_description">Main Menu</string>
 
-    <!-- Main Menu -->
-    <string name="home">Home</string>
-    <string name="profile">Profile</string>
-    <string name="medications">Medications</string>
-    <string name="schedule">Schedule</string>
-    <string name="tracking">Tracking</string>
-    <string name="refills">Refills</string>
-    <string name="settings">Settings</string>
+    <!-- ADD MEDICATION FRAGMENTS -->
+    <string name="add_new_medication_title">Add New Medication</string>
+    <string name="button_add_medication">Add Medication</string>
+    <string name="button_edit">Edit</string>
 
-    <!-- Main Activity -->
-    <string name="main_page_title">MediMinder Page Title</string>
-    <string name="selected_date">Selected Date</string>
-    <string name="add_medication">Add Medication</string>
+    <!-- Medication Info -->
+    <string name="med_info_title">Medication Info</string>
+    <string name="med_name_hint">Medication Name</string>
+    <string name="doctor_hint">Doctor</string>
+    <string name="med_notes_hint">Notes</string>
 
-    <!-- Add Medication Activity -->
-    <string name="add_new_medication">Add New Medication</string>
-    <string name="med_info">Medication Info</string>
-    <string name="medication_name_hint">Medication Name</string>
-    <string name="prescribing_doctor_hint">Prescribing Doctor</string>
-    <string name="notes_hint">Notes</string>
-    <string name="dosage">Dosage</string>
-    <string name="amount_hint">Amount</string>
-    <string name="units_hint">Units</string>
+    <!-- Medication Dosage -->
+    <string name="dosage_title">Dosage</string>
+    <string name="dosage_amount_hint">Amount</string>
+    <string name="dosage_units_hint">Units</string>
 
-    <array name="dosage_units">
+    <array name="dosage_units_array">
         <item>mcg</item>
         <item>mg</item>
         <item>mL</item>
@@ -39,9 +27,23 @@
         <item>units</item>
     </array>
 
-    <string name="set_reminder_frequency">Set Hourly or Daily Reminders</string>
+    <!-- Medication Reminders -->
+    <string name="reminder_title">Reminder Options</string>
+    <string name="switch_set_reminder">Set Reminder</string>
+    <string name="reminder_frequency_heading">Set Hourly or Daily Reminders</string>
     <string name="reminder_frequency_menu_hint">Reminder frequency</string>
+    <string name="reminder_interval_label">Remind every</string>
+    <string name="reminder_interval_placeholder">30 minutes</string>
+    <string name="start_time_label">Start time</string>
+    <string name="button_delete_reminder">Delete Reminder</string>
+    <string name="button_time_picker">Select Time</string>
+    <string name="button_add_reminder_time">Add Reminder Time</string>
+    <string name="reminder_type_label">Reminder Type</string>
+    <string name="reminder_type_instructions">Do you want an alarm or push notification?</string>
+    <string name="button_alarm">Alarm</string>
+    <string name="button_notify">Notify</string>
 
+    <!-- Reminder frequency options -->
     <array name="reminder_frequency_options">
         <item>every x hours</item>
         <item>x times daily</item>
@@ -62,52 +64,65 @@
     <string name="hourly_11">11 hours</string>
     <string name="hourly_12">12 hours</string>
 
-    <!-- Reminder -->
-    <string name="reminder">Reminder</string>
-    <string name="set_reminder">Set Reminder</string>
-    <string name="delete_reminder">Delete Reminder</string>
-    <string name="time_picker_button">Select Time</string>
-    <string name="add_reminder_time">Add Reminder Time</string>
-    <string name="reminder_type">Reminder Type</string>
-    <string name="reminder_type_info">Do you want an alarm or push notification?</string>
-    <string name="notification">Notify</string>
-    <string name="alarm">Alarm</string>
+    <!-- Medication Schedule -->
+    <string name="schedule_title">Schedule</string>
+    <string name="start_date_label">Start Date</string>
+    <string name="button_date_picker">Select Date</string>
+    <string name="duration_title">Duration</string>
+    <string name="radio_continuous">Continuous</string>
+    <string name="radio_num_days">Number of Days</string>
+    <string name="num_days_summary_label">Reminders will be set for:</string>
+    <string name="num_days_summary_value">%s days</string>
+    <string name="days_title">Days</string>
+    <string name="radio_daily">Every day</string>
+    <string name="radio_specific_days">Specific days</string>
+    <string name="radio_day_interval">Remind every</string>
+    <string name="day_selection_summary_label">Reminders will be set on:</string>
+    <string name="day_selection_summary_value">%s</string>
 
-    <string name="interval_placeholder">30 minutes</string>
-    <string name="start_time">Start time</string>
+    <!-- DIALOGS -->
+    <string name="cancel">Cancel</string>
+    <string name="set">Set</string>
 
-    <array name="interval_options">
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>2 hours</item>
-        <item>3 hours</item>
-        <item>4 hours</item>
-        <item>5 hours</item>
-        <item>6 hours</item>
-        <item>7 hours</item>
-        <item>8 hours</item>
-        <item>9 hours</item>
-        <item>10 hours</item>
-        <item>11 hours</item>
-        <item>12 hours</item>
-    </array>
+    <!-- Duration Dialog -->
+    <string name="duration_dialog_title">Reminder Duration</string>
+    <string name="duration_dialog_instructions">Enter the number of days to receive reminders for this medication.</string>
+    <string name="duration_input_hint">Number of days</string>
+
+    <!-- Specific Days Dialog -->
+    <string name="specific_days_dialog_title">Select Days</string>
+    <string name="specific_days_dialog_instructions">Select the days of the week to receive reminders for this medication.</string>
+    <string name="checkbox_sunday">Sunday</string>
+    <string name="checkbox_monday">Monday</string>
+    <string name="checkbox_tuesday">Tuesday</string>
+    <string name="checkbox_wednesday">Wednesday</string>
+    <string name="checkbox_thursday">Thursday</string>
+    <string name="checkbox_friday">Friday</string>
+    <string name="checkbox_saturday">Saturday</string>
 
 
+<!--    ///////////////////////////////////////////////-->
+    <!-- App -->
+    <string name="app_name">MediMinder</string>
+    <string name="app_logo_description">MediMinder Logo</string>
+    <string name="menu_button_description">Main Menu</string>
 
-    <string name="start_date">Start Date</string>
-    <string name="date_picker_button">Select Date</string>
-    <string name="duration">Duration</string>
-    <string name="continuous">Continuous</string>
-    <string name="number_of_days">Number of Days</string>
-    <string name="days">Days</string>
-    <string name="every_day">Every day</string>
-    <string name="specific_days">Specific days</string>
-    <string name="interval">Remind every</string>
+    <!-- Main Menu -->
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+    <string name="medications">Medications</string>
+    <string name="schedule">Schedule</string>
+    <string name="tracking">Tracking</string>
+    <string name="refills">Refills</string>
+    <string name="settings">Settings</string>
+
+    <!-- Main Activity -->
+    <string name="main_page_title">MediMinder Page Title</string>
+    <string name="selected_date">Selected Date</string>
+    <string name="add_medication">Add Medication</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

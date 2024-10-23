@@ -12,7 +12,7 @@
         android:id="@+id/headlineMedInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/med_info"
+        android:text="@string/med_info_title"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="@string/medication_name_hint">
+        android:hint="@string/med_name_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputMedName"
@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="@string/prescribing_doctor_hint">
+        android:hint="@string/doctor_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputDoctor"
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="9dp"
-        android:hint="@string/notes_hint">
+        android:hint="@string/med_notes_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputMedNotes"

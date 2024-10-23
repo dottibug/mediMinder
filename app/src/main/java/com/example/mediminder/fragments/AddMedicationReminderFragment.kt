@@ -1,7 +1,6 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -51,15 +50,17 @@ class AddMedicationReminderFragment : Fragment() {
             viewModel.setReminderFrequency(selectedFrequency) // Update the ViewModel with the selected frequency
         }
 
-        // "Hourly reminder" menu button
+        // Click listeners
         binding.buttonHourlyRemindEvery.setOnClickListener { showHourlyReminderPopupMenu() }
-
-        // Time picker buttons
         binding.buttonReminderStartTime.setOnClickListener { showTimePickerDialog("hourly") }
-//        binding.buttonDailyReminderTimePicker.setOnClickListener { showTimePickerDialog("daily") }
-
-        // "Add reminder" button
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
+
+        // "Reminder type" toggle button
+        binding.toggleReminderType.addOnButtonCheckedListener { toggleButton, checkedId, _ ->
+            val checkedButton = toggleButton.findViewById<Button>(checkedId)
+            val reminderType = checkedButton.text.toString()
+            viewModel.setReminderType(reminderType)
+        }
     }
 
     // Set up observers for LiveData
@@ -75,21 +76,14 @@ class AddMedicationReminderFragment : Fragment() {
         }
 
         // Dynamically render the frequency options based on the selected frequency
-        viewModel.reminderFrequency.observe(viewLifecycleOwner) { frequency ->
-            showFrequencyOptions(frequency)
-        }
+        viewModel.reminderFrequency.observe(viewLifecycleOwner) { frequency -> showFrequencyOptions(frequency) }
 
-        // Observe the list of daily reminder times (to update the UI accordingly)
-        viewModel.dailyReminderTimes.observe(viewLifecycleOwner) { times ->
-            updateDailyTimePickers(times)
-        }
+        // Observe the list of daily reminder times (to update the UI accordingly when the list changes)
+        viewModel.dailyReminderTimes.observe(viewLifecycleOwner) { times -> updateDailyTimePickers(times) }
     }
 
-    // Add new default time to the list of daily reminder times (the UI will update with a new
-    // time picker button for the user)
-    private fun addDailyTimePicker() {
-        viewModel.addDailyReminderTime(12, 0) // Default 12:00 PM
-    }
+    // Add a new time picker button to the list of daily reminder times (defaults to 12:00 PM)
+    private fun addDailyTimePicker() { viewModel.addDailyReminderTime(12, 0) }
 
     private fun updateDailyTimePickers(times: List<Pair<Int, Int>>) {
         binding.dailyTimePickersContainer.removeAllViews()
@@ -103,7 +97,7 @@ class AddMedicationReminderFragment : Fragment() {
             // Set the time picker button text (time.first = hour, time.second = minute)
             updateTimePickerButtonText(time.first, time.second, timePickerButton)
 
-            // Set click listeners for the time picker button and delete button
+            // Click listeners
             timePickerButton.setOnClickListener { showTimePickerDialog("daily", index) }
             deleteButton.setOnClickListener { viewModel.removeDailyReminderTime(index) }
 
@@ -124,10 +118,9 @@ class AddMedicationReminderFragment : Fragment() {
         val popup = PopupMenu(requireContext(), binding.buttonHourlyRemindEvery)
         popup.menuInflater.inflate(R.menu.hourly_reminder_popup_menu, popup.menu)
 
+        // Update the view model and button text when a menu item is selected
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
-            // Set button text to the selected menu item
             binding.buttonHourlyRemindEvery.text = menuItem.title
-            // Update the ViewModel with the selected interval
             viewModel.setHourlyReminderInterval(menuItem.title.toString())
             true
         }
@@ -159,20 +152,13 @@ class AddMedicationReminderFragment : Fragment() {
 
             when (reminderType) {
                 "hourly" -> {
-                    // Update the UI with the selected time
                     updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
-                    // Update the ViewModel with the selected time
                     viewModel.setHourlyReminderStartTime(hour, minute)
-            }
+                }
+
                 "daily" -> {
-                    Log.i("testcat", "time picker dialog: $hour, minute: $minute")
-                    Log.i("testcat", "index: $index")
-                    if (index >= 0) {
-                        viewModel.updateDailyReminderTime(index, hour, minute)
-                    }
-
+                    if (index >= 0) { viewModel.updateDailyReminderTime(index, hour, minute) }
                     else { viewModel.addDailyReminderTime(hour, minute) }
-
                 }
             }
         }
@@ -180,20 +166,9 @@ class AddMedicationReminderFragment : Fragment() {
 
     // Update the time picker button text
     private fun updateTimePickerButtonText(hour: Int, minute: Int, button: Button) {
-        Log.i("testcat", "button text should update")
-
-
-        // Convert hour to 12-hour format
         val convertedHour = appUtils.convert24HourTo12Hour(hour)
-
-        // Get the AM/PM indicator
         val amPm = if (hour < 12) "AM" else "PM"
-
-        // Create the formatted string: "12:00 AM" or "5:00 PM"
         val formattedTime = String.format(Locale.CANADA, "%1d:%02d %s", convertedHour, minute, amPm)
-
-        Log.i("testcat", "formatted time: $formattedTime")
-
         button.text = formattedTime
     }
 }

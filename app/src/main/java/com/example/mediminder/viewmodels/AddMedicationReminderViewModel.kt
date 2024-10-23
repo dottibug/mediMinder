@@ -1,11 +1,11 @@
 package com.example.mediminder.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class AddMedicationReminderViewModel: ViewModel() {
+
     private val _isReminderEnabled = MutableLiveData<Boolean>(false)
     val isReminderEnabled: LiveData<Boolean> = _isReminderEnabled
 
@@ -15,11 +15,14 @@ class AddMedicationReminderViewModel: ViewModel() {
     private val _hourlyReminderInterval = MutableLiveData<String>() // 30 minutes, 1 hour, .. 12 hours
     val hourlyReminderInterval: LiveData<String> = _hourlyReminderInterval
 
-    private val _hourlyReminderStartTime = MutableLiveData<Pair<Int, Int>>() // [hour, minute]
+    private val _hourlyReminderStartTime = MutableLiveData<Pair<Int, Int>>() // (hour, minute)
     val hourlyReminderStartTime: LiveData<Pair<Int, Int>> = _hourlyReminderStartTime
 
     private val _dailyReminderTimes = MutableLiveData<List<Pair<Int, Int>>>(mutableListOf()) // (hour, minute)
     val dailyReminderTimes: LiveData<List<Pair<Int, Int>>> = _dailyReminderTimes
+
+    private val _reminderType = MutableLiveData<String>("Alarm") // default to alarm
+    val reminderType: LiveData<String> = _reminderType
 
 
     fun setReminderEnabled(enabled: Boolean) {
@@ -30,42 +33,6 @@ class AddMedicationReminderViewModel: ViewModel() {
         _reminderFrequency.value = freq
     }
 
-    private fun sortDailyReminderTimes(times: List<Pair<Int, Int>>): MutableList<Pair<Int, Int>> {
-        val sortedTimes = times.sortedBy { it.first }
-        return sortedTimes.toMutableList()
-    }
-
-    // Add new time to the list of daily reminder times for a medication
-    // The new time defaults to 12:00 PM. The list does not need to be sorted, as the user has yet
-    // to select a time
-    fun addDailyReminderTime(hour: Int, minute: Int) {
-        val times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
-        times.add(Pair(hour, minute))
-        _dailyReminderTimes.value = times
-    }
-
-    // Update the time at the specified index in the list, then sort the list by hour, ascending
-    fun updateDailyReminderTime(index: Int, hour: Int, minute: Int) {
-        var times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
-        if (index in times.indices) {
-            times[index] = Pair(hour, minute)
-            times = sortDailyReminderTimes(times)
-            _dailyReminderTimes.value = times
-        }
-    }
-
-    // Remove a specific time from the list of daily reminder times for a medication
-    fun removeDailyReminderTime(index: Int) {
-        val times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
-        if (index in times.indices) {
-            times.removeAt(index)
-            _dailyReminderTimes.value = times
-        }
-    }
-
-
-    ///////
-
     fun setHourlyReminderInterval(interval: String) {
         _hourlyReminderInterval.value = interval
     }
@@ -75,17 +42,38 @@ class AddMedicationReminderViewModel: ViewModel() {
         _hourlyReminderStartTime.value = Pair(hour, minute)
     }
 
-    // Note: minute is 0 to 60, hour is 0 to 23
-    fun setDailyReminderTimes(hour: Int, minute: Int) {
-        // Add as a pair to the list
+    private fun sortDailyReminderTimes(times: List<Pair<Int, Int>>): MutableList<Pair<Int, Int>> {
+        val sortedTimes = times.sortedBy { it.first }
+        return sortedTimes.toMutableList()
+    }
+
+    // Add a daily reminder time (defaults to 12:00 PM)
+    fun addDailyReminderTime(hour: Int, minute: Int) {
         val times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
         times.add(Pair(hour, minute))
         _dailyReminderTimes.value = times
-
-        // Sort the list by the hour (ascending)
-        _dailyReminderTimes.value = times.sortedBy { it.first }
-
-        Log.i("testcat", "setDailyReminderTimes: ${_dailyReminderTimes.value}")
     }
 
+    // Update daily reminder time at the specified index. Sorts the list by hour (ascending)
+    fun updateDailyReminderTime(index: Int, hour: Int, minute: Int) {
+        var times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
+        if (index in times.indices) {
+            times[index] = Pair(hour, minute)
+            times = sortDailyReminderTimes(times)
+            _dailyReminderTimes.value = times
+        }
+    }
+
+    // Remove a specific daily reminder time
+    fun removeDailyReminderTime(index: Int) {
+        val times = _dailyReminderTimes.value?.toMutableList() ?: mutableListOf()
+        if (index in times.indices) {
+            times.removeAt(index)
+            _dailyReminderTimes.value = times
+        }
+    }
+
+    fun setReminderType(type: String) {
+        _reminderType.value = type
+    }
 }
