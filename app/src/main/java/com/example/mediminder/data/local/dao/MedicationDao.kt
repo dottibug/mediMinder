@@ -13,6 +13,9 @@ import com.example.mediminder.data.local.classes.Medication
 @Dao
 interface MedicationDao {
 
+    @Query("SELECT * FROM medications WHERE reminder_enabled = 1")
+    suspend fun getAllWithRemindersEnabled(): List<Medication>
+
     @Query("SELECT * FROM medications")
     suspend fun getAll(): List<Medication>
 

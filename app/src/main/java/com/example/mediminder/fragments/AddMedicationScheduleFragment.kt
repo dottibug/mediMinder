@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentAddMedicationScheduleBinding
@@ -19,8 +19,8 @@ import java.time.format.DateTimeFormatter
 
 class AddMedicationScheduleFragment : Fragment() {
     private lateinit var binding: FragmentAddMedicationScheduleBinding
-    private val scheduleViewModel: AddMedicationScheduleViewModel by viewModels()
-    private val addMedViewModel: AddMedicationViewModel by viewModels { AddMedicationViewModel.Factory }
+    private val scheduleViewModel: AddMedicationScheduleViewModel by activityViewModels()
+    private val addMedViewModel: AddMedicationViewModel by activityViewModels { AddMedicationViewModel.Factory }
     private val appUtils = AppUtils()
     private var prevScheduleWasDaily: Boolean = true
     private lateinit var selectedDays: List<String>

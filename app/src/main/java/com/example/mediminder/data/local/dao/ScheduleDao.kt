@@ -13,6 +13,9 @@ interface ScheduleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(schedule: Schedules): Long
 
+    @Query("SELECT * FROM schedules WHERE medication_id = :medicationId")
+    suspend fun getScheduleByMedicationId(medicationId: Long): Schedules?
+
     @Query("DELETE FROM schedules")
     suspend fun deleteAll()
 }

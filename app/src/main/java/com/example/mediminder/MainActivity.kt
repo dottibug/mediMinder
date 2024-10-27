@@ -18,6 +18,7 @@ import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
@@ -44,8 +45,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             seeder.clearDatabase()
             seeder.seedDatabase()
-
-            viewModel.fetchMedications()
+            viewModel.fetchMedicationsForDate(LocalDate.now())
         }
     }
 
@@ -126,8 +126,7 @@ class MainActivity : AppCompatActivity() {
 
         // Date selector recycler view
         dateSelectorAdapter = MainDateSelectorAdapter(emptyList()) { date ->
-//            viewModel.selectDate(date)
-            // todo
+            viewModel.selectDate(date)
         }
 
         binding.dateSelector.apply {
@@ -140,7 +139,7 @@ class MainActivity : AppCompatActivity() {
 
     private val addMedicationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            viewModel.fetchMedications()
+            viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
         }
     }
 
@@ -157,6 +156,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
                 binding.selectedDateText.text = date.toString()
+                viewModel.fetchMedicationsForDate(date)
             }
         }
 

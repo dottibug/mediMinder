@@ -1,6 +1,7 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -8,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentAddMedicationReminderBinding
@@ -23,8 +24,8 @@ import java.util.Locale
 
 class AddMedicationReminderFragment : Fragment() {
     private lateinit var binding: FragmentAddMedicationReminderBinding
-    private val reminderViewModel: AddMedicationReminderViewModel by viewModels()
-    private val addMedViewModel: AddMedicationViewModel by viewModels { AddMedicationViewModel.Factory }
+    private val reminderViewModel: AddMedicationReminderViewModel by activityViewModels()
+    private val addMedViewModel: AddMedicationViewModel by activityViewModels { AddMedicationViewModel.Factory }
     private val appUtils = AppUtils()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -84,6 +85,7 @@ class AddMedicationReminderFragment : Fragment() {
                 } else {
                     binding.layoutReminderSetup.visibility = View.GONE
                 }
+                Log.d("testcat", "Reminder enabled in observer: $isEnabled")
                 addMedViewModel.updateIsReminderEnabled(isEnabled)
             }
         }

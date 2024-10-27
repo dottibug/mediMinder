@@ -36,11 +36,20 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         return (-3..3).map { today.plusDays(it.toLong()) }
     }
 
-
-    fun fetchMedications() {
+    fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
-            _medications.value = repository.getAllMedicationsWithDosages()
+            _medications.value = repository.getMedicationsForDate(date)
         }
+    }
+
+    fun selectDate(date: LocalDate) {
+        _selectedDate.value = date
+        fetchMedicationsForDate(date)
+    }
+
+    // Initialize medications for the current date
+    init {
+        fetchMedicationsForDate(LocalDate.now())
     }
 
 
