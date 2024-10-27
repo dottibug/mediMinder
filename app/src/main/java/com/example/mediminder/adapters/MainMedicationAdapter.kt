@@ -1,16 +1,20 @@
 package com.example.mediminder.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mediminder.data.repositories.MedicationWithDosage
+import com.example.mediminder.data.local.classes.Dosage
+import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.ItemMedicationBinding
 
 class MainMedicationAdapter: RecyclerView.Adapter<MainMedicationAdapter.MedicationViewHolder>() {
-    private var medications: List<MedicationWithDosage> = emptyList()
+    private var medications: List<Pair<Medication, Dosage?>> = emptyList()
 
-    fun updateMedications(newMedications: List<MedicationWithDosage>) {
+    fun setMedications(newMedications: List<Pair<Medication, Dosage?>>) {
         medications = newMedications
+        Log.d("testcat MainMedicationAdapter", "Received ${medications.size} medications")
+
         notifyDataSetChanged()
     }
 
@@ -19,23 +23,21 @@ class MainMedicationAdapter: RecyclerView.Adapter<MainMedicationAdapter.Medicati
         return MedicationViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: MainMedicationAdapter.MedicationViewHolder, position: Int) {
-        val medicationWithDosage = medications[position]
-        holder.bind(medicationWithDosage)
+    override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
+        val (medication, dosage) = medications[position]
+        holder.bind(medication, dosage)
     }
 
     override fun getItemCount(): Int = medications.size
 
     class MedicationViewHolder(private val binding: ItemMedicationBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(medicationWithDosage: MedicationWithDosage) {
-            val medication = medicationWithDosage.medication
-            val dosage = medicationWithDosage.dosage
-
+        // Your MedicationViewHolder implementation here
+        fun bind(medication: Medication, dosage: Dosage?) {
             binding.medicationName.text = medication.name
             binding.medicationNotes.text = medication.notes
-            binding.medicationDosage.text = "${dosage?.amount} ${dosage?.units}" ?: "No dosage info"
+            binding.medicationDosage.text = dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
+            Log.d("testcat MedicationViewHolder", "Binding medication: ${medication.name}")
 
         }
     }
-
 }

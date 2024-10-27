@@ -18,6 +18,6 @@ import androidx.room.PrimaryKey
 data class Dosage (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,
-    @ColumnInfo(name = "amount") val amount: Double,
+    @ColumnInfo(name = "amount") val amount: String,
     @ColumnInfo(name= "units") val units: String
 )

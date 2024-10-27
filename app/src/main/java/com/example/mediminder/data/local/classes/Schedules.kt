@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
-import java.time.LocalTime
 
 // Represents a schedule row in the schedules table (associated with a medication)
 @Entity(tableName = "schedules",
@@ -18,11 +17,10 @@ import java.time.LocalTime
 data class Schedules (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,
-    @ColumnInfo(name = "frequency_type") val frequencyType: String,
-    @ColumnInfo(name = "frequency_amount") val frequencyAmount: Int?,
-    @ColumnInfo(name = "start_date") val startDate: LocalDate, //
-    @ColumnInfo(name = "end_date") val endDate: LocalDate?,
-    @ColumnInfo(name = "days_of_week") val daysOfWeek: String?, // Use comma-separated string of numbers (0-6) to represent days of the week
-    @ColumnInfo(name = "time_of_day") val timeOfDay: LocalTime?,
-    @ColumnInfo(name = "days_of_month") val daysOfMonth: String? // Use comma-separated string of numbers (1-31) to represent days of the month
+    @ColumnInfo(name = "start_date") val startDate: LocalDate,
+    @ColumnInfo(name = "duration_type") val durationType: String,
+    @ColumnInfo(name = "num_days") val numDays: Int?,
+    @ColumnInfo(name = "schedule_type") val scheduleType: String,
+    @ColumnInfo(name = "selected_days") val selectedDays: String,
+    @ColumnInfo(name = "days_interval") val daysInterval: Int?
 )

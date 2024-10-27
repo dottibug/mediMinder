@@ -1,20 +1,56 @@
 package com.example.mediminder
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.mediminder.databinding.ActivityAddMedicationBinding
+import com.example.mediminder.fragments.AddMedicationDosageFragment
+import com.example.mediminder.fragments.AddMedicationInfoFragment
+import com.example.mediminder.utils.WindowInsetsUtil
+import com.example.mediminder.viewmodels.AddMedicationViewModel
+import kotlinx.coroutines.launch
 
 class AddMedicationActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityAddMedicationBinding
+    private val windowUtils = WindowInsetsUtil
+    private val addMedViewModel: AddMedicationViewModel by viewModels { AddMedicationViewModel.Factory }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_add_medication)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        binding = ActivityAddMedicationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        windowUtils.setupWindowInsets(binding.root)
+
+        binding.buttonAddMed.setOnClickListener {
+            Log.i("testcat", "add med button clicked")
+
+            lifecycleScope.launch {
+                val medicationFragment = supportFragmentManager.findFragmentById(R.id.fragmentAddMedInfo) as AddMedicationInfoFragment?
+                val medicationData = medicationFragment?.getMedicationData()
+
+                val dosageFragment = supportFragmentManager.findFragmentById(R.id.fragmentAddMedDosage) as AddMedicationDosageFragment?
+                val dosageData = dosageFragment?.getDosageData()
+
+                val reminderData = addMedViewModel.getReminderData()
+                val scheduleData = addMedViewModel.getScheduleData()
+
+                if (medicationData != null && dosageData != null && reminderData != null && scheduleData != null) {
+                    addMedViewModel.saveMedication(medicationData, dosageData, reminderData, scheduleData)
+                    setResult(RESULT_OK)
+                    // TODO: show a toast message?
+                    finish()
+                } else {
+                    // error message
+                }
+
+
+            }
+
         }
     }
 }

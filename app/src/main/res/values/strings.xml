@@ -79,6 +79,8 @@
     <string name="radio_day_interval">Remind every</string>
     <string name="day_selection_summary_label">Reminders will be set on:</string>
     <string name="day_selection_summary_value">%s</string>
+    <string name="days_interval_summary_label">Reminders will be set every:</string>
+    <string name="days_interval_summary_value">%s days</string>
 
     <!-- DIALOGS -->
     <string name="cancel">Cancel</string>
@@ -89,9 +91,9 @@
     <string name="duration_dialog_instructions">Enter the number of days to receive reminders for this medication.</string>
     <string name="duration_input_hint">Number of days</string>
 
-    <!-- Specific Days Dialog -->
-    <string name="specific_days_dialog_title">Select Days</string>
-    <string name="specific_days_dialog_instructions">Select the days of the week to receive reminders for this medication.</string>
+    <!-- Day Selection Dialog -->
+    <string name="day_selection_dialog_title">Select Days</string>
+    <string name="day_selection_dialog_instructions">Select the days of the week to receive reminders for this medication.</string>
     <string name="checkbox_sunday">Sunday</string>
     <string name="checkbox_monday">Monday</string>
     <string name="checkbox_tuesday">Tuesday</string>
@@ -100,8 +102,12 @@
     <string name="checkbox_friday">Friday</string>
     <string name="checkbox_saturday">Saturday</string>
 
+    <!-- Schedule Interval Dialog -->
+    <string name="interval_dialog_title">Schedule Reminders</string>
+    <string name="interval_dialog_instructions">Select how often to receive reminders for this medication.</string>"
+    <string name="interval_input_hint">Remind every</string>
 
-<!--    ///////////////////////////////////////////////-->
+    <!--    ///////////////////////////////////////////////-->
     <!-- App -->
     <string name="app_name">MediMinder</string>
     <string name="app_logo_description">MediMinder Logo</string>
@@ -124,5 +130,7 @@
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

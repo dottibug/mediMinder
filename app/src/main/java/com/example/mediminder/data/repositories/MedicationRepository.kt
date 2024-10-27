@@ -1,65 +1,97 @@
 package com.example.mediminder.data.repositories
+import android.util.Log
 import com.example.mediminder.data.local.classes.Dosage
+import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.DosageDao
+import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.ScheduleDao
+import com.example.mediminder.viewmodels.DosageData
+import com.example.mediminder.viewmodels.MedicationData
+import com.example.mediminder.viewmodels.ReminderData
+import com.example.mediminder.viewmodels.ScheduleData
 import java.time.LocalDate
+import java.time.LocalTime
 
 class MedicationRepository(
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
+    private val remindersDao: MedRemindersDao,
     private val scheduleDao: ScheduleDao
 ) {
 
+    suspend fun addMedication(
+        medicationData: MedicationData,
+        dosageData: DosageData,
+        reminderData: ReminderData,
+        scheduleData: ScheduleData
+    ) {
 
+        try {
+            val medicationId = medicationDao.insert(
+                Medication(
+                    name = medicationData.name,
+                    prescribingDoctor = medicationData.doctor,
+                    notes = medicationData.notes,
+                    reminderEnabled = reminderData.reminderEnabled
+                )
+            )
 
+            dosageDao.insert(
+                Dosage(
+                    medicationId = medicationId,
+                    amount = dosageData.dosageAmount,
+                    units = dosageData.dosageUnits
+                )
+            )
 
+            scheduleDao.insert(
+                Schedules(
+                    medicationId = medicationId,
+                    startDate = scheduleData.startDate ?: LocalDate.now(),
+                    durationType = scheduleData.durationType,
+                    numDays = scheduleData.numDays,
+                    scheduleType = scheduleData.scheduleType,
+                    selectedDays = scheduleData.selectedDays,
+                    daysInterval = scheduleData.daysInterval
+                )
+            )
 
+            if (reminderData.reminderEnabled) {
+                remindersDao.insert(
+                    MedReminders(
+                        medicationId = medicationId,
+                        reminderFrequency = reminderData.reminderFrequency,
+                        hourlyReminderInterval = reminderData.hourlyReminderInterval,
+                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let { LocalTime.of(it.first, it.second) },
+                        dailyReminderTimes = reminderData.dailyReminderTimes.map { LocalTime.of(it.first, it.second) },
+                        reminderType = reminderData.reminderType
+                    )
+                )
+            }
 
-    //////////////////
-    // TODO: this is used to check if the table is empty (but we maybe only need to count scheduled meds?)
-    suspend fun getMedicationCount(): Int {
-        return medicationDao.getMedicationCount()
-    }
+            Log.d("testcat MedicationRepository", "Medication added: $medicationData, Dosage: $dosageData, Reminder: $reminderData, Schedule: $scheduleData")
 
-    // Get the scheduled medications for a given date
-    suspend fun getScheduledMedicationsForDate(date: LocalDate): List<MedicationWithDosage> {
-        return medicationDao.getScheduledMedicationsForDate(date).map { medication ->
-            val dosage = dosageDao.getDosageForMedication(medication.id)
-            MedicationWithDosage(medication, dosage)
+        } catch (e: Exception) {
+            Log.e("testcat MedicationRepository", "Error adding medication: ${e.message}")
+            // todo: throw e    to have calling functions handle errors
         }
     }
 
-    suspend fun getAsNeededMedications(): List<MedicationWithDosage> {
-        return medicationDao.getAsNeededMedications().map { medication ->
-            val dosage = dosageDao.getDosageForMedication(medication.id)
-            MedicationWithDosage(medication, dosage)
+    suspend fun getAllMedicationsWithDosages(): List<Pair<Medication, Dosage?>> {
+        val medications = medicationDao.getAll()
+        Log.d("testcat MedicationRepository", "Fetched ${medications.size} medications")
+
+
+        return medications.map { medication ->
+            val dosage = dosageDao.getDosageByMedicationId(medication.id)
+            Log.d("testcat MedicationRepository", "Medication: ${medication.name}, Dosage: $dosage")
+
+            Pair(medication, dosage)
         }
-    }
-
-    suspend fun insertMedication(medication: Medication): Long {
-        return medicationDao.insert(medication)
-    }
-
-    suspend fun insertDosage(dosage: Dosage): Long {
-        return dosageDao.insert(dosage)
-    }
-
-    suspend fun insertSchedule(schedule: Schedules): Long {
-        return scheduleDao.insert(schedule)
-    }
-
-////////////////////////////
-    suspend fun getMedicationsForDate(date: LocalDate): List<Medication> {
-        return medicationDao.getMedicationsForDate(date)
     }
 
 }
 
-// Data class to represent a medication with its dosage
-data class MedicationWithDosage(
-    val medication: Medication,
-    val dosage: Dosage?
-)

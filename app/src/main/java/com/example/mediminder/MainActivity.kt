@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -34,16 +35,17 @@ class MainActivity : AppCompatActivity() {
 
         setupDatabase()
         setupUI()
-        observeViewModel()
     }
 
     private fun setupDatabase() {
         val database = AppDatabase.getDatabase(this)
-        val seeder = DatabaseSeeder(database.medicationDao(), database.dosageDao(), database.scheduleDao(), database.medicationLogDao())
+        val seeder = DatabaseSeeder(database.medicationDao(), database.dosageDao(), database.remindersDao(), database.scheduleDao(), database.medicationLogDao())
 
         lifecycleScope.launch {
             seeder.clearDatabase()
             seeder.seedDatabase()
+
+            viewModel.fetchMedications()
         }
     }
 
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigationView()
         setupRecyclerViews()
         setupFab()
+        observeViewModel()
     }
 
     // Set up the top app bar
@@ -123,23 +126,33 @@ class MainActivity : AppCompatActivity() {
 
         // Date selector recycler view
         dateSelectorAdapter = MainDateSelectorAdapter(emptyList()) { date ->
-            viewModel.selectDate(date)
+//            viewModel.selectDate(date)
+            // todo
         }
 
         binding.dateSelector.apply {
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = dateSelectorAdapter
         }
+
+
+    }
+
+    private val addMedicationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            viewModel.fetchMedications()
+        }
     }
 
     private fun setupFab() {
         binding.fabAddMedication.setOnClickListener {
             val intent = Intent(this, AddMedicationActivity::class.java)
-            startActivity(intent)
+            addMedicationLauncher.launch(intent)
         }
     }
 
     // https://developer.android.com/topic/libraries/architecture/viewmodel
+    // todo put these in to work on once you know the medication is being saved correctly
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
@@ -148,8 +161,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.scheduledMedications.collectLatest { medications ->
-                medicationAdapter.updateMedications(medications)
+            viewModel.medications.collectLatest { medications ->
+                medicationAdapter.setMedications(medications)
             }
         }
 

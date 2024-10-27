@@ -13,9 +13,9 @@ interface DosageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(dosage: Dosage): Long
 
-    // Get the dosage for a given medication
+    // Get dosage by medication ID
     @Query("SELECT * FROM dosages WHERE medication_id = :medicationId")
-    suspend fun getDosageForMedication(medicationId: Long): Dosage?
+    suspend fun getDosageByMedicationId(medicationId: Long): Dosage?
 
     @Query("DELETE FROM dosages")
     suspend fun deleteAll()

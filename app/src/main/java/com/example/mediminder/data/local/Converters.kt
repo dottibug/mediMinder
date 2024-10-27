@@ -47,4 +47,17 @@ class Converters {
     fun fromLocalDateTimeToLong(localDateTime: LocalDateTime?): Long? {
         return localDateTime?.toEpochSecond(ZoneOffset.UTC)
     }
+
+    // ----------------------------------------------------------------------
+    // Converters for LocalTime List
+    // ----------------------------------------------------------------------
+    @TypeConverter
+    fun fromStringToLocalTimeList(value: String?): List<LocalTime>? {
+        return value?.split(",")?.map { LocalTime.parse(it) }
+    }
+
+    @TypeConverter
+    fun fromLocalTimeListToString(list: List<LocalTime>?): String? {
+        return list?.joinToString(",") { it.toString() }
+    }
 }

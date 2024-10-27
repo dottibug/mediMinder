@@ -9,24 +9,26 @@ import android.widget.Button
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentAddMedicationReminderBinding
 import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.viewmodels.AddMedicationReminderViewModel
+import com.example.mediminder.viewmodels.AddMedicationViewModel
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
 import com.google.android.material.timepicker.TimeFormat
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class AddMedicationReminderFragment : Fragment() {
-
     private lateinit var binding: FragmentAddMedicationReminderBinding
-    private val viewModel: AddMedicationReminderViewModel by viewModels()
+    private val reminderViewModel: AddMedicationReminderViewModel by viewModels()
+    private val addMedViewModel: AddMedicationViewModel by viewModels { AddMedicationViewModel.Factory }
     private val appUtils = AppUtils()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentAddMedicationReminderBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,13 +43,14 @@ class AddMedicationReminderFragment : Fragment() {
     private fun setupListeners() {
         // "Set reminders" switch
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setReminderEnabled(isChecked)
+            reminderViewModel.setReminderEnabled(isChecked)
         }
 
         // "Reminder frequency" menu
         binding.reminderFrequencyMenu.setOnItemClickListener { _, _, position, _ ->
             val selectedFrequency = resources.getStringArray(R.array.reminder_frequency_options)[position]
-            viewModel.setReminderFrequency(selectedFrequency) // Update the ViewModel with the selected frequency
+            reminderViewModel.setReminderFrequency(selectedFrequency)
+            if (selectedFrequency == "x times daily") resetDailyFrequencyButtonText()
         }
 
         // Click listeners
@@ -59,31 +62,68 @@ class AddMedicationReminderFragment : Fragment() {
         binding.toggleReminderType.addOnButtonCheckedListener { toggleButton, checkedId, _ ->
             val checkedButton = toggleButton.findViewById<Button>(checkedId)
             val reminderType = checkedButton.text.toString()
-            viewModel.setReminderType(reminderType)
+            reminderViewModel.setReminderType(reminderType)
         }
+    }
+
+    // Reset hourly frequency buttons to default values
+    private fun resetDailyFrequencyButtonText() {
+        binding.buttonHourlyRemindEvery.text = resources.getString(R.string.hourly_30)
+        binding.buttonReminderStartTime.text = resources.getString(R.string.button_time_picker)
     }
 
     // Set up observers for LiveData
     private fun setupObservers() {
         // Dynamically render reminder components based on the "Set reminders" switch state
-        viewModel.isReminderEnabled.observe(viewLifecycleOwner) { isEnabled ->
-            if (isEnabled) {
-                binding.layoutReminderSetup.visibility = View.VISIBLE
-                binding.hourlyReminderOptions.visibility = View.GONE
-                binding.dailyReminderOptions.visibility = View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.isReminderEnabled.collect { isEnabled ->
+                if (isEnabled) {
+                    binding.layoutReminderSetup.visibility = View.VISIBLE
+                    binding.hourlyReminderOptions.visibility = View.GONE
+                    binding.dailyReminderOptions.visibility = View.GONE
+                } else {
+                    binding.layoutReminderSetup.visibility = View.GONE
+                }
+                addMedViewModel.updateIsReminderEnabled(isEnabled)
             }
-            else { binding.layoutReminderSetup.visibility = View.GONE }
         }
 
         // Dynamically render the frequency options based on the selected frequency
-        viewModel.reminderFrequency.observe(viewLifecycleOwner) { frequency -> showFrequencyOptions(frequency) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.reminderFrequency.collect { frequency ->
+                showFrequencyOptions(frequency ?: "")
+                addMedViewModel.updateReminderFrequency(frequency)
+            }
+        }
 
-        // Observe the list of daily reminder times (to update the UI accordingly when the list changes)
-        viewModel.dailyReminderTimes.observe(viewLifecycleOwner) { times -> updateDailyTimePickers(times) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.hourlyReminderInterval.collect { interval ->
+                addMedViewModel.updateHourlyReminderInterval(interval)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.hourlyReminderStartTime.collect { startTime ->
+                addMedViewModel.updateHourlyReminderStartTime(startTime)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.dailyReminderTimes.collect { times ->
+                updateDailyTimePickers(times)
+                addMedViewModel.updateDailyReminderTimes(times)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.reminderType.collect { type ->
+                addMedViewModel.updateReminderType(type)
+            }
+        }
     }
 
     // Add a new time picker button to the list of daily reminder times (defaults to 12:00 PM)
-    private fun addDailyTimePicker() { viewModel.addDailyReminderTime(12, 0) }
+    private fun addDailyTimePicker() { reminderViewModel.addDailyReminderTime(12, 0) }
 
     private fun updateDailyTimePickers(times: List<Pair<Int, Int>>) {
         binding.dailyTimePickersContainer.removeAllViews()
@@ -99,7 +139,7 @@ class AddMedicationReminderFragment : Fragment() {
 
             // Click listeners
             timePickerButton.setOnClickListener { showTimePickerDialog("daily", index) }
-            deleteButton.setOnClickListener { viewModel.removeDailyReminderTime(index) }
+            deleteButton.setOnClickListener { reminderViewModel.removeDailyReminderTime(index) }
 
             // Add the time picker button to the container
             binding.dailyTimePickersContainer.addView(timePickersContainer)
@@ -108,8 +148,8 @@ class AddMedicationReminderFragment : Fragment() {
 
     // Show the relevant frequency options based on the selected frequency
     private fun showFrequencyOptions(frequency: String) {
-        binding.hourlyReminderOptions.visibility = if (frequency == "every x hours") View.VISIBLE else View.GONE
-        binding.dailyReminderOptions.visibility = if (frequency == "x times daily") View.VISIBLE else View.GONE
+        binding.hourlyReminderOptions.visibility = if (frequency == "hourly") View.VISIBLE else View.GONE
+        binding.dailyReminderOptions.visibility = if (frequency == "daily") View.VISIBLE else View.GONE
     }
 
     // Show hourly reminder popup menu
@@ -121,7 +161,7 @@ class AddMedicationReminderFragment : Fragment() {
         // Update the view model and button text when a menu item is selected
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
             binding.buttonHourlyRemindEvery.text = menuItem.title
-            viewModel.setHourlyReminderInterval(menuItem.title.toString())
+            reminderViewModel.setHourlyReminderInterval(menuItem.title.toString())
             true
         }
 
@@ -143,7 +183,6 @@ class AddMedicationReminderFragment : Fragment() {
             .setTitleText("Select Start Time")
             .build()
 
-        // Show the time picker dialog
         timePicker.show(parentFragmentManager, "tag")
 
         timePicker.addOnPositiveButtonClickListener {
@@ -153,12 +192,12 @@ class AddMedicationReminderFragment : Fragment() {
             when (reminderType) {
                 "hourly" -> {
                     updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
-                    viewModel.setHourlyReminderStartTime(hour, minute)
+                    reminderViewModel.setHourlyReminderStartTime(hour, minute)
                 }
 
                 "daily" -> {
-                    if (index >= 0) { viewModel.updateDailyReminderTime(index, hour, minute) }
-                    else { viewModel.addDailyReminderTime(hour, minute) }
+                    if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
+                    else { reminderViewModel.addDailyReminderTime(hour, minute) }
                 }
             }
         }

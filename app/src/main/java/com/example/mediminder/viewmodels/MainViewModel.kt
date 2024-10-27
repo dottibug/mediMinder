@@ -10,12 +10,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.repositories.MedicationRepository
-import com.example.mediminder.data.repositories.MedicationWithDosage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -23,47 +20,15 @@ import java.time.LocalDate
 // This view model holds state for the main activity screen.
 // Handles data flow between the medication repository and the main activity UI
 class MainViewModel(private val repository: MedicationRepository) : ViewModel() {
-    private val _isDatabaseEmpty = MutableStateFlow(true)
-    val isDatabaseEmpty: StateFlow<Boolean> = _isDatabaseEmpty.asStateFlow()
-
-    private val _dateSelectorDates = MutableStateFlow<List<LocalDate>>(createDateList())
-    val dateSelectorDates: StateFlow<List<LocalDate>> = _dateSelectorDates
 
     private val _selectedDate = MutableStateFlow(LocalDate.now()) // initialize to today's date
     val selectedDate: StateFlow<LocalDate> = _selectedDate
 
-    // Scheduled medications
-    private val _scheduledMedications = MutableStateFlow<List<MedicationWithDosage>>(emptyList())
-    val scheduledMedications: StateFlow<List<MedicationWithDosage>> = _scheduledMedications
+    private val _dateSelectorDates = MutableStateFlow<List<LocalDate>>(createDateList())
+    val dateSelectorDates: StateFlow<List<LocalDate>> = _dateSelectorDates
 
-    // As-needed medications
-    private val _asNeededMedications = MutableStateFlow<List<MedicationWithDosage>>(emptyList())
-    val asNeededMedications: StateFlow<List<MedicationWithDosage>> = _asNeededMedications
-
-    init {
-        checkDatabaseEmpty()
-        loadMedicationsForDate(_selectedDate.value)
-    }
-
-
-    fun checkDatabaseEmpty() {
-        viewModelScope.launch {
-           _isDatabaseEmpty.value = repository.getMedicationCount() == 0
-        }
-    }
-
-
-    fun selectDate(date: LocalDate) {
-        _selectedDate.value = date
-        loadMedicationsForDate(date)
-    }
-
-    private fun loadMedicationsForDate(date: LocalDate) {
-        viewModelScope.launch {
-            _scheduledMedications.value = repository.getScheduledMedicationsForDate(date)
-            _asNeededMedications.value = repository.getAsNeededMedications()
-        }
-    }
+    private val _medications = MutableStateFlow<List<Pair<Medication, Dosage?>>>(emptyList())
+    val medications: StateFlow<List<Pair<Medication, Dosage?>>> = _medications
 
     // Create a list of dates for the date selector (-3 to +3 days from today)
     private fun createDateList(): List<LocalDate> {
@@ -72,23 +37,17 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     }
 
 
-    fun addAsNeededMedication(name: String, dosage: Double, units: String) {
+    fun fetchMedications() {
         viewModelScope.launch {
-            val medication = Medication(name = name, prescribingDoctor = null, notes = "As needed")
-            val medicationId = repository.insertMedication(medication)
-            val dosageEntity = Dosage(medicationId = medicationId, amount = dosage, units = units)
-            repository.insertDosage(dosageEntity)
-            val schedule = Schedules(
-                medicationId = medicationId,
-                frequencyType = "as_needed",
-                startDate = LocalDate.now(),
-                endDate = null,
-                daysOfMonth = null,
-                daysOfWeek = null,
-                timeOfDay = null,
-                frequencyAmount = null
-            )
-            repository.insertSchedule(schedule)
+            _medications.value = repository.getAllMedicationsWithDosages()
+        }
+    }
+
+
+    // NOTE: This is used. Do not delete.
+    fun addMedication(medicationData: MedicationData, dosageData: DosageData, reminderData: ReminderData, scheduleData: ScheduleData) {
+        viewModelScope.launch {
+            repository.addMedication(medicationData, dosageData, reminderData, scheduleData)
         }
     }
 
@@ -99,7 +58,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             initializer {
                 val application = this[APPLICATION_KEY] as Application
                 val database = AppDatabase.getDatabase(application)
-                val medicationRepository = MedicationRepository(database.medicationDao(), database.dosageDao(), database.scheduleDao())
+                val medicationRepository = MedicationRepository(database.medicationDao(), database.dosageDao(), database.remindersDao(), database.scheduleDao())
                 MainViewModel(medicationRepository)
             }
         }
