@@ -5,7 +5,6 @@
     <!--  TODO: android:icon="@drawable/ic_medications"  -->
     <!--  TODO: android:icon="@drawable/ic_schedule"  -->
     <!--  TODO: android:icon="@drawable/ic_tracking"  -->
-    <!--  TODO: android:icon="@drawable/ic_refills"  -->
     <!--  TODO: android:icon="@drawable/ic_settings"  -->
 
     <item
@@ -23,9 +22,6 @@
     <item
         android:id="@+id/nav_tracking"
         android:title="@string/tracking" />
-    <item
-        android:id="@+id/nav_refills"
-        android:title="@string/refills" />
     <item
         android:id="@+id/nav_settings"
         android:title="@string/settings" />

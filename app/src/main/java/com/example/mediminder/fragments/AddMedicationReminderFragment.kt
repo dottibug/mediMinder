@@ -59,12 +59,6 @@ class AddMedicationReminderFragment : Fragment() {
         binding.buttonReminderEndTime.setOnClickListener { showTimePickerDialog("hourly", isEndTime = true) }
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
 
-        // "Reminder type" toggle button
-        binding.toggleReminderType.addOnButtonCheckedListener { toggleButton, checkedId, _ ->
-            val checkedButton = toggleButton.findViewById<Button>(checkedId)
-            val reminderType = checkedButton.text.toString()
-            reminderViewModel.setReminderType(reminderType)
-        }
     }
 
     // Reset hourly frequency buttons to default values
@@ -119,12 +113,6 @@ class AddMedicationReminderFragment : Fragment() {
             reminderViewModel.dailyReminderTimes.collect { times ->
                 updateDailyTimePickers(times)
                 addMedViewModel.updateDailyReminderTimes(times)
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            reminderViewModel.reminderType.collect { type ->
-                addMedViewModel.updateReminderType(type)
             }
         }
     }

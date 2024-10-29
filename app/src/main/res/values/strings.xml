@@ -1,5 +1,9 @@
 <resources>
 
+    <!-- SETTINGS -->
+    <string name="reminder_type_title">Reminder Type</string>
+    <string name="reminder_type_instructions">Set alarm or push notification reminders</string>
+
     <!-- ADD MEDICATION FRAGMENTS -->
     <string name="add_new_medication_title">Add New Medication</string>
     <string name="button_add_medication">Add Medication</string>
@@ -39,10 +43,6 @@
     <string name="button_delete_reminder">Delete Reminder</string>
     <string name="button_time_picker">Select Time</string>
     <string name="button_add_reminder_time">Add Reminder Time</string>
-    <string name="reminder_type_label">Reminder Type</string>
-    <string name="reminder_type_instructions">Do you want an alarm or push notification?</string>
-    <string name="button_alarm">Alarm</string>
-    <string name="button_notify">Notify</string>
 
     <!-- Reminder frequency options -->
     <array name="reminder_frequency_options">
@@ -144,5 +144,20 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>

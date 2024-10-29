@@ -80,8 +80,8 @@ class MainActivity : AppCompatActivity() {
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.settings -> {
-                    // todo: navigate to settings
-                    Log.i("testcat", "Navigate to settings")
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 else -> false
@@ -113,13 +113,9 @@ class MainActivity : AppCompatActivity() {
                     // todo: navigate to tracking screen
                     Log.i("testcat", "Navigate to tracking")
                 }
-                R.id.nav_refills -> {
-                    // todo: navigate to refills screen
-                    Log.i("testcat", "Navigate to refills")
-                }
                 R.id.nav_settings -> {
-                    // todo: navigate to settings screen
-                    Log.i("testcat", "Navigate to settings")
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
                 }
             }
 
