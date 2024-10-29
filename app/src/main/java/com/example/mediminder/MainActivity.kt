@@ -9,16 +9,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
+import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
+import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
@@ -40,12 +47,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupDatabase() {
         val database = AppDatabase.getDatabase(this)
-        val seeder = DatabaseSeeder(database.medicationDao(), database.dosageDao(), database.remindersDao(), database.scheduleDao(), database.medicationLogDao())
+        val seeder = DatabaseSeeder(
+            database.medicationDao(),
+            database.dosageDao(),
+            database.remindersDao(),
+            database.scheduleDao(),
+            database.medicationLogDao()
+        )
 
         lifecycleScope.launch {
             seeder.clearDatabase()
             seeder.seedDatabase()
             viewModel.fetchMedicationsForDate(LocalDate.now())
+            setupCheckMissedMedicationsWorker()
         }
     }
 
@@ -117,7 +131,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecyclerViews() {
         // Medications recycler view
-        medicationAdapter = MainMedicationAdapter()
+        medicationAdapter = MainMedicationAdapter { medId ->
+            UpdateMedicationStatusDialogFragment.newInstance(
+                medId = medId
+            ) { newStatus ->
+                viewModel.updateMedicationStatus(medId, newStatus)
+            }.show(supportFragmentManager, "update_medication_status_dialog")
+        }
 
         binding.medicationList.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -133,8 +153,6 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = dateSelectorAdapter
         }
-
-
     }
 
     private val addMedicationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -151,7 +169,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     // https://developer.android.com/topic/libraries/architecture/viewmodel
-    // todo put these in to work on once you know the medication is being saved correctly
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
@@ -171,5 +188,35 @@ class MainActivity : AppCompatActivity() {
                 dateSelectorAdapter.updateDates(dates)
             }
         }
+    }
+
+    private fun setupCheckMissedMedicationsWorker() {
+        // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work#work-constraints
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work#schedule_periodic_work
+        // Performs the work every 1 hour
+//        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+//            1, TimeUnit.HOURS
+//        ).setConstraints(constraints).build()
+
+        // TEST: Performs the work every 15 minutes for development purposes
+        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+            15, TimeUnit.MINUTES
+        ).setConstraints(constraints).build()
+
+        Log.d("testcat", "Enqueuing worker")
+
+        // https://developer.android.com/reference/androidx/work/WorkManager#enqueueUniquePeriodicWork(kotlin.String,androidx.work.ExistingPeriodicWorkPolicy,androidx.work.PeriodicWorkRequest)
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniquePeriodicWork(
+                "check_missed_medications",
+                ExistingPeriodicWorkPolicy.KEEP,
+                checkMissedMedicationsWorkRequest
+            )
+
+        Log.d("testcat", "Worker enqueued")
     }
 }

@@ -1,6 +1,5 @@
 package com.example.mediminder.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,19 +7,20 @@ import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.ItemMedicationBinding
 
-class MainMedicationAdapter: RecyclerView.Adapter<MainMedicationAdapter.MedicationViewHolder>() {
+class MainMedicationAdapter(
+    private val onUpdateStatusClick: (Long) -> Unit
+) : RecyclerView.Adapter<MainMedicationAdapter.MedicationViewHolder>() {
+
     private var medications: List<Pair<Medication, Dosage?>> = emptyList()
 
     fun setMedications(newMedications: List<Pair<Medication, Dosage?>>) {
         medications = newMedications
-        Log.d("testcat MainMedicationAdapter", "Received ${medications.size} medications")
-
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
         val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MedicationViewHolder(binding)
+        return MedicationViewHolder(binding, onUpdateStatusClick)
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
@@ -30,13 +30,22 @@ class MainMedicationAdapter: RecyclerView.Adapter<MainMedicationAdapter.Medicati
 
     override fun getItemCount(): Int = medications.size
 
-    class MedicationViewHolder(private val binding: ItemMedicationBinding) : RecyclerView.ViewHolder(binding.root) {
-        // Your MedicationViewHolder implementation here
+    class MedicationViewHolder(
+        private val binding: ItemMedicationBinding,
+        private val onUpdateStatusClick: (Long) -> Unit
+    ): RecyclerView.ViewHolder(binding.root) {
         fun bind(medication: Medication, dosage: Dosage?) {
             binding.medicationName.text = medication.name
             binding.medicationNotes.text = medication.notes
             binding.medicationDosage.text = dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
-            Log.d("testcat MedicationViewHolder", "Binding medication: ${medication.name}")
+
+            binding.buttonUpdateStatus.setOnClickListener {
+                // todo: use the medication status from database; MedicationStatus.TAKEN is plaecholeder for development
+                onUpdateStatusClick(medication.id)
+            }
+
+
+            // todo set image resource for the status icon based on the medication status
 
         }
     }

@@ -1,7 +1,6 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -57,6 +56,7 @@ class AddMedicationReminderFragment : Fragment() {
         // Click listeners
         binding.buttonHourlyRemindEvery.setOnClickListener { showHourlyReminderPopupMenu() }
         binding.buttonReminderStartTime.setOnClickListener { showTimePickerDialog("hourly") }
+        binding.buttonReminderEndTime.setOnClickListener { showTimePickerDialog("hourly", isEndTime = true) }
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
 
         // "Reminder type" toggle button
@@ -85,7 +85,6 @@ class AddMedicationReminderFragment : Fragment() {
                 } else {
                     binding.layoutReminderSetup.visibility = View.GONE
                 }
-                Log.d("testcat", "Reminder enabled in observer: $isEnabled")
                 addMedViewModel.updateIsReminderEnabled(isEnabled)
             }
         }
@@ -107,6 +106,12 @@ class AddMedicationReminderFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             reminderViewModel.hourlyReminderStartTime.collect { startTime ->
                 addMedViewModel.updateHourlyReminderStartTime(startTime)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            reminderViewModel.hourlyReminderEndTime.collect { endTime ->
+                addMedViewModel.updateHourlyReminderEndTime(endTime)
             }
         }
 
@@ -175,7 +180,7 @@ class AddMedicationReminderFragment : Fragment() {
     // Shows a time picker dialog to the user
     // If the reminderType is "daily" and the index is -1, then a new time picker button will be
     // added. If the index is >= 0, then the time picker button at that index will be updated
-    private fun showTimePickerDialog(reminderType: String, index: Int = -1) {
+    private fun showTimePickerDialog(reminderType: String, index: Int = -1, isEndTime: Boolean = false) {
         // Build the time picker dialog
         val timePicker = MaterialTimePicker.Builder()
             .setInputMode(INPUT_MODE_CLOCK)
@@ -194,7 +199,8 @@ class AddMedicationReminderFragment : Fragment() {
             when (reminderType) {
                 "hourly" -> {
                     updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
-                    reminderViewModel.setHourlyReminderStartTime(hour, minute)
+                    if (isEndTime) reminderViewModel.setHourlyReminderEndTime(hour, minute)
+                    else reminderViewModel.setHourlyReminderStartTime(hour, minute)
                 }
 
                 "daily" -> {

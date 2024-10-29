@@ -35,6 +35,7 @@
     <string name="reminder_interval_label">Remind every</string>
     <string name="reminder_interval_placeholder">30 minutes</string>
     <string name="start_time_label">Start time</string>
+    <string name="end_time_label">End time</string>
     <string name="button_delete_reminder">Delete Reminder</string>
     <string name="button_time_picker">Select Time</string>
     <string name="button_add_reminder_time">Add Reminder Time</string>
@@ -104,8 +105,16 @@
 
     <!-- Schedule Interval Dialog -->
     <string name="interval_dialog_title">Schedule Reminders</string>
-    <string name="interval_dialog_instructions">Select how often to receive reminders for this medication.</string>"
+    <string name="interval_dialog_instructions">Select how often to receive reminders for this medication.</string>
     <string name="interval_input_hint">Remind every</string>
+
+    <!-- Medication Status Dialog -->
+    <string name="med_status_dialog_title">Medication Status</string>
+    <string name="med_status_dialog_instructions">Update the status of this medication.</string>
+    <string name="radio_taken">Taken</string>
+    <string name="radio_skipped">Skipped</string>
+    <string name="radio_missed">Missed</string>
+
 
     <!--    ///////////////////////////////////////////////-->
     <!-- App -->
@@ -126,6 +135,9 @@
     <string name="main_page_title">MediMinder Page Title</string>
     <string name="selected_date">Selected Date</string>
     <string name="add_medication">Add Medication</string>
+
+    <!-- Medication List Item -->
+    <string name="medication_status_button">Update</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

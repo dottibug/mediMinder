@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
+import com.example.mediminder.data.local.classes.MedicationLogs
+import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.DosageDao
 import com.example.mediminder.data.local.dao.MedRemindersDao
@@ -11,6 +13,7 @@ import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 // This class is for "seeding" the database with initial test data.
@@ -26,13 +29,12 @@ class DatabaseSeeder(
     suspend fun seedDatabase() {
         Log.d("testcat DatabaseSeeder", "Starting database seeding")
 
-
         //// TEST MED 1
         val testMed1 = Medication(
             name = "Hearto",
             prescribingDoctor = "Dr. Batman",
             notes = "Take with food",
-            reminderEnabled = true
+            reminderEnabled = true,
         )
 
         val testMedId1 = medicationDao.insert(testMed1)
@@ -50,6 +52,7 @@ class DatabaseSeeder(
             reminderFrequency = "daily",
             hourlyReminderInterval = "",
             hourlyReminderStartTime = null,
+            hourlyReminderEndTime = null,
             dailyReminderTimes = listOf(LocalTime.of(12, 0), LocalTime.of(18, 0)),
             reminderType = "alarm"
         )
@@ -66,7 +69,7 @@ class DatabaseSeeder(
             daysInterval = 0
         )
 
-        scheduleDao.insert(schedule1)
+        val scheduleId1 = scheduleDao.insert(schedule1)
 
 
         ///// TEST MED 2
@@ -74,7 +77,7 @@ class DatabaseSeeder(
             name = "Ibuprofen",
             prescribingDoctor = "Dr. Joker",
             notes = "Take as needed",
-            reminderEnabled = false
+            reminderEnabled = false,
         )
 
         val testMedId2 = medicationDao.insert(testMed2)
@@ -104,7 +107,7 @@ class DatabaseSeeder(
             name = "Pressure thingy",
             prescribingDoctor = "Dr. Batman",
             notes = "",
-            reminderEnabled = true
+            reminderEnabled = true,
         )
 
         val testMedId3 = medicationDao.insert(testMed3)
@@ -122,6 +125,7 @@ class DatabaseSeeder(
             reminderFrequency = "daily",
             hourlyReminderInterval = "6",
             hourlyReminderStartTime = LocalTime.of(8, 30),
+            hourlyReminderEndTime = LocalTime.of(21, 0),
             dailyReminderTimes = emptyList(),
             reminderType = "alarm"
         )
@@ -140,6 +144,17 @@ class DatabaseSeeder(
 
         Log.d("testcat DatabaseSeeder", "Database seeding completed")
 
+        val pastDateTime = LocalDateTime.now().minusHours(3)
+
+        medicationLogDao.insert(
+            MedicationLogs(
+                medicationId = testMedId1,
+                scheduleId = scheduleId1,
+                plannedDatetime = pastDateTime, // 3 hours ago
+                takenDatetime = null,
+                status = MedicationStatus.PENDING // should get flagged by worker as missed
+            )
+        )
     }
 
     suspend fun clearDatabase() {

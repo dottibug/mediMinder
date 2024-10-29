@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.Medication
+import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,11 +53,9 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         fetchMedicationsForDate(LocalDate.now())
     }
 
-
-    // NOTE: This is used. Do not delete.
-    fun addMedication(medicationData: MedicationData, dosageData: DosageData, reminderData: ReminderData, scheduleData: ScheduleData) {
+    fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
         viewModelScope.launch {
-            repository.addMedication(medicationData, dosageData, reminderData, scheduleData)
+            repository.updateMedicationStatus(medicationId, newStatus)
         }
     }
 
@@ -67,7 +66,13 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             initializer {
                 val application = this[APPLICATION_KEY] as Application
                 val database = AppDatabase.getDatabase(application)
-                val medicationRepository = MedicationRepository(database.medicationDao(), database.dosageDao(), database.remindersDao(), database.scheduleDao())
+                val medicationRepository = MedicationRepository(
+                    database.medicationDao(),
+                    database.dosageDao(),
+                    database.remindersDao(),
+                    database.scheduleDao(),
+                    database.medicationLogDao()
+                )
                 MainViewModel(medicationRepository)
             }
         }

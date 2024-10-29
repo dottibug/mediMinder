@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
+import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -21,8 +22,6 @@ import java.time.LocalDate
 class AddMedicationViewModel(private val repository: MedicationRepository): ViewModel() {
 
     // Reminder
-//    private val reminderEnabled = MutableStateFlow(false)
-
     private val reminderEnabled = MutableStateFlow(false)
     init {
         viewModelScope.launch {
@@ -32,10 +31,10 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
         }
     }
 
-
     private val reminderFrequency = MutableStateFlow("")
     private val hourlyReminderInterval = MutableStateFlow<String?>(null)
     private val hourlyReminderStartTime = MutableStateFlow<Pair<Int, Int>?>(null)
+    private val hourlyReminderEndTime = MutableStateFlow<Pair<Int, Int>?>(null)
     private val dailyReminderTimes = MutableStateFlow<List<Pair<Int, Int>>>(emptyList())
     private val reminderType = MutableStateFlow("")
 
@@ -43,6 +42,7 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
     fun updateReminderFrequency(frequency: String?) { reminderFrequency.value = frequency ?: "" }
     fun updateHourlyReminderInterval(interval: String?) { hourlyReminderInterval.value = interval }
     fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { hourlyReminderStartTime.value = startTime }
+    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { hourlyReminderEndTime.value = endTime }
     fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { dailyReminderTimes.value = times }
     fun updateReminderType(type: String) { reminderType.value = type }
 
@@ -52,8 +52,9 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
             reminderFrequency = reminderFrequency.value,
             hourlyReminderInterval = hourlyReminderInterval.value,
             hourlyReminderStartTime = hourlyReminderStartTime.value,
+            hourlyReminderEndTime = hourlyReminderEndTime.value,
             dailyReminderTimes = dailyReminderTimes.value,
-            reminderType = reminderType.value
+            reminderType = reminderType.value,
         )
     }
 
@@ -92,7 +93,13 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
     }
 
     // Save medication data to database. Validates data before saving.
-    fun saveMedication(medicationData: MedicationData, dosageData: DosageData, reminderData: ReminderData, scheduleData: ScheduleData) {
+    fun saveMedication(
+        medicationData: MedicationData,
+        dosageData: DosageData,
+        reminderData: ReminderData,
+        scheduleData: ScheduleData,
+        medicationStatus: MedicationStatus
+    ) {
         val validatedMedicationData = validateMedicationData(medicationData)
         val validatedDosageData = validateDosageData(dosageData)
         val validatedReminderData = validateReminderData(reminderData)
@@ -100,11 +107,12 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
 
         viewModelScope.launch {
             try {
-                repository.addMedication(
+                repository.addMedication (
                     validatedMedicationData,
                     validatedDosageData,
                     validatedReminderData,
-                    validatedScheduleData)
+                    validatedScheduleData,
+                )
             } catch (e: Exception) {
                 // todo: Handle error (maybe toast the error message? if it's an IllegalArgumentException)
             }
@@ -119,7 +127,7 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
             name = medicationData.name.trim().takeIf { it.isNotEmpty() }
                 ?: throw IllegalArgumentException("Medication name is required"),
             doctor = medicationData.doctor.trim(),
-            notes = medicationData.notes.trim()
+            notes = medicationData.notes.trim(),
         )
     }
 
@@ -153,6 +161,12 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
             hourlyReminderStartTime = if (reminderData.reminderFrequency == "hourly") {
                 reminderData.hourlyReminderStartTime
                     ?: throw IllegalArgumentException("Start time is required for hourly reminders")
+            } else null,
+
+            // End time is required for hourly reminders
+            hourlyReminderEndTime = if (reminderData.reminderFrequency == "hourly") {
+                reminderData.hourlyReminderEndTime
+                    ?: throw IllegalArgumentException("End time is required for hourly reminders")
             } else null,
 
             // At least one reminder time is required for daily reminders
@@ -214,7 +228,8 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
                     database.medicationDao(),
                     database.dosageDao(),
                     database.remindersDao(),
-                    database.scheduleDao())
+                    database.scheduleDao(),
+                    database.medicationLogDao())
                 AddMedicationViewModel(medicationRepository)
             }
         }
@@ -224,7 +239,8 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
 data class MedicationData(
     val name: String,
     val doctor: String,
-    val notes: String
+    val notes: String,
+    val status: MedicationStatus
 )
 
 data class DosageData(
@@ -237,8 +253,9 @@ data class ReminderData(
     val reminderFrequency: String,
     val hourlyReminderInterval: String?,
     val hourlyReminderStartTime: Pair<Int, Int>?,
+    val hourlyReminderEndTime: Pair<Int, Int>?,
     val dailyReminderTimes: List<Pair<Int, Int>>,
-    val reminderType: String
+    val reminderType: String,
 )
 
 data class ScheduleData(

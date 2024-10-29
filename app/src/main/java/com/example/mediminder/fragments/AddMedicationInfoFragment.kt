@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.databinding.FragmentAddMedicationInfoBinding
 import com.example.mediminder.viewmodels.MedicationData
 
@@ -21,7 +22,8 @@ class AddMedicationInfoFragment : Fragment() {
         return MedicationData(
             name = binding.inputMedName.text.toString(),
             doctor = binding.inputDoctor.text.toString(),
-            notes = binding.inputMedNotes.text.toString()
+            notes = binding.inputMedNotes.text.toString(),
+            status = MedicationStatus.PENDING
         )
     }
 }

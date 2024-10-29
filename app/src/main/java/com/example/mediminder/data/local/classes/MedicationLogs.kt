@@ -29,5 +29,5 @@ data class MedicationLogs (
     @ColumnInfo(name = "schedule_id") val scheduleId: Long,
     @ColumnInfo(name = "planned_datetime") val plannedDatetime: LocalDateTime,
     @ColumnInfo(name = "taken_datetime") val takenDatetime: LocalDateTime?,
-    @ColumnInfo(name = "status") val status: String
+    @ColumnInfo(name = "status") val status: MedicationStatus
 )
