@@ -179,7 +179,8 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.medications.collectLatest { medications ->
-                medicationAdapter.setMedications(medications)
+//                medicationAdapter.setMedications(medications)
+                medicationAdapter.submitList(medications)
             }
         }
 
@@ -198,14 +199,14 @@ class MainActivity : AppCompatActivity() {
 
         // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work#schedule_periodic_work
         // Performs the work every 1 hour
-//        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
-//            1, TimeUnit.HOURS
-//        ).setConstraints(constraints).build()
+        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+            1, TimeUnit.HOURS
+        ).setConstraints(constraints).build()
 
         // TEST: Performs the work every 15 minutes for development purposes
-        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
-            15, TimeUnit.MINUTES
-        ).setConstraints(constraints).build()
+//        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+//            15, TimeUnit.MINUTES
+//        ).setConstraints(constraints).build()
 
         Log.d("testcat", "Enqueuing worker")
 

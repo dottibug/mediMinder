@@ -28,7 +28,7 @@ class MedicationRepository(
     private val medicationLogDao: MedicationLogDao
 ) {
 
-    suspend fun addMedication (
+    suspend fun addMedication(
         medicationData: MedicationData,
         dosageData: DosageData,
         reminderData: ReminderData,
@@ -71,9 +71,21 @@ class MedicationRepository(
                         medicationId = medicationId,
                         reminderFrequency = reminderData.reminderFrequency,
                         hourlyReminderInterval = reminderData.hourlyReminderInterval,
-                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let { LocalTime.of(it.first, it.second) },
-                        hourlyReminderEndTime = reminderData.hourlyReminderEndTime?.let { LocalTime.of(it.first, it.second) },
-                        dailyReminderTimes = reminderData.dailyReminderTimes.map { LocalTime.of(it.first, it.second) },
+                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let {
+                            LocalTime.of(
+                                it.first, it.second
+                            )
+                        },
+                        hourlyReminderEndTime = reminderData.hourlyReminderEndTime?.let {
+                            LocalTime.of(
+                                it.first, it.second
+                            )
+                        },
+                        dailyReminderTimes = reminderData.dailyReminderTimes.map {
+                            LocalTime.of(
+                                it.first, it.second
+                            )
+                        },
                         reminderType = reminderData.reminderType
                     )
                 )
@@ -92,16 +104,46 @@ class MedicationRepository(
         }
     }
 
-    suspend fun getMedicationsForDate(date: LocalDate): List<Pair<Medication, Dosage?>> {
+    suspend fun getMedicationsForDate(date: LocalDate): List<Triple<Medication, Dosage?, LocalTime>> {
         val allMeds = medicationDao.getAllWithRemindersEnabled()
-        return allMeds.filter { medication ->
+        Log.d("testcat", "All meds with reminders enabled: ${allMeds.map { it.name }}")
+
+
+        val result = mutableListOf<Triple<Medication, Dosage?, LocalTime>>()
+
+        allMeds.forEach { medication ->
             val schedule = scheduleDao.getScheduleByMedicationId(medication.id)
-            isScheduledForDate(schedule, date)
-        }.map { medication ->
-            val dosage = dosageDao.getDosageByMedicationId(medication.id)
-            Pair(medication, dosage)
+            Log.d("testcat", "Checking schedule for ${medication.name} on $date")
+            Log.d("testcat", "Is scheduled: ${isScheduledForDate(schedule, date)}")
+            if (isScheduledForDate(schedule, date)) {
+                val dosage = dosageDao.getDosageByMedicationId(medication.id)
+                val reminder = remindersDao.getReminderByMedicationId(medication.id)
+                Log.d("testcat", "Reminder frequency: ${reminder?.reminderFrequency}")
+                val reminderTimes = when (reminder?.reminderFrequency) {
+                    "daily" -> reminder.dailyReminderTimes
+                    "hourly" -> getHourlyReminderTimes(ReminderData(
+                        reminderFrequency = "hourly",
+                        hourlyReminderInterval = reminder.hourlyReminderInterval,
+                        hourlyReminderStartTime = reminder.hourlyReminderStartTime?.let {
+                            Pair(it.hour, it.minute)
+                        },
+                        hourlyReminderEndTime = reminder.hourlyReminderEndTime?.let {
+                            Pair(it.hour, it.minute)
+                        },
+                        dailyReminderTimes = emptyList(),
+                        reminderType = reminder.reminderType,
+                        reminderEnabled = true
+                    ))
+                    else -> emptyList()
+                }
+
+                reminderTimes.forEach { time -> result.add(Triple(medication, dosage, time)) }
+            }
         }
+
+        return result.sortedBy { it.third }
     }
+
 
     private fun isScheduledForDate(schedule: Schedules?, date: LocalDate): Boolean {
         if (schedule == null) return false
@@ -156,14 +198,19 @@ class MedicationRepository(
         startDate: LocalDate,
         reminderData: ReminderData
     ) {
-       val reminderTimes = when {
-           reminderData.reminderFrequency == "daily" -> reminderData.dailyReminderTimes
-           reminderData.reminderFrequency == "hourly" -> getHourlyReminderTimes(reminderData)
-           else -> emptyList()
-       }
+        val reminderTimes = when {
+            reminderData.reminderFrequency == "daily" ->
+                // Create local time from pair of ints
+                reminderData.dailyReminderTimes.map { (hour, minute) ->
+                    LocalTime.of(hour, minute)
+                }
+            reminderData.reminderFrequency == "hourly" ->
+                getHourlyReminderTimes(reminderData)
+            else -> emptyList()
+        }
 
-        reminderTimes.forEach { (hour, minute) ->
-            val plannedDateTime = LocalDateTime.of(startDate, LocalTime.of(hour, minute))
+        reminderTimes.forEach { time ->
+            val plannedDateTime = LocalDateTime.of(startDate, time)
             medicationLogDao.insert(
                 MedicationLogs(
                     medicationId = medicationId,
@@ -176,58 +223,37 @@ class MedicationRepository(
         }
     }
 
-    private suspend fun getHourlyReminderTimes(reminderData: ReminderData): List<Pair<Int, Int>> {
+    private fun getHourlyReminderTimes(reminderData: ReminderData): List<LocalTime> {
         val startTime = reminderData.hourlyReminderStartTime ?: return emptyList()
         val endTime = reminderData.hourlyReminderEndTime ?: return emptyList()
         val interval = reminderData.hourlyReminderInterval ?: return emptyList()
 
-        val intervalInt = when (interval) {
-            "30 minutes" -> 0.5
-            // Get hour interval from "1 hour", "2 hours", etc
-            else -> interval.split(" ")[0].toDoubleOrNull() ?: return emptyList()
+        Log.d("testcat", "Starting hourly time generation")
+
+        // Parse interval to hours
+        val intervalHours = interval.toIntOrNull()?.toLong() ?: return emptyList()
+
+        val startLocalTime = LocalTime.of(startTime.first, startTime.second)
+        val endLocalTime = LocalTime.of(endTime.first, endTime.second)
+
+        val times = mutableListOf<LocalTime>()
+
+        // Calculate how many intervals fit between start and end time
+        val startMinutes = startLocalTime.hour * 60 + startLocalTime.minute
+        val endMinutes = endLocalTime.hour * 60 + endLocalTime.minute
+        val intervalMinutes = intervalHours * 60
+        val numberOfIntervals = ((endMinutes - startMinutes) / intervalMinutes).toInt()
+
+        // Generate times
+        for (i in 0..numberOfIntervals) {
+            val time = startLocalTime.plusHours(intervalHours * i)
+            if (time.isAfter(endLocalTime)) break
+            times.add(time)
+            Log.d("testcat", "Added time: $time")
         }
 
-        val reminderTimes = mutableListOf<Pair<Int, Int>>()
-
-        var nextTime = startTime
-        val endHour = endTime.first
-        val endMinute = endTime.second
-
-        // Create list of reminder times beginning with the start time and adding the interval
-        // until the end time
-
-        while (nextTime.first < endHour ||
-            (nextTime.first == endHour && nextTime.second <= endMinute)) {
-            reminderTimes.add(nextTime)
-
-            // Add the interval to get the next time
-            val nextMinutes = nextTime.second + (intervalInt * 60).toInt()
-            val hoursToAdd = nextMinutes / 60  // 2
-            val minutesLeft = nextMinutes % 60 // 10
-
-            nextTime = Pair((nextTime.first + hoursToAdd) % 24, minutesLeft)
-
-            if (nextTime.first < startTime.first) break
-        }
-
-        return reminderTimes
-        }
-
-    suspend fun updateMedicationLogStatus(
-        medicationId: Long,
-        scheduleId: Long,
-        plannedDateTime: LocalDateTime,
-        newStatus: MedicationStatus,
-        takenDateTime: LocalDateTime? = null
-    ) {
-        val medicationLog = MedicationLogs(
-            medicationId = medicationId,
-            scheduleId = scheduleId,
-            plannedDatetime = plannedDateTime,
-            status = newStatus,
-            takenDatetime = takenDateTime
-        )
-        medicationLogDao.insert(medicationLog)
+        Log.d("testcat", "Generated ${times.size} times")
+        return times
     }
 }
 

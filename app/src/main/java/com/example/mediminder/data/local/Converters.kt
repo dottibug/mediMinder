@@ -52,12 +52,13 @@ class Converters {
     // Converters for LocalTime List
     // ----------------------------------------------------------------------
     @TypeConverter
-    fun fromStringToLocalTimeList(value: String?): List<LocalTime>? {
-        return value?.split(",")?.map { LocalTime.parse(it) }
+    fun fromStringToLocalTimeList(value: String?): List<LocalTime> {
+        if (value.isNullOrEmpty()) return emptyList()
+        return value.split(",").map { LocalTime.parse(it.trim()) }
     }
 
     @TypeConverter
-    fun fromLocalTimeListToString(list: List<LocalTime>?): String? {
-        return list?.joinToString(",") { it.toString() }
+    fun fromLocalTimeListToString(times: List<LocalTime>?): String {
+        return times?.joinToString(",") { it.toString() } ?: ""
     }
 }

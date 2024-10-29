@@ -122,7 +122,7 @@ class DatabaseSeeder(
 
         val reminder3 = MedReminders(
             medicationId = testMedId3,
-            reminderFrequency = "daily",
+            reminderFrequency = "hourly",
             hourlyReminderInterval = "6",
             hourlyReminderStartTime = LocalTime.of(8, 30),
             hourlyReminderEndTime = LocalTime.of(21, 0),

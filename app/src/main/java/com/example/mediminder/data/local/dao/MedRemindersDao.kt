@@ -14,4 +14,8 @@ interface MedRemindersDao {
     @Query("DELETE FROM reminders")
     suspend fun deleteAll()
 
+    @Query("SELECT * FROM reminders WHERE medication_id = :medicationId")
+    suspend fun getReminderByMedicationId(medicationId: Long): MedReminders?
+
+
 }

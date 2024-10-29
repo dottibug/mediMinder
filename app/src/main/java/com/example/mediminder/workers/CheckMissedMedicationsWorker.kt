@@ -50,10 +50,10 @@ class CheckMissedMedicationsWorker(
     companion object {
         private val TAG = "CheckMissedMedicationsWorker"
         // todo: do not hardcode the grace period; default to 2L, but allow user to change it in settings
-//        private const val GRACE_PERIOD_HOURS = 2L
+        private const val GRACE_PERIOD_HOURS = 2L
 
         // TEST: Grace period for development purposes
-        private const val GRACE_PERIOD_HOURS = 0L
+//        private const val GRACE_PERIOD_HOURS = 0L
     }
 
 }

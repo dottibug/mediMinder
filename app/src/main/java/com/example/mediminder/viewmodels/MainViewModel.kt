@@ -13,9 +13,10 @@ import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 
 
 // This view model holds state for the main activity screen.
@@ -23,13 +24,15 @@ import java.time.LocalDate
 class MainViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow(LocalDate.now()) // initialize to today's date
-    val selectedDate: StateFlow<LocalDate> = _selectedDate
+    val selectedDate = _selectedDate.asStateFlow()
+//    val selectedDate: StateFlow<LocalDate> = _selectedDate
 
     private val _dateSelectorDates = MutableStateFlow<List<LocalDate>>(createDateList())
-    val dateSelectorDates: StateFlow<List<LocalDate>> = _dateSelectorDates
+//    val dateSelectorDates: StateFlow<List<LocalDate>> = _dateSelectorDates
+    val dateSelectorDates = _dateSelectorDates.asStateFlow()
 
-    private val _medications = MutableStateFlow<List<Pair<Medication, Dosage?>>>(emptyList())
-    val medications: StateFlow<List<Pair<Medication, Dosage?>>> = _medications
+    private val _medications = MutableStateFlow<List<Triple<Medication, Dosage?, LocalTime>>>(emptyList())
+    val medications = _medications.asStateFlow()
 
     // Create a list of dates for the date selector (-3 to +3 days from today)
     private fun createDateList(): List<LocalDate> {
