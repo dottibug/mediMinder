@@ -80,5 +80,4 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             }
         }
     }
-
 }

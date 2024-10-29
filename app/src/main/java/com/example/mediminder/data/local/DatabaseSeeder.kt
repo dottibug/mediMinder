@@ -54,7 +54,6 @@ class DatabaseSeeder(
             hourlyReminderStartTime = null,
             hourlyReminderEndTime = null,
             dailyReminderTimes = listOf(LocalTime.of(12, 0), LocalTime.of(18, 0)),
-            reminderType = "alarm"
         )
 
         medRemindersDao.insert(reminder1)
@@ -127,7 +126,6 @@ class DatabaseSeeder(
             hourlyReminderStartTime = LocalTime.of(8, 30),
             hourlyReminderEndTime = LocalTime.of(21, 0),
             dailyReminderTimes = emptyList(),
-            reminderType = "alarm"
         )
         medRemindersDao.insert(reminder3)
 

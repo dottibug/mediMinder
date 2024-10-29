@@ -39,10 +39,10 @@ class AddMedicationActivity : AppCompatActivity() {
                 val reminderData = addMedViewModel.getReminderData()
                 val scheduleData = addMedViewModel.getScheduleData()
 
-                val medicationStatus = getMedicationStatus(reminderData)
-
                 if (medicationData != null && dosageData != null) {
-                    addMedViewModel.saveMedication(medicationData, dosageData, reminderData, scheduleData, medicationStatus)
+                    addMedViewModel.saveMedication(
+                        medicationData, dosageData, reminderData, scheduleData
+                    )
                     setResult(RESULT_OK)
                     // TODO: show a toast message?
                     finish()

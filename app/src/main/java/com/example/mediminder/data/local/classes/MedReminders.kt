@@ -22,5 +22,4 @@ data class MedReminders (
     @ColumnInfo(name = "hourly_reminder_start_time") val hourlyReminderStartTime: LocalTime?,
     @ColumnInfo(name = "hourly_reminder_end_time") val hourlyReminderEndTime: LocalTime?,
     @ColumnInfo(name = "daily_reminder_times") val dailyReminderTimes: List<LocalTime>,
-    @ColumnInfo(name = "reminder_type") val reminderType: String,
 )

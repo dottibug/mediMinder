@@ -54,7 +54,6 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
             hourlyReminderStartTime = hourlyReminderStartTime.value,
             hourlyReminderEndTime = hourlyReminderEndTime.value,
             dailyReminderTimes = dailyReminderTimes.value,
-            reminderType = reminderType.value,
         )
     }
 
@@ -97,8 +96,7 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
         medicationData: MedicationData,
         dosageData: DosageData,
         reminderData: ReminderData,
-        scheduleData: ScheduleData,
-        medicationStatus: MedicationStatus
+        scheduleData: ScheduleData
     ) {
         val validatedMedicationData = validateMedicationData(medicationData)
         val validatedDosageData = validateDosageData(dosageData)
@@ -174,12 +172,6 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
                 reminderData.dailyReminderTimes.takeIf { it.isNotEmpty() }
                     ?: throw IllegalArgumentException("At least one reminder time is required for daily reminders")
             } else emptyList(),
-
-            // Reminder type is required when reminders are enabled
-            reminderType = if (reminderData.reminderEnabled) {
-                reminderData.reminderType.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Reminder type is required when reminders are enabled")
-            } else ""
         )
     }
 
@@ -255,7 +247,6 @@ data class ReminderData(
     val hourlyReminderStartTime: Pair<Int, Int>?,
     val hourlyReminderEndTime: Pair<Int, Int>?,
     val dailyReminderTimes: List<Pair<Int, Int>>,
-    val reminderType: String,
 )
 
 data class ScheduleData(

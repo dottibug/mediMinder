@@ -56,4 +56,5 @@ dependencies {
     implementation (libs.material.v190)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.preference.ktx)
 }

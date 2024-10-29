@@ -86,7 +86,6 @@ class MedicationRepository(
                                 it.first, it.second
                             )
                         },
-                        reminderType = reminderData.reminderType
                     )
                 )
 
@@ -131,7 +130,6 @@ class MedicationRepository(
                             Pair(it.hour, it.minute)
                         },
                         dailyReminderTimes = emptyList(),
-                        reminderType = reminder.reminderType,
                         reminderEnabled = true
                     ))
                     else -> emptyList()

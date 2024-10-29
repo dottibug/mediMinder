@@ -25,9 +25,6 @@ class AddMedicationReminderViewModel: ViewModel() {
     private val _dailyReminderTimes = MutableStateFlow<List<Pair<Int, Int>>>(emptyList()) // (hour, minute)
     val dailyReminderTimes: StateFlow<List<Pair<Int, Int>>> = _dailyReminderTimes.asStateFlow()
 
-    private val _reminderType = MutableStateFlow("Alarm") // default to alarm
-    val reminderType: StateFlow<String> = _reminderType.asStateFlow()
-
     fun setReminderEnabled(enabled: Boolean) { _isReminderEnabled.value = enabled }
 
     fun setReminderFrequency(freq: String) {
@@ -60,8 +57,6 @@ class AddMedicationReminderViewModel: ViewModel() {
 
     private fun clearHourlyReminderStartTime() { _hourlyReminderStartTime.value = null }
     private fun clearHourlyReminderEndTime() { _hourlyReminderEndTime.value = null }
-
-    fun setReminderType(type: String) { _reminderType.value = type }
 
     private fun clearDailyReminderTimes() { _dailyReminderTimes.value = emptyList() }
 
