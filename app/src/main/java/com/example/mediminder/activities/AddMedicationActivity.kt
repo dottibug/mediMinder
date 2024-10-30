@@ -1,4 +1,4 @@
-package com.example.mediminder
+package com.example.mediminder.activities
 
 import android.os.Bundle
 import android.util.Log
@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.databinding.ActivityAddMedicationBinding
 import com.example.mediminder.fragments.AddMedicationDosageFragment
@@ -30,10 +31,14 @@ class AddMedicationActivity : AppCompatActivity() {
 
         binding.buttonAddMed.setOnClickListener {
             lifecycleScope.launch {
-                val medicationFragment = supportFragmentManager.findFragmentById(R.id.fragmentAddMedInfo) as AddMedicationInfoFragment?
+                val medicationFragment = supportFragmentManager.findFragmentById(
+                    R.id.fragmentAddMedInfo
+                ) as AddMedicationInfoFragment?
                 val medicationData = medicationFragment?.getMedicationData()
 
-                val dosageFragment = supportFragmentManager.findFragmentById(R.id.fragmentAddMedDosage) as AddMedicationDosageFragment?
+                val dosageFragment = supportFragmentManager.findFragmentById(
+                    R.id.fragmentAddMedDosage
+                ) as AddMedicationDosageFragment?
                 val dosageData = dosageFragment?.getDosageData()
 
                 val reminderData = addMedViewModel.getReminderData()

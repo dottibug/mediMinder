@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
@@ -15,27 +15,37 @@
         android:roundIcon="@mipmap/ic_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediMinder"
-        tools:targetApi="31"
-        >
-        <receiver android:name=".receivers.MedicationReminderReceiver" android:exported="false" />
-        <receiver android:name=".receivers.MedicationActionReceiver" android:exported="false" />
-        <receiver android:name=".receivers.MedicationSchedulerReceiver" android:exported="false" />
+        tools:targetApi="31">
         <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_settings" />
-        <activity
-            android:name=".AddMedicationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".activities.PermissionActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".activities.AddMedicationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
+        </activity>
+
+        <receiver
+            android:name=".receivers.MedicationReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receivers.MedicationActionReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receivers.MedicationSchedulerReceiver"
+            android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"

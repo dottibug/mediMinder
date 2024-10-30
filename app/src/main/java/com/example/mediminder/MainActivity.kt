@@ -12,6 +12,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mediminder.activities.AddMedicationActivity
+import com.example.mediminder.activities.SettingsActivity
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
@@ -44,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             setupDatabase()
             createNotificationChannel()
-//            setupWorkers()
             setupUI()
         }
     }
@@ -208,20 +209,6 @@ class MainActivity : AppCompatActivity() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
-
-//    private fun setupWorkers() {
-//        // Check for exact alarm permission
-//        // // https://developer.android.com/reference/android/app/AlarmManager#canScheduleExactAlarms()
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//            if (!alarmManager.canScheduleExactAlarms()) {
-//                // Open system settings to allow exact alarms
-//                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-//                startActivity(intent)
-//                return
-//            }
-//        }
-//    }
 
     // NOTE: This is for development purposes only
     private fun scheduleCurrentMedications() {

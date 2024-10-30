@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    tools:context=".AddMedicationActivity">
+    tools:context=".activities.AddMedicationActivity">
 
     <!-- Content -->
     <ScrollView

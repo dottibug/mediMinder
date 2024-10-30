@@ -1,5 +1,11 @@
 <resources>
 
+    <!-- ALARM PERMISSION -->
+    <string name="alarm_permission_title">Alarm Permission</string>
+    <string name="alarm_permission_icon">Alarm permission icon</string>
+    <string name="alarm_permission_description">Mediminder needs permission to schedule alarms for medication reminders.</string>
+    <string name="alarm_enable_button">Enable Alarms</string>
+
     <!-- SETTINGS -->
     <string name="reminder_settings">Reminder Settings</string>
     <string name="show_medication_name">Show medication name</string>
