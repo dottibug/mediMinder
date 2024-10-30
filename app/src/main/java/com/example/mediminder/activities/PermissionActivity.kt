@@ -41,10 +41,10 @@ class PermissionActivity : AppCompatActivity() {
         permissionManager = AlarmPermissionManager(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkNotificationPermission()) { showAlarmPermissionUI() }
+            if (checkNotificationPermission()) { checkAlarmPermissionAndNavigate() }
             else { showNotificationPermissionUI() }
         }
-        else { showAlarmPermissionUI() }
+        else { checkAlarmPermissionAndNavigate() }
     }
 
     private fun checkNotificationPermission(): Boolean {
