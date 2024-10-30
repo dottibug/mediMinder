@@ -23,35 +23,38 @@
             android:padding="16dp">
 
         <ImageView
+            android:id="@+id/permissionIcon"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             android:src="@drawable/alarm"
-            android:contentDescription="@string/alarm_permission_icon" />
+            android:contentDescription="@string/permission_icon_description" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/alarm_permission_title"
-            android:textAlignment="center"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+            <TextView
+                android:id="@+id/permissionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/alarm_permission_title"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="@string/alarm_permission_description"
-            android:textAlignment="center"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
+            <TextView
+                android:id="@+id/permissionDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="@string/alarm_permission_description"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/permissionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/alarm_enable_button" />
+            android:text="@string/button_grant_alarm_permission" />
 
         </LinearLayout>
 

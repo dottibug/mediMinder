@@ -1,10 +1,15 @@
 <resources>
 
     <!-- ALARM PERMISSION -->
-    <string name="alarm_permission_title">Alarm Permission</string>
-    <string name="alarm_permission_icon">Alarm permission icon</string>
-    <string name="alarm_permission_description">Mediminder needs permission to schedule alarms for medication reminders.</string>
-    <string name="alarm_enable_button">Enable Alarms</string>
+    <string name="notification_permission_title">Enable Notifications</string>
+    <string name="notification_permission_description">MediMinder needs notification permission to remind you when it\'s time to take your medications.</string>
+    <string name="button_grant_notification_permission">Enable Notifications</string>
+
+    <string name="alarm_permission_title">Enable Alarms</string>
+    <string name="alarm_permission_description">MediMinder needs permission to schedule alarms to ensure you receive medication reminders at the correct times.</string>
+    <string name="button_grant_alarm_permission">Enable Alarms</string>
+
+    <string name="permission_icon_description">Permission icon</string>
 
     <!-- SETTINGS -->
     <string name="reminder_settings">Reminder Settings</string>
