@@ -17,7 +17,7 @@ import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
 
 // https://developer.android.com/training/data-storage/room
-@Database(entities = [Medication::class, Dosage::class, MedReminders::class, Schedules::class, MedicationLogs::class], version = 5)
+@Database(entities = [Medication::class, Dosage::class, MedReminders::class, Schedules::class, MedicationLogs::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun medicationDao(): MedicationDao

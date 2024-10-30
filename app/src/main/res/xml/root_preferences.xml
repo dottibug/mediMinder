@@ -1,27 +1,12 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/reminder_type_title">
-        <ListPreference
-            app:defaultValue="notification"
-            app:entries="@array/reminder_type_entries"
-            app:entryValues="@array/reminder_type_values"
-            app:key="reminder_type"
-            app:title="@string/reminder_type_instructions"
-            app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/sync_header">
+    <PreferenceCategory app:title="@string/reminder_settings">
 
         <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
+            app:key="show_medication_name"
+            app:title="@string/show_medication_name"
+            app:summaryOff="@string/show_med_name_summary_off"
+            app:summaryOn="@string/show_med_name_summary_on" />
 
     </PreferenceCategory>
 

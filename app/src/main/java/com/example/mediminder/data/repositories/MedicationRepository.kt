@@ -11,6 +11,8 @@ import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
+import com.example.mediminder.utils.MedScheduledForDateUtil
+import com.example.mediminder.utils.ReminderTimesUtil.getHourlyReminderTimes
 import com.example.mediminder.viewmodels.DosageData
 import com.example.mediminder.viewmodels.MedicationData
 import com.example.mediminder.viewmodels.ReminderData
@@ -18,7 +20,6 @@ import com.example.mediminder.viewmodels.ScheduleData
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.temporal.ChronoUnit
 
 class MedicationRepository(
     private val medicationDao: MedicationDao,
@@ -113,25 +114,18 @@ class MedicationRepository(
         allMeds.forEach { medication ->
             val schedule = scheduleDao.getScheduleByMedicationId(medication.id)
             Log.d("testcat", "Checking schedule for ${medication.name} on $date")
-            Log.d("testcat", "Is scheduled: ${isScheduledForDate(schedule, date)}")
-            if (isScheduledForDate(schedule, date)) {
+            Log.d("testcat", "Is scheduled: ${MedScheduledForDateUtil.isScheduledForDate(schedule, date)}")
+            if (MedScheduledForDateUtil.isScheduledForDate(schedule, date)) {
                 val dosage = dosageDao.getDosageByMedicationId(medication.id)
                 val reminder = remindersDao.getReminderByMedicationId(medication.id)
                 Log.d("testcat", "Reminder frequency: ${reminder?.reminderFrequency}")
                 val reminderTimes = when (reminder?.reminderFrequency) {
                     "daily" -> reminder.dailyReminderTimes
-                    "hourly" -> getHourlyReminderTimes(ReminderData(
-                        reminderFrequency = "hourly",
-                        hourlyReminderInterval = reminder.hourlyReminderInterval,
-                        hourlyReminderStartTime = reminder.hourlyReminderStartTime?.let {
-                            Pair(it.hour, it.minute)
-                        },
-                        hourlyReminderEndTime = reminder.hourlyReminderEndTime?.let {
-                            Pair(it.hour, it.minute)
-                        },
-                        dailyReminderTimes = emptyList(),
-                        reminderEnabled = true
-                    ))
+                    "hourly" -> getHourlyReminderTimes(
+                        reminder.hourlyReminderInterval,
+                        reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
+                        reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
+                    )
                     else -> emptyList()
                 }
 
@@ -140,50 +134,6 @@ class MedicationRepository(
         }
 
         return result.sortedBy { it.third }
-    }
-
-
-    private fun isScheduledForDate(schedule: Schedules?, date: LocalDate): Boolean {
-        if (schedule == null) return false
-        if (!dateWithinMedicationDuration(date, schedule)) return false
-
-        return when (schedule.scheduleType) {
-            "daily" -> true
-
-            // Note: Kotlin dayOfWeek is 1 to 7 (Monday to Sunday). Our database uses 0 to 6
-            //  (Sunday to Saturday), so we need to add 1 to the day of the week.
-            "specificDays" -> {
-                val dayOfWeek = (date.dayOfWeek.value % 7) + 1
-                schedule.selectedDays.split(",").contains(dayOfWeek.toString())
-            }
-
-            // Checks if the number of days between the start date and current date is evenly
-            // divisible by the interval; if it is, the medication is scheduled for the current day
-            // Ex. Interval = 3
-            // Day 0 (start date): 0 % 3 == 0, medication is scheduled
-            // Day 1: 1 % 3 == 1, medication is not scheduled
-            // Day 2: 2 % 3 == 2, medication is not scheduled
-            // Day 3: 3 % 3 == 0, medication is scheduled
-            // Day 4: 4 % 3 == 1, medication is not scheduled, etc
-            "interval" -> {
-                val daysSinceStart = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
-                daysSinceStart % (schedule.daysInterval ?: 1) == 0
-            }
-
-            else -> false
-        }
-
-    }
-
-    // Checks if the medication is within the scheduled number of days from the start date
-    private fun dateWithinMedicationDuration(date: LocalDate, schedule: Schedules): Boolean {
-        if (date < schedule.startDate) return false
-
-        return when (schedule.durationType) {
-            "continuous" -> true
-            "numDays" -> date <= schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
-            else -> false
-        }
     }
 
     suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
@@ -203,7 +153,11 @@ class MedicationRepository(
                     LocalTime.of(hour, minute)
                 }
             reminderData.reminderFrequency == "hourly" ->
-                getHourlyReminderTimes(reminderData)
+                getHourlyReminderTimes(
+                    reminderData.hourlyReminderInterval,
+                    reminderData.hourlyReminderStartTime,
+                    reminderData.hourlyReminderEndTime
+                )
             else -> emptyList()
         }
 
@@ -221,37 +175,37 @@ class MedicationRepository(
         }
     }
 
-    private fun getHourlyReminderTimes(reminderData: ReminderData): List<LocalTime> {
-        val startTime = reminderData.hourlyReminderStartTime ?: return emptyList()
-        val endTime = reminderData.hourlyReminderEndTime ?: return emptyList()
-        val interval = reminderData.hourlyReminderInterval ?: return emptyList()
-
-        Log.d("testcat", "Starting hourly time generation")
-
-        // Parse interval to hours
-        val intervalHours = interval.toIntOrNull()?.toLong() ?: return emptyList()
-
-        val startLocalTime = LocalTime.of(startTime.first, startTime.second)
-        val endLocalTime = LocalTime.of(endTime.first, endTime.second)
-
-        val times = mutableListOf<LocalTime>()
-
-        // Calculate how many intervals fit between start and end time
-        val startMinutes = startLocalTime.hour * 60 + startLocalTime.minute
-        val endMinutes = endLocalTime.hour * 60 + endLocalTime.minute
-        val intervalMinutes = intervalHours * 60
-        val numberOfIntervals = ((endMinutes - startMinutes) / intervalMinutes).toInt()
-
-        // Generate times
-        for (i in 0..numberOfIntervals) {
-            val time = startLocalTime.plusHours(intervalHours * i)
-            if (time.isAfter(endLocalTime)) break
-            times.add(time)
-            Log.d("testcat", "Added time: $time")
-        }
-
-        Log.d("testcat", "Generated ${times.size} times")
-        return times
-    }
+//    private fun getHourlyReminderTimes(reminderData: ReminderData): List<LocalTime> {
+//        val startTime = reminderData.hourlyReminderStartTime ?: return emptyList()
+//        val endTime = reminderData.hourlyReminderEndTime ?: return emptyList()
+//        val interval = reminderData.hourlyReminderInterval ?: return emptyList()
+//
+//        Log.d("testcat", "Starting hourly time generation")
+//
+//        // Parse interval to hours
+//        val intervalHours = interval.toIntOrNull()?.toLong() ?: return emptyList()
+//
+//        val startLocalTime = LocalTime.of(startTime.first, startTime.second)
+//        val endLocalTime = LocalTime.of(endTime.first, endTime.second)
+//
+//        val times = mutableListOf<LocalTime>()
+//
+//        // Calculate how many intervals fit between start and end time
+//        val startMinutes = startLocalTime.hour * 60 + startLocalTime.minute
+//        val endMinutes = endLocalTime.hour * 60 + endLocalTime.minute
+//        val intervalMinutes = intervalHours * 60
+//        val numberOfIntervals = ((endMinutes - startMinutes) / intervalMinutes).toInt()
+//
+//        // Generate times
+//        for (i in 0..numberOfIntervals) {
+//            val time = startLocalTime.plusHours(intervalHours * i)
+//            if (time.isAfter(endLocalTime)) break
+//            times.add(time)
+//            Log.d("testcat", "Added time: $time")
+//        }
+//
+//        Log.d("testcat", "Generated ${times.size} times")
+//        return times
+//    }
 }
 

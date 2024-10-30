@@ -29,6 +29,65 @@ class DatabaseSeeder(
     suspend fun seedDatabase() {
         Log.d("testcat DatabaseSeeder", "Starting database seeding")
 
+        // TEST ALARM
+        // Get current time
+        val now = LocalTime.now()
+        // Add 2 minutes to current time
+        val testTime = now.plusMinutes(2)
+
+        val testMedAlarmId = medicationDao.insert(
+            Medication(
+                name = "Test Alarm Med",
+                prescribingDoctor = "Dr. Test",
+                notes = "This is a test medication for alarm testing",
+                reminderEnabled = true,
+            )
+        )
+
+        dosageDao.insert(
+            Dosage(
+                medicationId = testMedAlarmId,
+                amount = "1",
+                units = "mg"
+            )
+        )
+
+        medRemindersDao.insert(
+            MedReminders(
+                medicationId = testMedAlarmId,
+                reminderFrequency = "daily",
+                hourlyReminderInterval = "",
+                hourlyReminderStartTime = null,
+                hourlyReminderEndTime = null,
+                dailyReminderTimes = listOf(
+                    LocalTime.of(testTime.hour, testTime.minute)
+                )
+            )
+        )
+
+        val testMedAlarmScheduledId = scheduleDao.insert(
+            Schedules(
+                medicationId = testMedAlarmId,
+                startDate = LocalDate.now(),
+                durationType = "continuous",
+                numDays = 0,
+                scheduleType = "daily",
+                selectedDays = "",
+                daysInterval = 0
+            )
+        )
+
+        medicationLogDao.insert(
+            MedicationLogs(
+                medicationId = testMedAlarmId,
+                scheduleId = testMedAlarmScheduledId,
+                plannedDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(testTime.hour, testTime.minute)),
+                takenDatetime = null,
+                status = MedicationStatus.PENDING
+            )
+        )
+
+
         //// TEST MED 1
         val testMed1 = Medication(
             name = "Hearto",

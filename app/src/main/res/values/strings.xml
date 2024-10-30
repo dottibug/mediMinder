@@ -1,8 +1,10 @@
 <resources>
 
     <!-- SETTINGS -->
-    <string name="reminder_type_title">Reminder Type</string>
-    <string name="reminder_type_instructions">Set alarm or push notification reminders</string>
+    <string name="reminder_settings">Reminder Settings</string>
+    <string name="show_medication_name">Show medication name</string>
+    <string name="show_med_name_summary_off">Show medication name in reminders</string>
+    <string name="show_med_name_summary_on">Hide medication name in reminders</string>
 
     <!-- ADD MEDICATION FRAGMENTS -->
     <string name="add_new_medication_title">Add New Medication</string>

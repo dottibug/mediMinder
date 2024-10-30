@@ -1,7 +1,13 @@
 package com.example.mediminder
 
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,19 +15,23 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
+import com.example.mediminder.receivers.MedicationReminderReceiver
 import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
+import com.example.mediminder.workers.MedicationRemindersWorker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -41,8 +51,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         WindowInsetsUtil.setupWindowInsets(binding.root)
 
-        setupDatabase()
-        setupUI()
+
+        lifecycleScope.launch {
+            setupDatabase()
+            createNotificationChannel()
+            setupWorkers()
+            setupUI()
+        }
     }
 
     private fun setupDatabase() {
@@ -59,7 +74,6 @@ class MainActivity : AppCompatActivity() {
             seeder.clearDatabase()
             seeder.seedDatabase()
             viewModel.fetchMedicationsForDate(LocalDate.now())
-            setupCheckMissedMedicationsWorker()
         }
     }
 
@@ -175,7 +189,6 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.medications.collectLatest { medications ->
-//                medicationAdapter.setMedications(medications)
                 medicationAdapter.submitList(medications)
             }
         }
@@ -187,12 +200,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupCheckMissedMedicationsWorker() {
+    private fun createNotificationChannel() {
+        val name = "Medication Reminder"
+        val descriptionText = "Channel for medication reminders"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(
+            MedicationReminderReceiver.CHANNEL_ID,
+            name,
+            importance
+        ).apply {
+            description = descriptionText
+        }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun setupWorkers() {
+        // Check for exact alarm permission
+        // // https://developer.android.com/reference/android/app/AlarmManager#canScheduleExactAlarms()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            if (!alarmManager.canScheduleExactAlarms()) {
+                // Open system settings to allow exact alarms
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                startActivity(intent)
+                return
+            }
+        }
+
         // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work#work-constraints
         val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(true)
             .build()
 
+        // Schedule CheckMissedMedicationWorker
         // https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work#schedule_periodic_work
         // Performs the work every 1 hour
         val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
@@ -204,16 +245,37 @@ class MainActivity : AppCompatActivity() {
 //            15, TimeUnit.MINUTES
 //        ).setConstraints(constraints).build()
 
-        Log.d("testcat", "Enqueuing worker")
+        // Schedule MedicationRemindersWorker
+        val medicationRemindersWorkRequest = PeriodicWorkRequestBuilder<MedicationRemindersWorker>(
+            30, TimeUnit.MINUTES
+        )
+            .setInitialDelay(0, TimeUnit.MILLISECONDS)  // Run immediately on first schedule
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .addTag("medication_reminders_worker")
+            .setConstraints(constraints)
+            .build()
 
         // https://developer.android.com/reference/androidx/work/WorkManager#enqueueUniquePeriodicWork(kotlin.String,androidx.work.ExistingPeriodicWorkPolicy,androidx.work.PeriodicWorkRequest)
-        WorkManager.getInstance(applicationContext)
-            .enqueueUniquePeriodicWork(
+        WorkManager.getInstance(applicationContext).apply {
+            enqueueUniquePeriodicWork(
                 "check_missed_medications",
                 ExistingPeriodicWorkPolicy.KEEP,
                 checkMissedMedicationsWorkRequest
             )
 
-        Log.d("testcat", "Worker enqueued")
+            cancelAllWorkByTag("medication_reminders_worker")
+
+            enqueueUniquePeriodicWork(
+                "medication_reminders",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                medicationRemindersWorkRequest
+            )
+        }
     }
+
+
 }
