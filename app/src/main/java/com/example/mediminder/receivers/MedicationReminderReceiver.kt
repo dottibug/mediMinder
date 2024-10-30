@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
@@ -15,12 +14,9 @@ import com.example.mediminder.R
 // https://developer.android.com/develop/ui/views/notifications/build-notification
 class MedicationReminderReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("AlarmDebug", "MedicationReminderReceiver triggered")
 
         val medicationId = intent.getLongExtra("medicationId", -1)
         val medicationName = intent.getStringExtra("medicationName") ?: "Medication"
-
-        Log.d("AlarmDebug", "Received alarm for medication: $medicationName (ID: $medicationId)")
 
         // todo: do we want to include dosage in notification?
         val dosage = intent.getStringExtra("dosage") ?: ""

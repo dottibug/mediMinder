@@ -43,6 +43,7 @@ class AddMedicationActivity : AppCompatActivity() {
                     addMedViewModel.saveMedication(
                         medicationData, dosageData, reminderData, scheduleData
                     )
+
                     setResult(RESULT_OK)
                     // TODO: show a toast message?
                     finish()

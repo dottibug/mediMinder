@@ -106,19 +106,13 @@ class MedicationRepository(
 
     suspend fun getMedicationsForDate(date: LocalDate): List<Triple<Medication, Dosage?, LocalTime>> {
         val allMeds = medicationDao.getAllWithRemindersEnabled()
-        Log.d("testcat", "All meds with reminders enabled: ${allMeds.map { it.name }}")
-
-
         val result = mutableListOf<Triple<Medication, Dosage?, LocalTime>>()
 
         allMeds.forEach { medication ->
             val schedule = scheduleDao.getScheduleByMedicationId(medication.id)
-            Log.d("testcat", "Checking schedule for ${medication.name} on $date")
-            Log.d("testcat", "Is scheduled: ${MedScheduledForDateUtil.isScheduledForDate(schedule, date)}")
             if (MedScheduledForDateUtil.isScheduledForDate(schedule, date)) {
                 val dosage = dosageDao.getDosageByMedicationId(medication.id)
                 val reminder = remindersDao.getReminderByMedicationId(medication.id)
-                Log.d("testcat", "Reminder frequency: ${reminder?.reminderFrequency}")
                 val reminderTimes = when (reminder?.reminderFrequency) {
                     "daily" -> reminder.dailyReminderTimes
                     "hourly" -> getHourlyReminderTimes(
@@ -128,11 +122,9 @@ class MedicationRepository(
                     )
                     else -> emptyList()
                 }
-
                 reminderTimes.forEach { time -> result.add(Triple(medication, dosage, time)) }
             }
         }
-
         return result.sortedBy { it.third }
     }
 
@@ -174,38 +166,5 @@ class MedicationRepository(
             )
         }
     }
-
-//    private fun getHourlyReminderTimes(reminderData: ReminderData): List<LocalTime> {
-//        val startTime = reminderData.hourlyReminderStartTime ?: return emptyList()
-//        val endTime = reminderData.hourlyReminderEndTime ?: return emptyList()
-//        val interval = reminderData.hourlyReminderInterval ?: return emptyList()
-//
-//        Log.d("testcat", "Starting hourly time generation")
-//
-//        // Parse interval to hours
-//        val intervalHours = interval.toIntOrNull()?.toLong() ?: return emptyList()
-//
-//        val startLocalTime = LocalTime.of(startTime.first, startTime.second)
-//        val endLocalTime = LocalTime.of(endTime.first, endTime.second)
-//
-//        val times = mutableListOf<LocalTime>()
-//
-//        // Calculate how many intervals fit between start and end time
-//        val startMinutes = startLocalTime.hour * 60 + startLocalTime.minute
-//        val endMinutes = endLocalTime.hour * 60 + endLocalTime.minute
-//        val intervalMinutes = intervalHours * 60
-//        val numberOfIntervals = ((endMinutes - startMinutes) / intervalMinutes).toInt()
-//
-//        // Generate times
-//        for (i in 0..numberOfIntervals) {
-//            val time = startLocalTime.plusHours(intervalHours * i)
-//            if (time.isAfter(endLocalTime)) break
-//            times.add(time)
-//            Log.d("testcat", "Added time: $time")
-//        }
-//
-//        Log.d("testcat", "Generated ${times.size} times")
-//        return times
-//    }
 }
 
