@@ -28,37 +28,23 @@ class AddMedicationReminderViewModel: ViewModel() {
     fun setReminderEnabled(enabled: Boolean) { _isReminderEnabled.value = enabled }
 
     fun setReminderFrequency(freq: String) {
-        when (freq) {
+        _reminderFrequency.value = when (freq) {
             "every x hours" -> {
-                _reminderFrequency.value = "hourly"
                 clearDailyReminderTimes()
+                "hourly"
             }
             else -> {
-                _reminderFrequency.value = "daily"
-                clearHourlyReminderInterval()
-                clearHourlyReminderStartTime()
-                clearHourlyReminderEndTime()
+                clearHourlyReminderSettings()
+                "daily"
             }
         }
     }
 
     fun setHourlyReminderInterval(interval: String) { _hourlyReminderInterval.value = interval }
 
-    private fun clearHourlyReminderInterval() { _hourlyReminderInterval.value = null }
-
     // Note: minute is 0 to 60, hour is 0 to 23
-    fun setHourlyReminderStartTime(hour: Int, minute: Int) {
-        _hourlyReminderStartTime.value = Pair(hour, minute)
-    }
-
-    fun setHourlyReminderEndTime(hour: Int, minute: Int) {
-        _hourlyReminderEndTime.value = Pair(hour, minute)
-    }
-
-    private fun clearHourlyReminderStartTime() { _hourlyReminderStartTime.value = null }
-    private fun clearHourlyReminderEndTime() { _hourlyReminderEndTime.value = null }
-
-    private fun clearDailyReminderTimes() { _dailyReminderTimes.value = emptyList() }
+    fun setHourlyReminderStartTime(hour: Int, minute: Int) { _hourlyReminderStartTime.value = Pair(hour, minute) }
+    fun setHourlyReminderEndTime(hour: Int, minute: Int) { _hourlyReminderEndTime.value = Pair(hour, minute) }
 
     // Add a daily reminder time (defaults to 12:00 PM)
     fun addDailyReminderTime(hour: Int, minute: Int) {
@@ -85,6 +71,15 @@ class AddMedicationReminderViewModel: ViewModel() {
             _dailyReminderTimes.value = times
         }
     }
+
+    private fun clearHourlyReminderSettings() {
+        _hourlyReminderInterval.value = null
+        _hourlyReminderStartTime.value = null
+        _hourlyReminderEndTime.value = null
+    }
+
+    private fun clearDailyReminderTimes() { _dailyReminderTimes.value = emptyList() }
+
 
     private fun sortDailyReminderTimes(times: List<Pair<Int, Int>>): MutableList<Pair<Int, Int>> {
         val sortedTimes = times.sortedBy { it.first }

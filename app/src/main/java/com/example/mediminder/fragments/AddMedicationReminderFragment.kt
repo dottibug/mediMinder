@@ -65,6 +65,7 @@ class AddMedicationReminderFragment : Fragment() {
     private fun resetDailyFrequencyButtonText() {
         binding.buttonHourlyRemindEvery.text = resources.getString(R.string.hourly_30)
         binding.buttonReminderStartTime.text = resources.getString(R.string.button_time_picker)
+        binding.buttonReminderEndTime.text = resources.getString(R.string.button_time_picker)
     }
 
     // Set up observers for LiveData
@@ -170,12 +171,14 @@ class AddMedicationReminderFragment : Fragment() {
     // added. If the index is >= 0, then the time picker button at that index will be updated
     private fun showTimePickerDialog(reminderType: String, index: Int = -1, isEndTime: Boolean = false) {
         // Build the time picker dialog
+        val titleText = if (isEndTime) "Select End Time" else "Select Start Time"
+
         val timePicker = MaterialTimePicker.Builder()
             .setInputMode(INPUT_MODE_CLOCK)
             .setTimeFormat(TimeFormat.CLOCK_12H)
             .setHour(12)
             .setMinute(0)
-            .setTitleText("Select Start Time")
+            .setTitleText(titleText)
             .build()
 
         timePicker.show(parentFragmentManager, "tag")
@@ -186,11 +189,14 @@ class AddMedicationReminderFragment : Fragment() {
 
             when (reminderType) {
                 "hourly" -> {
-                    updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
-                    if (isEndTime) reminderViewModel.setHourlyReminderEndTime(hour, minute)
-                    else reminderViewModel.setHourlyReminderStartTime(hour, minute)
+                    if (isEndTime) {
+                        updateTimePickerButtonText(hour, minute, binding.buttonReminderEndTime)
+                        reminderViewModel.setHourlyReminderEndTime(hour, minute)
+                    } else {
+                        updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
+                        reminderViewModel.setHourlyReminderStartTime(hour, minute)
+                    }
                 }
-
                 "daily" -> {
                     if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
                     else { reminderViewModel.addDailyReminderTime(hour, minute) }

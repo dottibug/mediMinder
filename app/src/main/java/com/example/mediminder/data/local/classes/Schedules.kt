@@ -14,6 +14,8 @@ import java.time.LocalDate
         childColumns = ["medication_id"],
         onDelete = ForeignKey.CASCADE
     )])
+// selectedDays format: comma-separated list of days (1-7, Monday-Sunday) to match Kotlin LocalDate.dayOfWeek
+// Ex: "1,3,5" represents Monday, Wednesday, Friday
 data class Schedules (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,

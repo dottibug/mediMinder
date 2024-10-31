@@ -1,6 +1,7 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ class DaySelectionDialogFragment(
 
         binding.buttonSetDaySelectionDialog.setOnClickListener {
             val selectedDays = getSelectedDays()
+            Log.d("testcat days", "Selected days: $selectedDays")
             parentFragment.setSelectedDays(selectedDays)
             dismiss()
         }
@@ -46,18 +48,18 @@ class DaySelectionDialogFragment(
     private fun checkSpecificDays(specificDays: List<String>) {
         // [ Sunday, Monday, Tuesday ]
         val checkboxes = listOf(
-            binding.checkboxSunday,
-            binding.checkboxMonday,
-            binding.checkboxTuesday,
-            binding.checkboxWednesday,
-            binding.checkboxThursday,
-            binding.checkboxFriday,
-            binding.checkboxSaturday
+            binding.checkboxMonday,     // 1
+            binding.checkboxTuesday,    // 2
+            binding.checkboxWednesday,  // 3
+            binding.checkboxThursday,   // 4
+            binding.checkboxFriday,     // 5
+            binding.checkboxSaturday,   // 6
+            binding.checkboxSunday,     // 7
         )
 
-        for (checkbox in checkboxes) {
-            val checkboxDay = checkbox.text.toString()
-            checkbox.isChecked = specificDays.contains(checkboxDay)
+        for ((index, checkbox) in checkboxes.withIndex()) {
+            val dayValue = (index + 1).toString()
+            checkbox.isChecked = specificDays.contains(dayValue)
         }
     }
 
@@ -65,20 +67,18 @@ class DaySelectionDialogFragment(
         val days = mutableListOf<String>()
 
         val checkboxes = listOf(
-            binding.checkboxSunday,
             binding.checkboxMonday,
             binding.checkboxTuesday,
             binding.checkboxWednesday,
             binding.checkboxThursday,
             binding.checkboxFriday,
-            binding.checkboxSaturday
+            binding.checkboxSaturday,
+            binding.checkboxSunday,
         )
 
-        // Return the index of the checked checkboxes (0 = Sunday, 1 = Monday, etc.)
-        for (i in checkboxes.indices) {
-            if (checkboxes[i].isChecked) { days.add(i.toString()) }
-        }
-        return days.joinToString(",") // "0,1,2" -> Sunday, Monday, Tuesday
+        return checkboxes.mapIndexedNotNull { index, checkbox ->
+            if (checkbox.isChecked) (index + 1).toString() else null
+        }.joinToString(",")
     }
 
     companion object {

@@ -6,12 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.mediminder.activities.AddMedicationActivity
 import com.example.mediminder.activities.SettingsActivity
 import com.example.mediminder.adapters.MainDateSelectorAdapter
@@ -20,10 +24,8 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
-import com.example.mediminder.receivers.MedicationReminderReceiver
-import com.example.mediminder.receivers.MedicationSchedulerReceiver
-import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
+import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -40,35 +42,26 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
 
+        setupUI()
+        createNotificationChannel()
 
         lifecycleScope.launch {
-            setupDatabase()
-            createNotificationChannel()
-            setupUI()
+            initializeDatabaseAndFetchData()
         }
     }
 
-    private fun setupDatabase() {
-        val database = AppDatabase.getDatabase(this)
-        val seeder = DatabaseSeeder(
-            database.medicationDao(),
-            database.dosageDao(),
-            database.remindersDao(),
-            database.scheduleDao(),
-            database.medicationLogDao()
-        )
-
-        lifecycleScope.launch {
-            seeder.clearDatabase()
-            seeder.seedDatabase()
-
-            // NOTE: This is for development purposes only
-            scheduleCurrentMedications()
-            // NOTE end
-
+    // Coroutine off the main thread to avoid blocking the UI
+    private suspend fun initializeDatabaseAndFetchData() {
+        showLoadingSpinner()
+        try {
+            setupDatabase()
+            forceFutureLogsWorker()
             viewModel.fetchMedicationsForDate(LocalDate.now())
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error initializing database: ${e.message}", e)
+        } finally {
+            hideLoadingSpinner()
         }
     }
 
@@ -80,17 +73,13 @@ class MainActivity : AppCompatActivity() {
         observeViewModel()
     }
 
-    // Set up the top app bar
     private fun setupAppBar() {
-        binding.topAppBar.setNavigationOnClickListener {
-            binding.drawerLayout.open()
-        }
+        binding.topAppBar.setNavigationOnClickListener { binding.drawerLayout.open() }
 
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.settings -> {
-                    val intent = Intent(this, SettingsActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, SettingsActivity::class.java))
                     true
                 }
                 else -> false
@@ -98,48 +87,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Set up navigation drawer menu items
     private fun setupNavigationView() {
         binding.navView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    // todo: navigate to home screen
-                    Log.i("testcat", "Navigate to home")
-                }
-                R.id.nav_profile -> {
-                    // todo: navigate to profile screen
-                    Log.i("testcat", "Navigate to profile")
-                }
-                R.id.nav_medications -> {
-                    // todo: navigate to medications screen
-                    Log.i("testcat", "Navigate to medications")
-                }
-                R.id.nav_schedule -> {
-                    // todo: navigate to schedule screen
-                    Log.i("testcat", "Navigate to schedule")
-                }
-                R.id.nav_tracking -> {
-                    // todo: navigate to tracking screen
-                    Log.i("testcat", "Navigate to tracking")
-                }
-                R.id.nav_settings -> {
-                    val intent = Intent(this, SettingsActivity::class.java)
-                    startActivity(intent)
-                }
-            }
-
+            handleNavigationItemSelected(menuItem)
             menuItem.isChecked = true
             binding.drawerLayout.close()
             true
         }
     }
 
+    private fun handleNavigationItemSelected(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.nav_home -> Log.i("Navigation", "Navigate to home")
+            R.id.nav_profile -> Log.i("Navigation", "Navigate to profile")
+            R.id.nav_medications -> Log.i("Navigation", "Navigate to medications")
+            R.id.nav_schedule -> Log.i("Navigation", "Navigate to schedule")
+            R.id.nav_tracking -> Log.i("Navigation", "Navigate to tracking")
+            R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
+
     private fun setupRecyclerViews() {
-        // Medications recycler view
         medicationAdapter = MainMedicationAdapter { medId ->
-            UpdateMedicationStatusDialogFragment.newInstance(
-                medId = medId
-            ) { newStatus ->
+            UpdateMedicationStatusDialogFragment.newInstance(medId) { newStatus ->
                 viewModel.updateMedicationStatus(medId, newStatus)
             }.show(supportFragmentManager, "update_medication_status_dialog")
         }
@@ -149,7 +119,6 @@ class MainActivity : AppCompatActivity() {
             adapter = medicationAdapter
         }
 
-        // Date selector recycler view
         dateSelectorAdapter = MainDateSelectorAdapter(emptyList()) { date ->
             viewModel.selectDate(date)
         }
@@ -173,12 +142,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // https://developer.android.com/topic/libraries/architecture/viewmodel
     private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.dateSelectorDates.collectLatest { dates ->
+                dateSelectorAdapter.updateDates(dates)
+            }
+        }
+
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
                 binding.selectedDateText.text = date.toString()
-                viewModel.fetchMedicationsForDate(date)
             }
         }
 
@@ -187,34 +160,65 @@ class MainActivity : AppCompatActivity() {
                 medicationAdapter.submitList(medications)
             }
         }
-
-        lifecycleScope.launch {
-            viewModel.dateSelectorDates.collectLatest { dates ->
-                dateSelectorAdapter.updateDates(dates)
-            }
-        }
     }
 
     private fun createNotificationChannel() {
-        val name = "Medication Reminder"
-        val descriptionText = "Channel for medication reminders"
-        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(
-            MedicationReminderReceiver.CHANNEL_ID,
-            name,
-            importance
+            "medication_reminders",
+            "Medication Reminders",
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = descriptionText
+            description = "Channel for medication reminders"
         }
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 
-    // NOTE: This is for development purposes only
-    private fun scheduleCurrentMedications() {
-        val intent = Intent(this, MedicationSchedulerReceiver::class.java).apply {
-            action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+    private fun showLoadingSpinner() { binding.loadingSpinner.show() }
+    private fun hideLoadingSpinner() { binding.loadingSpinner.hide() }
+
+
+    // Coroutine off the main thread to avoid blocking the UI
+    private suspend fun setupDatabase() {
+        Log.d("MainActivity testcat", "Setting up database")
+        val database = AppDatabase.getDatabase(this)
+        val seeder = DatabaseSeeder(
+            applicationContext,
+            database.medicationDao(),
+            database.dosageDao(),
+            database.remindersDao(),
+            database.scheduleDao(),
+            database.medicationLogDao()
+        )
+
+        try {
+            seeder.clearDatabase()
+            Log.d("MainActivity testcat", "Database cleared")
+
+            seeder.seedDatabase()
+            Log.d("MainActivity testcat", "Database seeded")
+
+            // Verify seeded data
+            val medicationDao = database.medicationDao()
+            val medications = medicationDao.getAllWithRemindersEnabled()
+            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
+        } catch (e: Exception) {
+            Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
         }
-        sendBroadcast(intent)
+    }
+
+
+    // NOTE: Development purposes only
+    private fun forceFutureLogsWorker() {
+        val workRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
+
+        WorkManager.getInstance(this)
+            .getWorkInfoByIdLiveData(workRequest.id)
+            .observe(this) { workInfo ->
+                if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                    viewModel.fetchMedicationsForDate(LocalDate.now())
+                }
+            }
     }
 }

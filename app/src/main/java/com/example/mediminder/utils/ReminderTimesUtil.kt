@@ -1,6 +1,5 @@
 package com.example.mediminder.utils
 
-import android.util.Log
 import java.time.LocalTime
 
 object ReminderTimesUtil {
@@ -10,8 +9,6 @@ object ReminderTimesUtil {
         endTime: Pair<Int, Int>?
     ): List<LocalTime> {
         if (interval == null || startTime == null || endTime == null) return emptyList()
-
-        Log.d("testcat", "Starting hourly time generation")
 
         // Parse interval to hours (extract first number from string like "2 hours")
         val intervalHours = interval.split(" ")[0].toIntOrNull()?.toLong() ?: return emptyList()
@@ -32,10 +29,8 @@ object ReminderTimesUtil {
             val time = startLocalTime.plusHours(intervalHours * i)
             if (time.isAfter(endLocalTime)) break
             times.add(time)
-            Log.d("testcat", "Added time: $time")
         }
 
-        Log.d("testcat", "Generated ${times.size} times")
         return times
     }
 }

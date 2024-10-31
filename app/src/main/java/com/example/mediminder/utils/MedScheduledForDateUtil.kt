@@ -12,11 +12,8 @@ object MedScheduledForDateUtil {
         return when (schedule.scheduleType) {
             "daily" -> true
 
-            // Note: Kotlin dayOfWeek is 1 to 7 (Monday to Sunday). Our database uses 0 to 6
-            //  (Sunday to Saturday), so we need to add 1 to the day of the week.
             "specificDays" -> {
-                val dayOfWeek = (date.dayOfWeek.value % 7) + 1
-                schedule.selectedDays.split(",").contains(dayOfWeek.toString())
+                schedule.selectedDays.split(",").contains(date.dayOfWeek.value.toString())
             }
 
             // Checks if the number of days between the start date and current date is evenly

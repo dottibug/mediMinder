@@ -1,7 +1,6 @@
 package com.example.mediminder.activities
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -68,9 +67,6 @@ class AddMedicationActivity : AppCompatActivity() {
         } else {
             MedicationStatus.UNSCHEDULED
         }
-
-        Log.i("testcat", "Medication status on a new medication: $status")
-
         return status
     }
 }

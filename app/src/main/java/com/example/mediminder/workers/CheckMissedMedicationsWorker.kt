@@ -1,7 +1,6 @@
 package com.example.mediminder.workers
 
 import android.content.Context
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
@@ -20,7 +19,6 @@ class CheckMissedMedicationsWorker(
 ): CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        Log.d("testcat", "Worker starting...")
 
         val database = AppDatabase.getDatabase(applicationContext)
         val medicationLogDao = database.medicationLogDao()
@@ -32,17 +30,14 @@ class CheckMissedMedicationsWorker(
             // Get all logs that are still in pending status before the cutoff time
             // These logs have not been marked as taken or skipped, so they are missed
             val pendingLogs = medicationLogDao.getPendingMedicationLogs(cutoffTime)
-            Log.d("testcat", "Found ${pendingLogs.size} pending logs before $cutoffTime")
 
             pendingLogs.forEach { log ->
                 medicationLogDao.updateStatus(log.id, MedicationStatus.MISSED)
-                Log.d("testcat", "Updated log ${log.id} to MISSED. Planned time was: ${log.plannedDatetime}")
             }
 
             Result.success()
 
         } catch (e: Exception) {
-            Log.e("testcat", "Error checking missed medications: ${e.message}", e)
             Result.retry()
         }
     }

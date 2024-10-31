@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.utils.ValidationUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -21,49 +22,29 @@ import java.time.LocalDate
 
 class AddMedicationViewModel(private val repository: MedicationRepository): ViewModel() {
 
-    // Reminder
+    // Reminder State
     private val reminderEnabled = MutableStateFlow(false)
-    init {
-        viewModelScope.launch {
-            reminderEnabled.collect { value ->
-                Log.d("testcat", "reminderEnabled value changed to: $value")
-            }
-        }
-    }
-
     private val reminderFrequency = MutableStateFlow("")
     private val hourlyReminderInterval = MutableStateFlow<String?>(null)
     private val hourlyReminderStartTime = MutableStateFlow<Pair<Int, Int>?>(null)
     private val hourlyReminderEndTime = MutableStateFlow<Pair<Int, Int>?>(null)
     private val dailyReminderTimes = MutableStateFlow<List<Pair<Int, Int>>>(emptyList())
-    private val reminderType = MutableStateFlow("")
 
-    fun updateIsReminderEnabled(enabled: Boolean) { reminderEnabled.value = enabled }
-    fun updateReminderFrequency(frequency: String?) { reminderFrequency.value = frequency ?: "" }
-    fun updateHourlyReminderInterval(interval: String?) { hourlyReminderInterval.value = interval }
-    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { hourlyReminderStartTime.value = startTime }
-    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { hourlyReminderEndTime.value = endTime }
-    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { dailyReminderTimes.value = times }
-    fun updateReminderType(type: String) { reminderType.value = type }
-
-    fun getReminderData(): ReminderData {
-        return ReminderData(
-            reminderEnabled = reminderEnabled.value,
-            reminderFrequency = reminderFrequency.value,
-            hourlyReminderInterval = hourlyReminderInterval.value,
-            hourlyReminderStartTime = hourlyReminderStartTime.value,
-            hourlyReminderEndTime = hourlyReminderEndTime.value,
-            dailyReminderTimes = dailyReminderTimes.value,
-        )
-    }
-
-    // Schedule
+    // Schedule State
     private val startDate = MutableStateFlow<LocalDate?>(null)
     private val durationType = MutableStateFlow("continuous")
     private val numDays = MutableStateFlow<Int?>(0)
     private val scheduleType = MutableStateFlow("daily")
     private val selectedDays = MutableStateFlow("")
     private val daysInterval = MutableStateFlow<Int?>(0)
+
+    // Update Functions
+    fun updateIsReminderEnabled(enabled: Boolean) { reminderEnabled.value = enabled }
+    fun updateReminderFrequency(frequency: String?) { reminderFrequency.value = frequency ?: "" }
+    fun updateHourlyReminderInterval(interval: String?) { hourlyReminderInterval.value = interval }
+    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { hourlyReminderStartTime.value = startTime }
+    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { hourlyReminderEndTime.value = endTime }
+    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { dailyReminderTimes.value = times }
 
     fun updateStartDate(date: LocalDate?) { startDate.value = date }
     fun updateDurationType(type: String) { durationType.value = type }
@@ -80,6 +61,18 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
         selectedDays.value = ""
     }
 
+    // Getter Functions
+    fun getReminderData(): ReminderData {
+        return ReminderData(
+            reminderEnabled = reminderEnabled.value,
+            reminderFrequency = reminderFrequency.value,
+            hourlyReminderInterval = hourlyReminderInterval.value,
+            hourlyReminderStartTime = hourlyReminderStartTime.value,
+            hourlyReminderEndTime = hourlyReminderEndTime.value,
+            dailyReminderTimes = dailyReminderTimes.value,
+        )
+    }
+
     fun getScheduleData(): ScheduleData {
         return ScheduleData(
             startDate = startDate.value,
@@ -91,6 +84,7 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
         )
     }
 
+    // Coroutine off the main thread to avoid blocking the UI
     // Save medication data to database. Validates data before saving.
     fun saveMedication(
         medicationData: MedicationData,
@@ -98,10 +92,10 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
         reminderData: ReminderData,
         scheduleData: ScheduleData
     ) {
-        val validatedMedicationData = validateMedicationData(medicationData)
-        val validatedDosageData = validateDosageData(dosageData)
-        val validatedReminderData = validateReminderData(reminderData)
-        val validatedScheduleData = validateScheduleData(scheduleData)
+        val validatedMedicationData = ValidationUtils.validateMedicationData(medicationData)
+        val validatedDosageData = ValidationUtils.validateDosageData(dosageData)
+        val validatedReminderData = ValidationUtils.validateReminderData(reminderData)
+        val validatedScheduleData = ValidationUtils.validateScheduleData(scheduleData)
 
         viewModelScope.launch {
             try {
@@ -112,103 +106,10 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
                     validatedScheduleData,
                 )
             } catch (e: Exception) {
-                // todo: Handle error (maybe toast the error message? if it's an IllegalArgumentException)
+                Log.e("testcat", "Error saving medication: ${e.message}")
+                throw e
             }
         }
-    }
-
-    // Validate medication data before saving:
-    // name is not empty
-    // doctor and notes are trimmed
-    private fun validateMedicationData(medicationData: MedicationData): MedicationData {
-        return medicationData.copy(
-            name = medicationData.name.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Medication name is required"),
-            doctor = medicationData.doctor.trim(),
-            notes = medicationData.notes.trim(),
-        )
-    }
-
-    // Validate dosage data before saving: dosage amount and units are not empty
-    private fun validateDosageData(dosageData: DosageData): DosageData {
-        return dosageData.copy(
-            dosageAmount = dosageData.dosageAmount.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Dosage amount is required"),
-            dosageUnits = dosageData.dosageUnits.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Dosage units are required")
-        )
-    }
-
-    // Validate reminder data before saving
-    private fun validateReminderData(reminderData: ReminderData): ReminderData {
-        return reminderData.copy(
-            reminderEnabled = reminderData.reminderEnabled,
-            // Reminder frequency is required when reminders are enabled
-            reminderFrequency = if (reminderData.reminderEnabled) {
-                reminderData.reminderFrequency.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Reminder frequency is required when reminders are enabled")
-            } else "",
-
-            // Interval is required for hourly reminders
-            hourlyReminderInterval = if (reminderData.reminderFrequency == "hourly") {
-                reminderData.hourlyReminderInterval?.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Hourly reminder interval is required for hourly reminders")
-            } else null,
-
-            // Start time is required for hourly reminders
-            hourlyReminderStartTime = if (reminderData.reminderFrequency == "hourly") {
-                reminderData.hourlyReminderStartTime
-                    ?: throw IllegalArgumentException("Start time is required for hourly reminders")
-            } else null,
-
-            // End time is required for hourly reminders
-            hourlyReminderEndTime = if (reminderData.reminderFrequency == "hourly") {
-                reminderData.hourlyReminderEndTime
-                    ?: throw IllegalArgumentException("End time is required for hourly reminders")
-            } else null,
-
-            // At least one reminder time is required for daily reminders
-            dailyReminderTimes = if (reminderData.reminderFrequency == "daily") {
-                reminderData.dailyReminderTimes.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("At least one reminder time is required for daily reminders")
-            } else emptyList(),
-        )
-    }
-
-    // Validate schedule data before saving
-    private fun validateScheduleData(scheduleData: ScheduleData): ScheduleData {
-        return scheduleData.copy(
-            // Start date defaults to today if not specified
-            startDate = scheduleData.startDate ?: LocalDate.now(),
-
-            // Duration defaults to continuous unless specified otherwise
-            durationType = if (scheduleData.durationType.isEmpty()) {
-                "continuous"
-            } else scheduleData.durationType,
-
-            // Number of days is required for numDays duration type
-            numDays = if (scheduleData.durationType == "numDays") {
-                scheduleData.numDays?.takeIf { it > 0 }
-                    ?: throw IllegalArgumentException("Number of days must be greater than 0")
-            } else null,
-
-            // Schedule type defaults to daily if not specified
-            scheduleType = if (scheduleData.scheduleType.isEmpty()) {
-                "daily"
-            } else scheduleData.scheduleType,
-
-            // Selected days are required for specificDays schedule
-            selectedDays = if (scheduleData.scheduleType == "specificDays") {
-                scheduleData.selectedDays.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Specific days are required for this schedule")
-            } else "",
-
-            // Days interval is required for interval schedule
-            daysInterval = if (scheduleData.scheduleType == "interval") {
-                scheduleData.daysInterval?.takeIf { it > 0 }
-                    ?: throw IllegalArgumentException("Days interval must be greater than 0")
-            } else 0
-        )
     }
 
     companion object {
@@ -221,7 +122,8 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
                     database.dosageDao(),
                     database.remindersDao(),
                     database.scheduleDao(),
-                    database.medicationLogDao())
+                    database.medicationLogDao(),
+                    application.applicationContext)
                 AddMedicationViewModel(medicationRepository)
             }
         }

@@ -7,7 +7,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.Medication
+import com.example.mediminder.data.local.classes.MedicationStatus
+import com.example.mediminder.data.repositories.MedicationItem
 import com.example.mediminder.databinding.ItemMedicationBinding
+import com.example.mediminder.utils.StatusIconUtil
 import java.time.LocalTime
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
@@ -15,15 +18,7 @@ import java.time.LocalTime
 class MainMedicationAdapter(
     private val onUpdateStatusClick: (Long) -> Unit
 ) :
-    ListAdapter<Triple<Medication, Dosage?, LocalTime>, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
-//    RecyclerView.Adapter<MainMedicationAdapter.MedicationViewHolder>() {
-
-//    private var medications: List<Pair<Medication, Dosage?>> = emptyList()
-
-//    fun setMedications(newMedications: List<Pair<Medication, Dosage?>>) {
-//        medications = newMedications
-//        notifyDataSetChanged()
-//    }
+    ListAdapter<MedicationItem, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
         val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -31,8 +26,8 @@ class MainMedicationAdapter(
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
-        val (medication, dosage, time) = getItem(position)
-        holder.bind(medication, dosage, time)
+        val (medication, dosage, time, status) = getItem(position)
+        holder.bind(medication, dosage, time, status)
     }
 
 //    override fun getItemCount(): Int = medications.size
@@ -41,29 +36,28 @@ class MainMedicationAdapter(
         private val binding: ItemMedicationBinding,
         private val onUpdateStatusClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(medication: Medication, dosage: Dosage?, time: LocalTime) {
+        fun bind(medication: Medication, dosage: Dosage?, time: LocalTime, status: MedicationStatus) {
             binding.medicationName.text = medication.name
             binding.medicationDosage.text = dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
             binding.medicationTime.text = time.toString()
+            binding.medicationStatusIcon.setImageResource(StatusIconUtil.getStatusIcon(status))
             binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(medication.id) }
-            // todo set image resource for the status icon based on the medication status
         }
     }
 
     companion object {
         // DiffCallback for the medication adapter. Used to update the adapter when the data changes.
         // https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil.ItemCallback
-        private object DiffCallback : DiffUtil.ItemCallback<Triple<Medication, Dosage?, LocalTime>>() {
+        private object DiffCallback : DiffUtil.ItemCallback<MedicationItem>() {
             override fun areItemsTheSame(
-                oldItem: Triple<Medication, Dosage?, LocalTime>,
-                newItem: Triple<Medication, Dosage?, LocalTime>
+                oldItem: MedicationItem,
+                newItem: MedicationItem
             ): Boolean {
-                return oldItem.first.id == newItem.first.id && oldItem.third == newItem.third
+                return oldItem.medication.id == newItem.medication.id && oldItem.time == newItem.time
             }
 
-            override fun areContentsTheSame(
-                oldItem: Triple<Medication, Dosage?, LocalTime>,
-                newItem: Triple<Medication, Dosage?, LocalTime>
+           override fun areContentsTheSame(
+                oldItem: MedicationItem, newItem: MedicationItem
             ): Boolean {
                 return oldItem == newItem
             }

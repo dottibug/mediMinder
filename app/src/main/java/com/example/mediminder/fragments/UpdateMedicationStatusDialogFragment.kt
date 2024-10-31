@@ -1,7 +1,6 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,8 +35,6 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
                 "Skipped" -> newMedStatus = MedicationStatus.SKIPPED
                 "Missed" -> newMedStatus = MedicationStatus.MISSED
             }
-
-            Log.i("testcat", "newMedStatus on radio button selection: $newMedStatus")
         }
 
         binding.buttonCancelMedStatusDialog.setOnClickListener { dismiss() }

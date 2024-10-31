@@ -103,6 +103,9 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         )
 
         val now = LocalDateTime.now()
+//        val scheduledDateTime = now.withHour(time.hour).withMinute(time.minute).withSecond(0)
+
+
         val triggerTime = if (now.hour > time.hour
             || (now.hour == time.hour && now.minute >= time.minute)) {
             // If the time has passed for today, just ignore it and return

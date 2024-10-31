@@ -1,6 +1,5 @@
 package com.example.mediminder.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -53,9 +52,6 @@ class MainDateSelectorAdapter(
 
         // Set a click listener to handle date selection
         holder.binding.root.setOnClickListener {
-            // TODO
-            Log.i("testcat", "Selected date: $date")
-
             val previousPosition = selectedPosition
             selectedPosition = holder.adapterPosition
             notifyItemChanged(previousPosition)

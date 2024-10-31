@@ -1,5 +1,9 @@
 package com.example.mediminder.data.repositories
+import android.content.Context
 import android.util.Log
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
@@ -12,11 +16,12 @@ import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
 import com.example.mediminder.utils.MedScheduledForDateUtil
-import com.example.mediminder.utils.ReminderTimesUtil.getHourlyReminderTimes
+import com.example.mediminder.utils.ReminderTimesUtil
 import com.example.mediminder.viewmodels.DosageData
 import com.example.mediminder.viewmodels.MedicationData
 import com.example.mediminder.viewmodels.ReminderData
 import com.example.mediminder.viewmodels.ScheduleData
+import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -26,26 +31,44 @@ class MedicationRepository(
     private val dosageDao: DosageDao,
     private val remindersDao: MedRemindersDao,
     private val scheduleDao: ScheduleDao,
-    private val medicationLogDao: MedicationLogDao
+    private val medicationLogDao: MedicationLogDao,
+    private val context: Context
 ) {
 
     suspend fun addMedication(
         medicationData: MedicationData,
         dosageData: DosageData,
         reminderData: ReminderData,
-        scheduleData: ScheduleData,
+        scheduleData: ScheduleData
     ) {
+        try {
+            val medicationId = insertMedication(medicationData, reminderData)
+            insertDosage(medicationId, dosageData)
+            insertReminder(medicationId, reminderData)
+            insertSchedule(medicationId, scheduleData)
+        } catch (e: Exception) {
+            throw Exception("Failed to add medication: ${e.message}", e)
+        }
+    }
 
+    private suspend fun insertMedication(medicationData: MedicationData, reminderData: ReminderData): Long {
         try {
             val medicationId = medicationDao.insert(
                 Medication(
                     name = medicationData.name,
                     prescribingDoctor = medicationData.doctor,
                     notes = medicationData.notes,
-                    reminderEnabled = reminderData.reminderEnabled,
+                    reminderEnabled = reminderData.reminderEnabled
                 )
             )
+            return medicationId
+        } catch (e: Exception) {
+            throw Exception("Failed to insert medication: ${e.message}", e)
+        }
+    }
 
+    private suspend fun insertDosage(medicationId: Long, dosageData: DosageData) {
+        try {
             dosageDao.insert(
                 Dosage(
                     medicationId = medicationId,
@@ -53,8 +76,37 @@ class MedicationRepository(
                     units = dosageData.dosageUnits
                 )
             )
+        } catch (e: Exception) {
+            throw Exception("Failed to insert dosage: ${e.message}", e)
+        }
+    }
 
-            val scheduleId = scheduleDao.insert(
+    private suspend fun insertReminder(medicationId: Long, reminderData: ReminderData) {
+        try {
+            remindersDao.insert(
+                MedReminders(
+                    medicationId = medicationId,
+                    reminderFrequency = reminderData.reminderFrequency,
+                    hourlyReminderInterval = reminderData.hourlyReminderInterval,
+                    hourlyReminderStartTime = getLocalTimeFromPair(reminderData.hourlyReminderStartTime),
+                    hourlyReminderEndTime = getLocalTimeFromPair(reminderData.hourlyReminderEndTime),
+                    dailyReminderTimes = reminderData.dailyReminderTimes.map {
+                        getLocalTimeFromPair(it) ?: throw Exception("Invalid time pair when trying to insert reminder: $it")
+                    }
+                )
+            )
+        } catch (e: Exception) {
+            throw Exception("Failed to insert reminder: ${e.message}", e)
+        }
+    }
+
+    private fun getLocalTimeFromPair(pair: Pair<Int, Int>?): LocalTime? {
+        return pair?.let { LocalTime.of(it.first, it.second) }
+    }
+
+    private suspend fun insertSchedule(medicationId: Long, scheduleData: ScheduleData) {
+        try {
+            scheduleDao.insert(
                 Schedules(
                     medicationId = medicationId,
                     startDate = scheduleData.startDate ?: LocalDate.now(),
@@ -65,106 +117,193 @@ class MedicationRepository(
                     daysInterval = scheduleData.daysInterval
                 )
             )
-
-            if (reminderData.reminderEnabled) {
-                remindersDao.insert(
-                    MedReminders(
-                        medicationId = medicationId,
-                        reminderFrequency = reminderData.reminderFrequency,
-                        hourlyReminderInterval = reminderData.hourlyReminderInterval,
-                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let {
-                            LocalTime.of(
-                                it.first, it.second
-                            )
-                        },
-                        hourlyReminderEndTime = reminderData.hourlyReminderEndTime?.let {
-                            LocalTime.of(
-                                it.first, it.second
-                            )
-                        },
-                        dailyReminderTimes = reminderData.dailyReminderTimes.map {
-                            LocalTime.of(
-                                it.first, it.second
-                            )
-                        },
-                    )
-                )
-
-                createInitialMedicationLogs(
-                    medicationId = medicationId,
-                    scheduleId = scheduleId,
-                    startDate = scheduleData.startDate ?: LocalDate.now(),
-                    reminderData = reminderData
-                )
-            }
-
         } catch (e: Exception) {
-            Log.e("testcat MedicationRepository", "Error adding medication: ${e.message}")
-            // todo: throw e    to have calling functions handle errors
+            throw Exception("Failed to insert schedule: ${e.message}", e)
         }
     }
 
-    suspend fun getMedicationsForDate(date: LocalDate): List<Triple<Medication, Dosage?, LocalTime>> {
-        val allMeds = medicationDao.getAllWithRemindersEnabled()
-        val result = mutableListOf<Triple<Medication, Dosage?, LocalTime>>()
+    suspend fun getMedicationLogsForDate(date: LocalDate): List<MedicationItem> {
+        val startOfDay = LocalDateTime.of(date, LocalTime.MIN)
+        val endOfDay = LocalDateTime.of(date.plusDays(1), LocalTime.MIN)
+        val logs = medicationLogDao.getLogsForDate(startOfDay, endOfDay)
 
-        allMeds.forEach { medication ->
-            val schedule = scheduleDao.getScheduleByMedicationId(medication.id)
-            if (MedScheduledForDateUtil.isScheduledForDate(schedule, date)) {
-                val dosage = dosageDao.getDosageByMedicationId(medication.id)
-                val reminder = remindersDao.getReminderByMedicationId(medication.id)
-                val reminderTimes = when (reminder?.reminderFrequency) {
+
+        Log.d("MedicationRepository testcat", "Date: $date")
+        Log.d("MedicationRepository testcat", "Start: $startOfDay")
+        Log.d("MedicationRepository testcat", "End: $endOfDay")
+        Log.d("MedicationRepository testcat", "Found logs: ${logs.size}")
+
+        val result = logs.mapNotNull { log ->
+            val medication = medicationDao.getMedicationById(log.medicationId)
+            // Skip this log if medication doesn't exist
+            if (medication == null) { return@mapNotNull null }
+
+            val dosage = dosageDao.getDosageByMedicationId(log.medicationId)
+
+            MedicationItem(
+                medication = medication,
+                dosage = dosage,
+                time = log.plannedDatetime.toLocalTime(),
+                status = log.status
+            )
+        }.sortedBy { it.time }
+
+        Log.d("MedicationRepository testcat", "Processed results: $result")
+        return result
+    }
+
+
+
+
+
+
+
+    ////
+//    suspend fun addMedication(
+//        medicationData: MedicationData,
+//        dosageData: DosageData,
+//        reminderData: ReminderData,
+//        scheduleData: ScheduleData,
+//    ) {
+//
+//        try {
+//            val medicationId = medicationDao.insert(
+//                Medication(
+//                    name = medicationData.name,
+//                    prescribingDoctor = medicationData.doctor,
+//                    notes = medicationData.notes,
+//                    reminderEnabled = reminderData.reminderEnabled,
+//                )
+//            )
+//
+//            dosageDao.insert(
+//                Dosage(
+//                    medicationId = medicationId,
+//                    amount = dosageData.dosageAmount,
+//                    units = dosageData.dosageUnits
+//                )
+//            )
+//
+//            scheduleDao.insert(
+//                Schedules(
+//                    medicationId = medicationId,
+//                    startDate = scheduleData.startDate ?: LocalDate.now(),
+//                    durationType = scheduleData.durationType,
+//                    numDays = scheduleData.numDays,
+//                    scheduleType = scheduleData.scheduleType,
+//                    selectedDays = scheduleData.selectedDays,
+//                    daysInterval = scheduleData.daysInterval
+//                )
+//            )
+//
+//            // Insert reminder if enabled
+//            if (reminderData.reminderEnabled) {
+//                remindersDao.insert(
+//                    MedReminders(
+//                        medicationId = medicationId,
+//                        reminderFrequency = reminderData.reminderFrequency,
+//                        hourlyReminderInterval = reminderData.hourlyReminderInterval,
+//                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let {
+//                            LocalTime.of(it.first, it.second)
+//                        },
+//                        hourlyReminderEndTime = reminderData.hourlyReminderEndTime?.let {
+//                            LocalTime.of(it.first, it.second)
+//                        },
+//                        dailyReminderTimes = reminderData.dailyReminderTimes.map {
+//                            LocalTime.of(it.first, it.second)
+//                        },
+//                    )
+//                )
+//
+//                createLogsFromStartDate(medicationId)
+//
+//                // Trigger future logs worker to create initial logs
+//                triggerFutureLogsWorker()
+//
+//            }
+//
+//        } catch (e: Exception) {
+//            throw e
+//        }
+//    }
+
+
+    suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
+        medicationLogDao.updateStatus(medicationId, newStatus)
+    }
+
+    suspend fun getMedicationAdherenceData(
+        medicationId: Long,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): List<MedicationLogs> {
+        return medicationLogDao.getLogsForMedicationInRange(
+            medicationId = medicationId,
+            startDate = startDate,
+            endDate = endDate
+        )
+    }
+
+    private fun triggerFutureLogsWorker() {
+        val workRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
+
+        WorkManager.getInstance(context)
+            .beginUniqueWork(
+                "create_future_logs_${System.currentTimeMillis()}",
+                ExistingWorkPolicy.REPLACE,
+                workRequest
+            )
+            .enqueue()
+    }
+
+    suspend fun createLogsFromStartDate(medicationId: Long) {
+        val medication = medicationDao.getMedicationById(medicationId) ?: return
+        val schedule = scheduleDao.getScheduleByMedicationId(medicationId) ?: return
+        val reminder = remindersDao.getReminderByMedicationId(medicationId) ?: return
+
+        val endDate = when (schedule.durationType) {
+            "numDays" -> schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
+            else -> schedule.startDate.plusDays(7) // Create a week's worth of logs initially
+        }
+
+        var currentDate = schedule.startDate
+        while (!currentDate.isAfter(endDate)) {
+            if (MedScheduledForDateUtil.isScheduledForDate(schedule, currentDate)) {
+                val reminderTimes = when (reminder.reminderFrequency) {
                     "daily" -> reminder.dailyReminderTimes
-                    "hourly" -> getHourlyReminderTimes(
+                    "hourly" -> ReminderTimesUtil.getHourlyReminderTimes(
                         reminder.hourlyReminderInterval,
                         reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                         reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
                     )
                     else -> emptyList()
                 }
-                reminderTimes.forEach { time -> result.add(Triple(medication, dosage, time)) }
-            }
-        }
-        return result.sortedBy { it.third }
-    }
 
-    suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
-        medicationLogDao.updateStatus(medicationId, newStatus)
-    }
-
-    private suspend fun createInitialMedicationLogs(
-        medicationId: Long,
-        scheduleId: Long,
-        startDate: LocalDate,
-        reminderData: ReminderData
-    ) {
-        val reminderTimes = when {
-            reminderData.reminderFrequency == "daily" ->
-                // Create local time from pair of ints
-                reminderData.dailyReminderTimes.map { (hour, minute) ->
-                    LocalTime.of(hour, minute)
+                reminderTimes.forEach { time ->
+                    try {
+                        medicationLogDao.insert(
+                            MedicationLogs(
+                                medicationId = medicationId,
+                                scheduleId = schedule.id,
+                                plannedDatetime = LocalDateTime.of(currentDate, time),
+                                takenDatetime = null,
+                                status = MedicationStatus.PENDING
+                            )
+                        )
+                    } catch (e: Exception) {
+                        // Log error but continue processing other times
+                    }
                 }
-            reminderData.reminderFrequency == "hourly" ->
-                getHourlyReminderTimes(
-                    reminderData.hourlyReminderInterval,
-                    reminderData.hourlyReminderStartTime,
-                    reminderData.hourlyReminderEndTime
-                )
-            else -> emptyList()
-        }
-
-        reminderTimes.forEach { time ->
-            val plannedDateTime = LocalDateTime.of(startDate, time)
-            medicationLogDao.insert(
-                MedicationLogs(
-                    medicationId = medicationId,
-                    scheduleId = scheduleId,
-                    plannedDatetime = plannedDateTime,
-                    takenDatetime = null,
-                    status = MedicationStatus.PENDING
-                )
-            )
+            }
+            currentDate = currentDate.plusDays(1)
         }
     }
 }
+
+data class MedicationItem(
+    val medication: Medication,
+    val dosage: Dosage?,
+    val time: LocalTime,
+    val status: MedicationStatus
+)
 

@@ -49,12 +49,6 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewSelectDaysInstructions">
 
         <CheckBox
-            android:id="@+id/checkboxSunday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_sunday" />
-
-        <CheckBox
             android:id="@+id/checkboxMonday"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,6 +83,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/checkbox_saturday" />
+
+        <CheckBox
+            android:id="@+id/checkboxSunday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/checkbox_sunday" />
 
     </LinearLayout>
 

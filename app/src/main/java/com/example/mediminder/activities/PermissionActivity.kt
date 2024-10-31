@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -24,11 +25,15 @@ class PermissionActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         if (checkNotificationPermission()) { showAlarmPermissionUI() }
+        else { handlePermissionDenied("notification") }
     }
 
     private val alarmPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) {
-        checkAlarmPermissionAndNavigate()
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+            || permissionManager.hasAlarmPermission()) { navigateToMainActivity() }
+        else { handlePermissionDenied("alarm") }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +57,14 @@ class PermissionActivity : AppCompatActivity() {
             checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
                     PackageManager.PERMISSION_GRANTED
         } else { true }
+    }
+
+    private fun checkAlarmPermissionAndNavigate() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || permissionManager.hasAlarmPermission()) {
+            navigateToMainActivity()
+        } else {
+            handlePermissionDenied("alarm")
+        }
     }
 
     private fun showNotificationPermissionUI() {
@@ -83,10 +96,13 @@ class PermissionActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAlarmPermissionAndNavigate() {
-        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.S || permissionManager.hasAlarmPermission()) {
-            navigateToMainActivity()
+    private fun handlePermissionDenied(permissionType: String) {
+        val message = when (permissionType) {
+            "notification" -> "Notification permission is required for reminders."
+            "alarm" -> "Alarm permission is required for scheduling exact alarms."
+            else -> "Permission is required."
         }
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     private fun navigateToMainActivity() {
