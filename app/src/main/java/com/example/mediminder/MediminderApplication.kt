@@ -26,9 +26,14 @@ class MediminderApplication: Application() {
             .setRequiresBatteryNotLow(true)
             .build()
 
+//        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+//            1, TimeUnit.HOURS
+//        ).setConstraints(constraints).build()
+
+        // NOTE: For development/testing purposes only
         val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
-            1, TimeUnit.HOURS
-        ).setConstraints(constraints).build()
+            15, TimeUnit.MINUTES  // Run every 15 minutes for testing
+        ).build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
             "check_missed_medications",

@@ -40,16 +40,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
 
     private val statusChangeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
+        override fun onReceive(context: Context?, intent: Intent?) {
             Log.d("MainActivity testcat", "Received status change broadcast")
 
-            if (intent.action == "com.example.mediminder.MEDICATION_STATUS_CHANGED") {
-                val logId = intent.getLongExtra("logId", -1)
-                val newStatus = intent.getStringExtra("newStatus")
-                Log.d("MainActivity testcat", "Status change for logId: $logId, newStatus: $newStatus")
-
+            if (intent?.action == "com.example.mediminder.MEDICATION_STATUS_CHANGED") {
                 lifecycleScope.launch {
-                    Log.d("MainActivity testcat", "Fetching medications after status change")
                     viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
                 }
             }
@@ -67,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(
             statusChangeReceiver,
             IntentFilter("com.example.mediminder.MEDICATION_STATUS_CHANGED"),
-            RECEIVER_NOT_EXPORTED
+            Context.RECEIVER_EXPORTED
         )
 
         setupUI()
@@ -176,15 +171,13 @@ class MainActivity : AppCompatActivity() {
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.medications.collectLatest { medications ->
-                Log.d("MainActivity testcat", "Received medication update: $medications")
                 medicationAdapter.submitList(medications)
             }
         }
 
         lifecycleScope.launch {
-            viewModel.selectedDate.collectLatest { date ->
-                Log.d("MainActivity testcat", "Selected date changed: $date")
-                binding.selectedDateText.text = date.toString()
+            viewModel.selectedDate.collectLatest {
+                date -> binding.selectedDateText.text = date.toString()
             }
         }
 
@@ -222,7 +215,6 @@ class MainActivity : AppCompatActivity() {
 
     // Coroutine off the main thread to avoid blocking the UI
     private suspend fun setupDatabase() {
-        Log.d("MainActivity testcat", "Setting up database")
         val database = AppDatabase.getDatabase(this)
         val seeder = DatabaseSeeder(
             applicationContext,
@@ -235,15 +227,12 @@ class MainActivity : AppCompatActivity() {
 
         try {
             seeder.clearDatabase()
-            Log.d("MainActivity testcat", "Database cleared")
-
             seeder.seedDatabase()
-            Log.d("MainActivity testcat", "Database seeded")
 
             // Verify seeded data
-            val medicationDao = database.medicationDao()
-            val medications = medicationDao.getAllWithRemindersEnabled()
-            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
+//            val medicationDao = database.medicationDao()
+//            val medications = medicationDao.getAllWithRemindersEnabled()
+//            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
         } catch (e: Exception) {
             Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
         }

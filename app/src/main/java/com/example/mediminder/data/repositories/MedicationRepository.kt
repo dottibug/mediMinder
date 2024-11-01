@@ -1,6 +1,5 @@
 package com.example.mediminder.data.repositories
 import android.content.Context
-import android.util.Log
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -127,12 +126,6 @@ class MedicationRepository(
         val endOfDay = LocalDateTime.of(date.plusDays(1), LocalTime.MIN)
         val logs = medicationLogDao.getLogsForDate(startOfDay, endOfDay)
 
-
-        Log.d("MedicationRepository testcat", "Date: $date")
-        Log.d("MedicationRepository testcat", "Start: $startOfDay")
-        Log.d("MedicationRepository testcat", "End: $endOfDay")
-        Log.d("MedicationRepository testcat", "Found logs: ${logs.size}")
-
         val result = logs.mapNotNull { log ->
             val medication = medicationDao.getMedicationById(log.medicationId)
             // Skip this log if medication doesn't exist
@@ -149,23 +142,13 @@ class MedicationRepository(
             )
         }.distinctBy { it.logId }.sortedBy { it.time }
 
-        Log.d("MedicationRepository testcat", "Processed results: $result")
         return result
     }
 
 
     suspend fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
-        Log.d("MedicationRepository testcat", "Updating status in DB - logId: $logId, newStatus: $newStatus")
-
         medicationLogDao.updateStatus(logId, newStatus)
-
-        Log.d("MedicationRepository testcat", "Status updated in DB successfully")
-
     }
-
-//    suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
-//        medicationLogDao.updateStatus(medicationId, newStatus)
-//    }
 
     suspend fun getMedicationAdherenceData(
         medicationId: Long,

@@ -3,7 +3,9 @@ package com.example.mediminder.data.local
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
@@ -18,6 +20,7 @@ import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.schedulers.MidnightMedicationScheduler
+import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -249,13 +252,28 @@ class DatabaseSeeder(
             // Trigger the worker to create future logs for all medications
             val workManager = WorkManager.getInstance(applicationContext)
             val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
-            workManager.enqueue(createFutureLogsRequest)
-            // After triggering CreateFutureMedicationLogsWorker
-            val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
-                action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
-            }
-            MidnightMedicationScheduler(applicationContext).scheduleMidnightAlarm()
-            applicationContext.sendBroadcast(schedulerIntent)
+            val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
+
+
+            workManager.beginUniqueWork(
+                "initial_setup",
+                ExistingWorkPolicy.REPLACE,
+                createFutureLogsRequest
+            )
+                .then(checkMissedRequest)
+                .enqueue()
+
+            // Observe work completion and schedule notifications after
+            workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
+                .observeForever { workInfo ->
+                    if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                        val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
+                            action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+                        }
+                        applicationContext.sendBroadcast(schedulerIntent)
+                        MidnightMedicationScheduler(applicationContext).scheduleMidnightAlarm()
+                    }
+                }
 
             Log.d("DatabaseSeeder testcat", "Triggered CreateFutureMedicationLogsWorker")
         } catch (e: Exception) {

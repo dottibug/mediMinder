@@ -1,6 +1,8 @@
 package com.example.mediminder.viewmodels
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,10 +10,17 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.ValidationUtils
+import com.example.mediminder.workers.CheckMissedMedicationsWorker
+import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -20,7 +29,10 @@ import java.time.LocalDate
 // TODO: Handle default values/error messages for no input, no date selected, etc
 // TODO: Handle if x times daily has reminder tiimes that are the same; just use one if the time is exactly the same
 
-class AddMedicationViewModel(private val repository: MedicationRepository): ViewModel() {
+class AddMedicationViewModel(
+    private val repository: MedicationRepository,
+    private val applicationContext: Context
+): ViewModel() {
 
     // Reminder State
     private val reminderEnabled = MutableStateFlow(false)
@@ -99,12 +111,48 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
 
         viewModelScope.launch {
             try {
-                repository.addMedication (
+                // Save to database
+                val medicationId = repository.addMedication(
                     validatedMedicationData,
                     validatedDosageData,
                     validatedReminderData,
-                    validatedScheduleData,
+                    validatedScheduleData
                 )
+
+                // Create future logs
+                val workManager = WorkManager.getInstance(applicationContext)
+                val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
+                    .build()
+                val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>()
+                    .build()
+
+                workManager.beginUniqueWork(
+                    "create_logs_${medicationId}_${System.currentTimeMillis()}",
+                    ExistingWorkPolicy.REPLACE,
+                    createFutureLogsRequest
+                )
+                    .then(checkMissedRequest)
+                    .enqueue()
+
+
+                // Send broadcast to update UI
+                // Observe work completion before sending broadcasts
+                workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
+                    .observeForever { workInfo ->
+                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                            // Send broadcast to update UI
+                            val updateIntent = Intent("com.example.mediminder.MEDICATION_STATUS_CHANGED").apply {
+                                setPackage(applicationContext.packageName)
+                            }
+                            applicationContext.sendBroadcast(updateIntent)
+
+                            // Schedule notifications
+                            val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
+                                action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+                            }
+                            applicationContext.sendBroadcast(schedulerIntent)
+                        }
+                    }
             } catch (e: Exception) {
                 Log.e("testcat", "Error saving medication: ${e.message}")
                 throw e
@@ -124,7 +172,7 @@ class AddMedicationViewModel(private val repository: MedicationRepository): View
                     database.scheduleDao(),
                     database.medicationLogDao(),
                     application.applicationContext)
-                AddMedicationViewModel(medicationRepository)
+                AddMedicationViewModel(medicationRepository, application.applicationContext)
             }
         }
     }
