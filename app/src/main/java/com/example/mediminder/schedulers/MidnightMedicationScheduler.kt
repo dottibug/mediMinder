@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import java.util.Calendar
 
@@ -41,6 +42,22 @@ class MidnightMedicationScheduler(private val context: Context) {
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
             AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+
+        // NOTE: For development purposes only
+//        testMidnightAlarm(pendingIntent)
+    }
+
+    // NOTE: For testing and development purposes only
+    private fun testMidnightAlarm(pendingIntent: PendingIntent) {
+        val calendar = Calendar.getInstance().apply { add(Calendar.MINUTE, 2) }
+        Log.d("testcat", "Scheduling midnight alarm for: ${calendar.time}")
+
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            1000 * 60 * 5, // Repeat every 5 minutes instead of daily
             pendingIntent
         )
     }

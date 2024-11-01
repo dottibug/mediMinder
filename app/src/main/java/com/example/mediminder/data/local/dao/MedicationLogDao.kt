@@ -30,6 +30,9 @@ interface MedicationLogDao {
     @Query("DELETE FROM medication_logs")
     suspend fun deleteAll()
 
+    @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'medication_logs'")
+    suspend fun resetSequence()
+
     @Query("UPDATE medication_logs SET status = :newStatus WHERE id = :logId")
     suspend fun updateStatus(logId: Long, newStatus: MedicationStatus)
 
@@ -59,6 +62,10 @@ WHERE planned_datetime >= :startOfDay
 AND planned_datetime < :endOfDay
 """)
     suspend fun getLogsForDate(startOfDay: LocalDateTime, endOfDay: LocalDateTime): List<MedicationLogs>
+
+
+    @Query("SELECT * FROM medication_logs WHERE medication_id = :medicationId AND planned_datetime = :plannedDateTime LIMIT 1")
+    suspend fun getLogByMedicationIdAndPlannedTime(medicationId: Long, plannedDateTime: LocalDateTime): MedicationLogs?
 
     @Query("""
     SELECT * FROM medication_logs 

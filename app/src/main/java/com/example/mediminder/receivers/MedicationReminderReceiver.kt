@@ -15,6 +15,7 @@ import com.example.mediminder.R
 class MedicationReminderReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
+        val logId = intent.getLongExtra("logId", -1)
         val medicationId = intent.getLongExtra("medicationId", -1)
         val medicationName = intent.getStringExtra("medicationName") ?: "Medication"
 
@@ -39,23 +40,29 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         // User action is to take the medication
         val takeIntent = Intent(context, MedicationActionReceiver::class.java).apply {
             action = "TAKE_MEDICATION"
-            putExtra("medicationId", medicationId)
+            putExtra("logId", logId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
         val takePendingIntent = PendingIntent.getBroadcast(
-            context, 1, takeIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context,
+            logId.toInt(),
+            takeIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         // User action is to skip the medication
         val skipIntent = Intent(context, MedicationActionReceiver::class.java).apply {
             action = "SKIP_MEDICATION"
-            putExtra("medicationId", medicationId)
+            putExtra("logId", logId)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
         val skipPendingIntent = PendingIntent.getBroadcast(
-            context, 2, skipIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context,
+            (logId + 1000).toInt(), // Offset to avoid conflicts with "take" actions
+            skipIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val contentText = if (showMedicationName(context)) {

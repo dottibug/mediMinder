@@ -144,93 +144,28 @@ class MedicationRepository(
                 medication = medication,
                 dosage = dosage,
                 time = log.plannedDatetime.toLocalTime(),
-                status = log.status
+                status = log.status,
+                logId = log.id
             )
-        }.sortedBy { it.time }
+        }.distinctBy { it.logId }.sortedBy { it.time }
 
         Log.d("MedicationRepository testcat", "Processed results: $result")
         return result
     }
 
 
+    suspend fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
+        Log.d("MedicationRepository testcat", "Updating status in DB - logId: $logId, newStatus: $newStatus")
 
+        medicationLogDao.updateStatus(logId, newStatus)
 
+        Log.d("MedicationRepository testcat", "Status updated in DB successfully")
 
-
-
-    ////
-//    suspend fun addMedication(
-//        medicationData: MedicationData,
-//        dosageData: DosageData,
-//        reminderData: ReminderData,
-//        scheduleData: ScheduleData,
-//    ) {
-//
-//        try {
-//            val medicationId = medicationDao.insert(
-//                Medication(
-//                    name = medicationData.name,
-//                    prescribingDoctor = medicationData.doctor,
-//                    notes = medicationData.notes,
-//                    reminderEnabled = reminderData.reminderEnabled,
-//                )
-//            )
-//
-//            dosageDao.insert(
-//                Dosage(
-//                    medicationId = medicationId,
-//                    amount = dosageData.dosageAmount,
-//                    units = dosageData.dosageUnits
-//                )
-//            )
-//
-//            scheduleDao.insert(
-//                Schedules(
-//                    medicationId = medicationId,
-//                    startDate = scheduleData.startDate ?: LocalDate.now(),
-//                    durationType = scheduleData.durationType,
-//                    numDays = scheduleData.numDays,
-//                    scheduleType = scheduleData.scheduleType,
-//                    selectedDays = scheduleData.selectedDays,
-//                    daysInterval = scheduleData.daysInterval
-//                )
-//            )
-//
-//            // Insert reminder if enabled
-//            if (reminderData.reminderEnabled) {
-//                remindersDao.insert(
-//                    MedReminders(
-//                        medicationId = medicationId,
-//                        reminderFrequency = reminderData.reminderFrequency,
-//                        hourlyReminderInterval = reminderData.hourlyReminderInterval,
-//                        hourlyReminderStartTime = reminderData.hourlyReminderStartTime?.let {
-//                            LocalTime.of(it.first, it.second)
-//                        },
-//                        hourlyReminderEndTime = reminderData.hourlyReminderEndTime?.let {
-//                            LocalTime.of(it.first, it.second)
-//                        },
-//                        dailyReminderTimes = reminderData.dailyReminderTimes.map {
-//                            LocalTime.of(it.first, it.second)
-//                        },
-//                    )
-//                )
-//
-//                createLogsFromStartDate(medicationId)
-//
-//                // Trigger future logs worker to create initial logs
-//                triggerFutureLogsWorker()
-//
-//            }
-//
-//        } catch (e: Exception) {
-//            throw e
-//        }
-//    }
-
-
-    suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
-        medicationLogDao.updateStatus(medicationId, newStatus)
     }
+
+//    suspend fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
+//        medicationLogDao.updateStatus(medicationId, newStatus)
+//    }
 
     suspend fun getMedicationAdherenceData(
         medicationId: Long,
@@ -304,6 +239,7 @@ data class MedicationItem(
     val medication: Medication,
     val dosage: Dosage?,
     val time: LocalTime,
-    val status: MedicationStatus
+    val status: MedicationStatus,
+    val logId: Long
 )
 

@@ -18,4 +18,7 @@ interface ScheduleDao {
 
     @Query("DELETE FROM schedules")
     suspend fun deleteAll()
+
+    @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'schedules'")
+    suspend fun resetSequence()
 }

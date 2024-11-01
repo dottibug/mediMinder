@@ -17,6 +17,7 @@ import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
+import com.example.mediminder.schedulers.MidnightMedicationScheduler
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -253,6 +254,7 @@ class DatabaseSeeder(
             val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
                 action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
             }
+            MidnightMedicationScheduler(applicationContext).scheduleMidnightAlarm()
             applicationContext.sendBroadcast(schedulerIntent)
 
             Log.d("DatabaseSeeder testcat", "Triggered CreateFutureMedicationLogsWorker")
@@ -269,6 +271,12 @@ class DatabaseSeeder(
             medRemindersDao.deleteAll()
             scheduleDao.deleteAll()
             medicationLogDao.deleteAll()
+
+            medicationDao.resetSequence()
+            dosageDao.resetSequence()
+            medRemindersDao.resetSequence()
+            scheduleDao.resetSequence()
+            medicationLogDao.resetSequence()
         } catch (e: Exception) {
             Log.e("DatabaseSeeder testcat", "Error clearing database: ${e.message}", e)
             throw e

@@ -106,14 +106,27 @@ class CreateFutureMedicationLogsWorker(
         }
     }
 
+//    private fun calculateEndDate(schedule: Schedules, startDate: LocalDate): LocalDate {
+//        return when (schedule.durationType) {
+//            "numDays" -> {
+//                val daysLeft = schedule.numDays?.minus(
+//                    ChronoUnit.DAYS.between(schedule.startDate, startDate).toInt()
+//                ) ?: 0
+//                if (daysLeft <= 0) return startDate
+//                startDate.plusDays(minOf(daysLeft.toLong(), DAYS_TO_CREATE.toLong()))
+//            }
+//            else -> startDate.plusDays(DAYS_TO_CREATE.toLong())
+//        }
+//    }
+
     private fun calculateEndDate(schedule: Schedules, startDate: LocalDate): LocalDate {
         return when (schedule.durationType) {
             "numDays" -> {
                 val daysLeft = schedule.numDays?.minus(
                     ChronoUnit.DAYS.between(schedule.startDate, startDate).toInt()
-                ) ?: 0
-                if (daysLeft <= 0) return startDate
-                startDate.plusDays(minOf(daysLeft.toLong(), DAYS_TO_CREATE.toLong()))
+                ) ?: DAYS_TO_CREATE // Default to DAYS_TO_CREATE if numDays is null
+                if (daysLeft <= 0) return startDate.plusDays(DAYS_TO_CREATE.toLong())
+                startDate.plusDays(daysLeft.toLong())
             }
             else -> startDate.plusDays(DAYS_TO_CREATE.toLong())
         }
@@ -139,59 +152,31 @@ class CreateFutureMedicationLogsWorker(
         reminderTimes: List<LocalTime>,
         medicationLogDao: MedicationLogDao
     ) {
-        val logsToInsert = reminderTimes.map { time ->
-            MedicationLogs(
-                medicationId = medicationId,
-                scheduleId = scheduleId,
-                plannedDatetime = LocalDateTime.of(date, time),
-                takenDatetime = null,
-                status = MedicationStatus.PENDING
-            )
-        }
+        reminderTimes.forEach { time ->
+            val plannedDateTime = LocalDateTime.of(date, time)
+            // Check if log already exists for this medication at this time
+            val existingLog = medicationLogDao.getLogByMedicationIdAndPlannedTime(medicationId, plannedDateTime)
 
-        val beforeCount = medicationLogDao.getTotalLogsCount()
-        Log.d("testcat", "Before inserting logs for date $date: $beforeCount total logs")
-
-        logsToInsert.forEach { log ->
-            try {
-                val id = medicationLogDao.insert(log)
-                Log.d("testcat", "Inserted log with ID: $id for time: ${log.plannedDatetime}")
-            } catch (e: Exception) {
-                Log.e("testcat", "Failed to insert log: ${e.message}")
-                throw e
+            if (existingLog == null) {
+                try {
+                    val log = MedicationLogs(
+                        medicationId = medicationId,
+                        scheduleId = scheduleId,
+                        plannedDatetime = plannedDateTime,
+                        takenDatetime = null,
+                        status = MedicationStatus.PENDING
+                    )
+                    val id = medicationLogDao.insert(log)
+                    Log.d("testcat", "Inserted log with ID: $id for time: ${log.plannedDatetime}")
+                } catch (e: Exception) {
+                    Log.e("testcat", "Failed to insert log: ${e.message}")
+                    throw e
+                }
+            } else {
+                Log.d("testcat", "Skipped inserting duplicate log for time: $plannedDateTime")
             }
         }
-
-        val afterCount = medicationLogDao.getTotalLogsCount()
-        Log.d("testcat", "After inserting logs for date $date: $afterCount total logs")
     }
-
-//    private suspend fun insertLogsForDate(
-//        medicationId: Long,
-//        scheduleId: Long,
-//        date: LocalDate,
-//        reminderTimes: List<LocalTime>,
-//        medicationLogDao: MedicationLogDao
-//    ) {
-//        reminderTimes.forEach { time ->
-//            try {
-//                val log = MedicationLogs(
-//                    medicationId = medicationId,
-//                    scheduleId = scheduleId,
-//                    plannedDatetime = LocalDateTime.of(date, time),
-//                    takenDatetime = null,
-//                    status = MedicationStatus.PENDING
-//                )
-//                Log.d("testcat", "Attempting to insert log: $log")
-//                medicationLogDao.insert(log)
-//                Log.d("testcat", "Successfully inserted log")
-//            } catch (e: Exception) {
-//                Log.e("testcat", "Failed to insert log: ${e.message}", e)
-//                e.printStackTrace()            }
-//        }
-//    }
-
-
 
     companion object {
         private const val TAG = "CreateFutureMedicationLogsWorker"

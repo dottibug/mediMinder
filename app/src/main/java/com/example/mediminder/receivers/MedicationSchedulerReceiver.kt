@@ -21,6 +21,9 @@ import java.time.ZoneId
 class MedicationSchedulerReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
+        Log.d("testcat", "MedicationSchedulerReceiver triggered with action: ${intent.action}")
+
+
         if (intent.action == "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS" ||
             intent.action == "com.example.mediminder.SCHEDULE_NEW_MEDICATION") {
 
@@ -36,10 +39,15 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
 
                     val today = LocalDate.now()
                     val medications = database.medicationDao().getAllWithRemindersEnabled()
+                    Log.d("testcat", "Found ${medications.size} medications with reminders enabled")
+
 
                     medications.forEach { medication ->
+                        Log.d("testcat", "Processing medication: ${medication.name}")
+
                         val schedule = database.scheduleDao().getScheduleByMedicationId(medication.id)
                         if (MedScheduledForDateUtil.isScheduledForDate(schedule, today)) {
+                            Log.d("testcat", "Medication ${medication.name} is scheduled for today")
                             val dosage = database.dosageDao().getDosageByMedicationId(medication.id)
                             val reminder = database.remindersDao().getReminderByMedicationId(medication.id)
 
@@ -55,14 +63,27 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
                                 }
 
                                 reminderTimes.forEach { time ->
-                                    scheduleReminder(
-                                        context,
-                                        alarmManager,
-                                        medication.id,
-                                        medication.name,
-                                        dosage?.let { "${it.amount} ${it.units}" } ?: "",
-                                        time
-                                    )
+                                    val plannedDateTime = LocalDateTime.of(today, time)
+                                    val log = database.medicationLogDao()
+                                        .getLogByMedicationIdAndPlannedTime(
+                                            medication.id, plannedDateTime
+                                        )
+
+                                    if (log != null) {
+                                        Log.d("testcat", "Scheduling reminder for logId: ${log.id}")
+
+                                        scheduleReminder(
+                                            context,
+                                            medication.id,
+                                            medication.name,
+                                            dosage?.let { "${it.amount} ${it.units}" } ?: "",
+                                            logId = log.id,
+                                            time,
+                                            alarmManager,
+                                        )
+                                    } else {
+                                        Log.e("testcat", "No log found for medication ${medication.name} at time $time")
+                                    }
                                 }
                             }
                         }
@@ -76,11 +97,12 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
 
     private fun scheduleReminder(
         context: Context,
-        alarmManager: AlarmManager,
         medicationId: Long,
         medicationName: String,
         dosage: String,
-        time: LocalTime
+        logId: Long,
+        time: LocalTime,
+        alarmManager: AlarmManager,
     ) {
         // Check permission first
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -93,6 +115,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
             putExtra("medicationId", medicationId)
             putExtra("medicationName", medicationName)
             putExtra("dosage", dosage)
+            putExtra("logId", logId)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -103,9 +126,6 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         )
 
         val now = LocalDateTime.now()
-//        val scheduledDateTime = now.withHour(time.hour).withMinute(time.minute).withSecond(0)
-
-
         val triggerTime = if (now.hour > time.hour
             || (now.hour == time.hour && now.minute >= time.minute)) {
             // If the time has passed for today, just ignore it and return

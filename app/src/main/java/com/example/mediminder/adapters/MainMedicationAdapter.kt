@@ -5,13 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mediminder.data.local.classes.Dosage
-import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationItem
 import com.example.mediminder.databinding.ItemMedicationBinding
 import com.example.mediminder.utils.StatusIconUtil
-import java.time.LocalTime
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
 // given date.
@@ -26,22 +22,20 @@ class MainMedicationAdapter(
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
-        val (medication, dosage, time, status) = getItem(position)
-        holder.bind(medication, dosage, time, status)
+        val currentItem = getItem(position)
+        holder.bind(currentItem)
     }
-
-//    override fun getItemCount(): Int = medications.size
 
     class MedicationViewHolder(
         private val binding: ItemMedicationBinding,
         private val onUpdateStatusClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(medication: Medication, dosage: Dosage?, time: LocalTime, status: MedicationStatus) {
-            binding.medicationName.text = medication.name
-            binding.medicationDosage.text = dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
-            binding.medicationTime.text = time.toString()
-            binding.medicationStatusIcon.setImageResource(StatusIconUtil.getStatusIcon(status))
-            binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(medication.id) }
+        fun bind(item: MedicationItem) {
+            binding.medicationName.text = item.medication.name
+            binding.medicationDosage.text = item.dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
+            binding.medicationTime.text = item.time.toString()
+            binding.medicationStatusIcon.setImageResource(StatusIconUtil.getStatusIcon(item.status))
+            binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
         }
     }
 

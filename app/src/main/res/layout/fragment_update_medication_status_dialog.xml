@@ -37,7 +37,7 @@
 
     <RadioGroup
         android:id="@+id/radioGroupMedStatus"
-        android:checkedButton="@+id/enabled_selected"
+        android:checkedButton="@+id/radioButtonTaken"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,23 +46,27 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="18dp">
         <RadioButton
-            android:id="@+id/enabled_selected"
+            android:id="@+id/radioButtonTaken"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:enabled="true"
             android:text="@string/radio_taken"/>
+
         <RadioButton
+            android:id="@+id/radioButtonSkipped"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:checked="false"
             android:enabled="true"
-            android:text="@string/radio_skipped"/>
+            android:text="@string/radio_skipped" />
+
         <RadioButton
+            android:id="@+id/radioButtonMissed"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:checked="false"
             android:enabled="true"
-            android:text="@string/radio_missed"/>
+            android:text="@string/radio_missed" />
     </RadioGroup>
 
     <LinearLayout

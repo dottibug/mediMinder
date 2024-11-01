@@ -17,5 +17,7 @@ interface MedRemindersDao {
     @Query("SELECT * FROM reminders WHERE medication_id = :medicationId")
     suspend fun getReminderByMedicationId(medicationId: Long): MedReminders?
 
+    @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'reminders'")
+    suspend fun resetSequence()
 
 }

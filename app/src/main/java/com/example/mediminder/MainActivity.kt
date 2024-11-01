@@ -2,11 +2,14 @@ package com.example.mediminder
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -36,6 +39,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var medicationAdapter: MainMedicationAdapter
     private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
 
+    private val statusChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Log.d("MainActivity testcat", "Received status change broadcast")
+
+            if (intent.action == "com.example.mediminder.MEDICATION_STATUS_CHANGED") {
+                val logId = intent.getLongExtra("logId", -1)
+                val newStatus = intent.getStringExtra("newStatus")
+                Log.d("MainActivity testcat", "Status change for logId: $logId, newStatus: $newStatus")
+
+                lifecycleScope.launch {
+                    Log.d("MainActivity testcat", "Fetching medications after status change")
+                    viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,12 +63,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Register broadcast receiver
+        registerReceiver(
+            statusChangeReceiver,
+            IntentFilter("com.example.mediminder.MEDICATION_STATUS_CHANGED"),
+            RECEIVER_NOT_EXPORTED
+        )
+
         setupUI()
         createNotificationChannel()
 
         lifecycleScope.launch {
             initializeDatabaseAndFetchData()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(statusChangeReceiver)
     }
 
     // Coroutine off the main thread to avoid blocking the UI
@@ -108,10 +140,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-        medicationAdapter = MainMedicationAdapter { medId ->
-            UpdateMedicationStatusDialogFragment.newInstance(medId) { newStatus ->
-                viewModel.updateMedicationStatus(medId, newStatus)
-            }.show(supportFragmentManager, "update_medication_status_dialog")
+        medicationAdapter = MainMedicationAdapter { logId ->
+            UpdateMedicationStatusDialogFragment.newInstance(logId)
+                .show(supportFragmentManager, "update_status")
         }
 
         binding.medicationList.apply {
@@ -144,20 +175,30 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         lifecycleScope.launch {
+            viewModel.medications.collectLatest { medications ->
+                Log.d("MainActivity testcat", "Received medication update: $medications")
+                medicationAdapter.submitList(medications)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.selectedDate.collectLatest { date ->
+                Log.d("MainActivity testcat", "Selected date changed: $date")
+                binding.selectedDateText.text = date.toString()
+            }
+        }
+
+        lifecycleScope.launch {
             viewModel.dateSelectorDates.collectLatest { dates ->
                 dateSelectorAdapter.updateDates(dates)
             }
         }
 
         lifecycleScope.launch {
-            viewModel.selectedDate.collectLatest { date ->
-                binding.selectedDateText.text = date.toString()
-            }
-        }
-
-        lifecycleScope.launch {
-            viewModel.medications.collectLatest { medications ->
-                medicationAdapter.submitList(medications)
+            viewModel.errorState.collectLatest { error ->
+                error?.let {
+                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

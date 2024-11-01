@@ -19,4 +19,7 @@ interface DosageDao {
 
     @Query("DELETE FROM dosages")
     suspend fun deleteAll()
+
+    @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'dosages'")
+    suspend fun resetSequence()
 }

@@ -53,12 +53,18 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     }
 
     // Coroutine off the main thread to avoid blocking the UI
-    fun updateMedicationStatus(medicationId: Long, newStatus: MedicationStatus) {
+    fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
+        Log.d("MainViewModel testcat", "Updating log status - logId: $logId, newStatus: $newStatus")
+
         viewModelScope.launch {
             try {
-                repository.updateMedicationStatus(medicationId, newStatus)
+                repository.updateMedicationLogStatus(logId, newStatus)
+                Log.d("MainViewModel testcat", "Status updated successfully, fetching medications")
+
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
+                Log.e("MainViewModel testcat", "Error updating status", e)
+
                 _errorState.value = "Failed to update medication status: ${e.message}"
             }
         }

@@ -42,7 +42,11 @@
             android:exported="false" />
         <receiver
             android:name=".receivers.MedicationActionReceiver"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.mediminder.MEDICATION_STATUS_CHANGED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".receivers.MedicationSchedulerReceiver"
             android:exported="false" />

@@ -37,4 +37,7 @@ interface MedicationDao {
 
     @Delete
     suspend fun delete(medication: Medication)
+
+    @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'medications'")
+    suspend fun resetSequence()
 }
