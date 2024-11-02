@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.data.repositories.MedicationItem
-import com.example.mediminder.databinding.ItemMedicationBinding
+import com.example.mediminder.databinding.ItemScheduledMedicationBinding
 import com.example.mediminder.utils.StatusIconUtil
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
@@ -17,7 +17,7 @@ class MainMedicationAdapter(
     ListAdapter<MedicationItem, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
-        val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemScheduledMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MedicationViewHolder(binding, onUpdateStatusClick)
     }
 
@@ -27,7 +27,7 @@ class MainMedicationAdapter(
     }
 
     class MedicationViewHolder(
-        private val binding: ItemMedicationBinding,
+        private val binding: ItemScheduledMedicationBinding,
         private val onUpdateStatusClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: MedicationItem) {

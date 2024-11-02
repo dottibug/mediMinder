@@ -1,11 +1,9 @@
 package com.example.mediminder.data.repositories
 import android.content.Context
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
+import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
@@ -14,13 +12,10 @@ import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
-import com.example.mediminder.utils.MedScheduledForDateUtil
-import com.example.mediminder.utils.ReminderTimesUtil
 import com.example.mediminder.viewmodels.DosageData
 import com.example.mediminder.viewmodels.MedicationData
 import com.example.mediminder.viewmodels.ReminderData
 import com.example.mediminder.viewmodels.ScheduleData
-import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -57,6 +52,7 @@ class MedicationRepository(
                     name = medicationData.name,
                     prescribingDoctor = medicationData.doctor,
                     notes = medicationData.notes,
+                    icon = medicationData.icon ?: MedicationIcon.TABLET,
                     reminderEnabled = reminderData.reminderEnabled
                 )
             )
@@ -162,58 +158,14 @@ class MedicationRepository(
         )
     }
 
-    private fun triggerFutureLogsWorker() {
-        val workRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
-
-        WorkManager.getInstance(context)
-            .beginUniqueWork(
-                "create_future_logs_${System.currentTimeMillis()}",
-                ExistingWorkPolicy.REPLACE,
-                workRequest
+    suspend fun getAllMedications(): List<MedicationWithDetails> {
+        return medicationDao.getAll().map { medication ->
+            MedicationWithDetails(
+                medication = medication,
+                dosage = dosageDao.getDosageByMedicationId(medication.id),
+                reminders = remindersDao.getRemindersByMedicationId(medication.id),
+                schedule = scheduleDao.getScheduleByMedicationId(medication.id)
             )
-            .enqueue()
-    }
-
-    suspend fun createLogsFromStartDate(medicationId: Long) {
-        val medication = medicationDao.getMedicationById(medicationId) ?: return
-        val schedule = scheduleDao.getScheduleByMedicationId(medicationId) ?: return
-        val reminder = remindersDao.getReminderByMedicationId(medicationId) ?: return
-
-        val endDate = when (schedule.durationType) {
-            "numDays" -> schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
-            else -> schedule.startDate.plusDays(7) // Create a week's worth of logs initially
-        }
-
-        var currentDate = schedule.startDate
-        while (!currentDate.isAfter(endDate)) {
-            if (MedScheduledForDateUtil.isScheduledForDate(schedule, currentDate)) {
-                val reminderTimes = when (reminder.reminderFrequency) {
-                    "daily" -> reminder.dailyReminderTimes
-                    "hourly" -> ReminderTimesUtil.getHourlyReminderTimes(
-                        reminder.hourlyReminderInterval,
-                        reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
-                        reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
-                    )
-                    else -> emptyList()
-                }
-
-                reminderTimes.forEach { time ->
-                    try {
-                        medicationLogDao.insert(
-                            MedicationLogs(
-                                medicationId = medicationId,
-                                scheduleId = schedule.id,
-                                plannedDatetime = LocalDateTime.of(currentDate, time),
-                                takenDatetime = null,
-                                status = MedicationStatus.PENDING
-                            )
-                        )
-                    } catch (e: Exception) {
-                        // Log error but continue processing other times
-                    }
-                }
-            }
-            currentDate = currentDate.plusDays(1)
         }
     }
 }
@@ -226,3 +178,9 @@ data class MedicationItem(
     val logId: Long
 )
 
+data class MedicationWithDetails(
+    val medication: Medication,
+    val dosage: Dosage?,
+    val reminders: MedReminders?,
+    val schedule: Schedules?
+)

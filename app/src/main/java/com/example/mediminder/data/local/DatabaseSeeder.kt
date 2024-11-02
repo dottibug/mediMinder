@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
+import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
@@ -48,6 +49,7 @@ class DatabaseSeeder(
                     name = "Test Alarm Med",
                     prescribingDoctor = "Dr. Test",
                     notes = "This is a test medication for alarm testing",
+                    icon = MedicationIcon.CAPSULE,
                     reminderEnabled = true,
                 )
             )
@@ -57,6 +59,7 @@ class DatabaseSeeder(
                     name = "Hearto",
                     prescribingDoctor = "Dr. Batman",
                     notes = "Take with food",
+                    icon = MedicationIcon.TABLET,
                     reminderEnabled = true,
                 )
             )
@@ -66,6 +69,7 @@ class DatabaseSeeder(
                     name = "Ibuprofen",
                     prescribingDoctor = "Dr. Joker",
                     notes = "Take as needed",
+                    icon = MedicationIcon.TABLET,
                     reminderEnabled = false,
                 )
             )
@@ -75,6 +79,7 @@ class DatabaseSeeder(
                     name = "Pressure thingy",
                     prescribingDoctor = "Dr. Batman",
                     notes = "",
+                    icon = MedicationIcon.INJECTION,
                     reminderEnabled = true,
                 )
             )

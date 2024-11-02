@@ -1,5 +1,6 @@
 package com.example.mediminder.utils
 
+import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.viewmodels.DosageData
 import com.example.mediminder.viewmodels.MedicationData
 import com.example.mediminder.viewmodels.ReminderData
@@ -13,6 +14,7 @@ object ValidationUtils {
                 ?: throw IllegalArgumentException("Medication name is required"),
             doctor = medicationData.doctor.trim(),
             notes = medicationData.notes.trim(),
+            icon = medicationData.icon ?: MedicationIcon.TABLET
         )
     }
 

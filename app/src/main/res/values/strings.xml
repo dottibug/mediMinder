@@ -28,6 +28,15 @@
     <string name="doctor_hint">Doctor</string>
     <string name="med_notes_hint">Notes</string>
 
+    <array name="medication_icon_array">
+        <item>Capsule</item>
+        <item>Drop</item>
+        <item>Inhaler</item>
+        <item>Injection</item>
+        <item>Liquid</item>
+        <item>Tablet</item>
+    </array>
+
     <!-- Medication Dosage -->
     <string name="dosage_title">Dosage</string>
     <string name="dosage_amount_hint">Amount</string>
@@ -127,6 +136,12 @@
     <string name="radio_taken">Taken</string>
     <string name="radio_skipped">Skipped</string>
     <string name="radio_missed">Missed</string>
+
+    <!-- ALL MEDICATIONS LIST -->
+    <string name="all_medications_title">Medications</string>
+    <string name="view_medication">View</string>
+    <string name="edit_medication">Edit</string>
+    <string name="delete_medication">Delete</string>
 
 
     <!--    ///////////////////////////////////////////////-->

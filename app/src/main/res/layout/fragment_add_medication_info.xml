@@ -16,6 +16,23 @@
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputMedicationIcon"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Medication Icon">
+
+        <AutoCompleteTextView
+            android:id="@+id/medicationIconDropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            app:simpleItems="@array/medication_icon_array" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayoutMedName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

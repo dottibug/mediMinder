@@ -8,36 +8,37 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.mediminder.activities.AddMedicationActivity
-import com.example.mediminder.activities.SettingsActivity
+import com.example.mediminder.activities.BaseActivity
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
+import com.example.mediminder.utils.LoadingSpinnerUtil
+import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
     private lateinit var binding: ActivityMainBinding
     private lateinit var medicationAdapter: MainMedicationAdapter
     private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
+    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
     private val statusChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -55,8 +56,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        setupBaseLayout()
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        baseBinding.contentContainer.addView(binding.root)
+        WindowInsetsUtil.setupWindowInsets(binding.root)
+
+        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
 
         // Register broadcast receiver
         registerReceiver(
@@ -80,58 +85,22 @@ class MainActivity : AppCompatActivity() {
 
     // Coroutine off the main thread to avoid blocking the UI
     private suspend fun initializeDatabaseAndFetchData() {
-        showLoadingSpinner()
-        try {
-            setupDatabase()
-            forceFutureLogsWorker()
-            viewModel.fetchMedicationsForDate(LocalDate.now())
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error initializing database: ${e.message}", e)
-        } finally {
-            hideLoadingSpinner()
-        }
-    }
-
-    private fun setupUI() {
-        setupAppBar()
-        setupNavigationView()
-        setupRecyclerViews()
-        setupFab()
-        observeViewModel()
-    }
-
-    private fun setupAppBar() {
-        binding.topAppBar.setNavigationOnClickListener { binding.drawerLayout.open() }
-
-        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                    true
-                }
-                else -> false
+        loadingSpinnerUtil.whileLoading {
+            try {
+                setupDatabase()
+                forceFutureLogsWorker()
+                viewModel.fetchMedicationsForDate(LocalDate.now())
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error initializing database: ${e.message}", e)
             }
         }
     }
 
-    private fun setupNavigationView() {
-        binding.navView.setNavigationItemSelectedListener { menuItem ->
-            handleNavigationItemSelected(menuItem)
-            menuItem.isChecked = true
-            binding.drawerLayout.close()
-            true
-        }
-    }
-
-    private fun handleNavigationItemSelected(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.nav_home -> Log.i("Navigation", "Navigate to home")
-            R.id.nav_profile -> Log.i("Navigation", "Navigate to profile")
-            R.id.nav_medications -> Log.i("Navigation", "Navigate to medications")
-            R.id.nav_schedule -> Log.i("Navigation", "Navigate to schedule")
-            R.id.nav_tracking -> Log.i("Navigation", "Navigate to tracking")
-            R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
-        }
+    private fun setupUI() {
+        setupBaseUI(drawerLayout, navView, topAppBar)
+        setupRecyclerViews()
+        setupFab()
+        observeViewModel()
     }
 
     private fun setupRecyclerViews() {
@@ -209,10 +178,6 @@ class MainActivity : AppCompatActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun showLoadingSpinner() { binding.loadingSpinner.show() }
-    private fun hideLoadingSpinner() { binding.loadingSpinner.hide() }
-
-
     // Coroutine off the main thread to avoid blocking the UI
     private suspend fun setupDatabase() {
         val database = AppDatabase.getDatabase(this)
@@ -237,7 +202,6 @@ class MainActivity : AppCompatActivity() {
             Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
         }
     }
-
 
     // NOTE: Development purposes only
     private fun forceFutureLogsWorker() {

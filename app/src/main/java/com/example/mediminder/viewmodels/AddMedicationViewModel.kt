@@ -15,6 +15,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.mediminder.data.local.AppDatabase
+import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
@@ -182,6 +183,7 @@ data class MedicationData(
     val name: String,
     val doctor: String,
     val notes: String,
+    val icon: MedicationIcon?,
     val status: MedicationStatus
 )
 
