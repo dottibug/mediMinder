@@ -1,6 +1,8 @@
 package com.example.mediminder.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -44,16 +46,19 @@ class MedicationsActivity : BaseActivity() {
     private fun setupRecyclerView() {
         adapter = MedicationsAdapter(
             onViewClick = { medicationId ->
-                // TODO
-                // Handle view medication click: View medication by id
+                val intent = Intent(this, ViewMedicationActivity::class.java)
+                intent.putExtra("medicationId", medicationId)
+                startActivity(intent)
             },
             onEditClick = { medicationId ->
-                // TODO
-                // Handle edit medication click: Edit medication by id
+                val intent = Intent(this, EditMedicationActivity::class.java)
+                intent.putExtra("medicationId", medicationId)
+                startActivity(intent)
             },
             onDeleteClick = { medicationId ->
-                // TODO
-                // Handle delete medication click: Delete medication by id
+                val intent = Intent(this, DeleteMedicationActivity::class.java)
+                intent.putExtra("medicationId", medicationId)
+                startActivity(intent)
             }
         )
 
@@ -75,6 +80,7 @@ class MedicationsActivity : BaseActivity() {
             try {
                 viewModel.fetchMedications()
             } catch (e: Exception) {
+                Log.e("MedicationsActivity testcat", "Error fetching medications", e)
                 // Handle error
                 e.printStackTrace()
             }

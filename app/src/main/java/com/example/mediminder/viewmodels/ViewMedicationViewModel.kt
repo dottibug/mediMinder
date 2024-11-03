@@ -15,18 +15,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class MedicationsViewModel(private val repository: MedicationRepository) : ViewModel() {
+class ViewMedicationViewModel(private val repository: MedicationRepository) : ViewModel() {
 
-    private val _medications = MutableStateFlow<List<MedicationWithDetails>>(emptyList())
-    val medications: StateFlow<List<MedicationWithDetails>> = _medications.asStateFlow()
+    private val _medication = MutableStateFlow<MedicationWithDetails?>(null)
+    val medication: StateFlow<MedicationWithDetails?> = _medication.asStateFlow()
 
-    fun fetchMedications() {
+    fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                _medications.value = repository.getAllMedications()
+                _medication.value = repository.getMedicationDetailsById(medicationId)
+                Log.d("ViewMedicationViewModel testcat", "Fetched medication with details: ${medication.value}")
             } catch (e: Exception) {
                 // Handle error
-                Log.e("MedicationsViewModel testcat", "Error loading medications", e)
             }
         }
     }
@@ -44,7 +44,7 @@ class MedicationsViewModel(private val repository: MedicationRepository) : ViewM
                     database.medicationLogDao(),
                     application.applicationContext
                 )
-                MedicationsViewModel(repository)
+                ViewMedicationViewModel(repository)
             }
         }
     }

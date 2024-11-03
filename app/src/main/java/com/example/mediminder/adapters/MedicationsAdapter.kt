@@ -26,7 +26,6 @@ class MedicationsAdapter(
         fun bind(medicationDetails: MedicationWithDetails) {
             binding.medicationName.text = medicationDetails.medication.name
 
-
             val iconResId = when (medicationDetails.medication.icon) {
                 MedicationIcon.CAPSULE -> R.drawable.capsule
                 MedicationIcon.DROP -> R.drawable.drop

@@ -17,12 +17,6 @@
         android:theme="@style/Theme.MediMinder"
         tools:targetApi="31">
         <activity
-            android:name=".activities.BaseActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.MedicationsActivity"
-            android:exported="false" />
-        <activity
             android:name=".activities.PermissionActivity"
             android:exported="true">
             <intent-filter>
@@ -32,14 +26,27 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activities.BaseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MedicationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ViewMedicationActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".activities.AddMedicationActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+        <activity android:name=".activities.EditMedicationActivity"
+            android:exported="false" />
+        <activity android:name=".activities.DeleteMedicationActivity"
             android:exported="false" />
 
         <receiver

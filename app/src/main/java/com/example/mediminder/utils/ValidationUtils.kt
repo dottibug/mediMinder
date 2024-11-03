@@ -23,8 +23,10 @@ object ValidationUtils {
         return dosageData.copy(
             dosageAmount = dosageData.dosageAmount.trim().takeIf { it.isNotEmpty() }
                 ?: throw IllegalArgumentException("Dosage amount is required"),
+
+            // default units to "units" if not specified
             dosageUnits = dosageData.dosageUnits.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Dosage units are required")
+                ?: "units",
         )
     }
 

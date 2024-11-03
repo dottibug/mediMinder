@@ -141,7 +141,6 @@ class MedicationRepository(
         return result
     }
 
-
     suspend fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
         medicationLogDao.updateStatus(logId, newStatus)
     }
@@ -167,6 +166,15 @@ class MedicationRepository(
                 schedule = scheduleDao.getScheduleByMedicationId(medication.id)
             )
         }
+    }
+
+    suspend fun getMedicationDetailsById(medicationId: Long): MedicationWithDetails {
+        return MedicationWithDetails(
+            medication = medicationDao.getMedicationById(medicationId),
+            dosage = dosageDao.getDosageByMedicationId(medicationId),
+            reminders = remindersDao.getRemindersByMedicationId(medicationId),
+            schedule = scheduleDao.getScheduleByMedicationId(medicationId)
+        )
     }
 }
 
