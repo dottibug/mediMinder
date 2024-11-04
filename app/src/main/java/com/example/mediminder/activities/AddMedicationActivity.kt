@@ -11,14 +11,15 @@ import com.example.mediminder.databinding.ActivityAddMedicationBinding
 import com.example.mediminder.fragments.AddMedicationDosageFragment
 import com.example.mediminder.fragments.AddMedicationInfoFragment
 import com.example.mediminder.utils.WindowInsetsUtil
-import com.example.mediminder.viewmodels.AddMedicationViewModel
+import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.ReminderData
 import kotlinx.coroutines.launch
 
 class AddMedicationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddMedicationBinding
     private val windowUtils = WindowInsetsUtil
-    private val addMedViewModel: AddMedicationViewModel by viewModels { AddMedicationViewModel.Factory }
+    private val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,11 +41,11 @@ class AddMedicationActivity : AppCompatActivity() {
                 ) as AddMedicationDosageFragment?
                 val dosageData = dosageFragment?.getDosageData()
 
-                val reminderData = addMedViewModel.getReminderData()
-                val scheduleData = addMedViewModel.getScheduleData()
+                val reminderData = medicationViewModel.getReminderData()
+                val scheduleData = medicationViewModel.getScheduleData()
 
                 if (medicationData != null && dosageData != null) {
-                    addMedViewModel.saveMedication(
+                    medicationViewModel.saveMedication(
                         medicationData, dosageData, reminderData, scheduleData
                     )
 

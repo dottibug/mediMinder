@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaysIntervalDialogBinding
 
 class DaysIntervalDialogFragment(
-    private val parentFragment: AddMedicationScheduleFragment,
+    private val parentFragment: BaseScheduleFragment,
     private val editingDaysInterval: Boolean
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaysIntervalDialogBinding

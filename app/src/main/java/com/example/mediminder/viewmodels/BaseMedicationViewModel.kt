@@ -18,23 +18,21 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.data.repositories.MedicationWithDetails
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.ValidationUtils
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-
-// TODO: Handle default values/error messages for no input, no date selected, etc
-// TODO: Handle if x times daily has reminder tiimes that are the same; just use one if the time is exactly the same
-
-class AddMedicationViewModel(
-    private val repository: MedicationRepository,
-    private val applicationContext: Context
-): ViewModel() {
-
+class BaseMedicationViewModel(
+    protected val repository: MedicationRepository,
+    protected val applicationContext: Context
+) : ViewModel() {
     // Reminder State
     private val reminderEnabled = MutableStateFlow(false)
     private val reminderFrequency = MutableStateFlow("")
@@ -50,6 +48,10 @@ class AddMedicationViewModel(
     private val scheduleType = MutableStateFlow("daily")
     private val selectedDays = MutableStateFlow("")
     private val daysInterval = MutableStateFlow<Int?>(0)
+
+    // Current medication (for editing medications)
+    private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
+    val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
 
     // Update Functions
     fun updateIsReminderEnabled(enabled: Boolean) { reminderEnabled.value = enabled }
@@ -161,6 +163,27 @@ class AddMedicationViewModel(
         }
     }
 
+    fun updateMedication(
+        medicationId: Long,
+        medicationData: MedicationData,
+        dosageData: DosageData,
+        reminderData: ReminderData,
+        scheduleData: ScheduleData
+    ) {
+        // todo implement
+    }
+
+    fun fetchMedication(medicationId: Long) {
+        viewModelScope.launch {
+            try {
+                _currentMedication.value = repository.getMedicationDetailsById(medicationId)
+            } catch (e: Exception) {
+                Log.e("BaseMedicationViewModel", "Error fetching medication", e)
+                throw e
+            }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -173,7 +196,7 @@ class AddMedicationViewModel(
                     database.scheduleDao(),
                     database.medicationLogDao(),
                     application.applicationContext)
-                AddMedicationViewModel(medicationRepository, application.applicationContext)
+                BaseMedicationViewModel(medicationRepository, application.applicationContext)
             }
         }
     }

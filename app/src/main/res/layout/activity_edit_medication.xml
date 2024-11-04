@@ -1,29 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    tools:context=".activities.EditMedicationActivity">
 
     <!-- Screen Content -->
-    <TextView
-        android:id="@+id/editMedicationTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:text="@string/edit_medication_full"/>
-
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loadingSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="731dp"
         android:indeterminate="true"
         android:visibility="gone"
         app:indicatorSize="72dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editMedicationTitle" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Content -->
+    <ScrollView
+        android:id="@+id/scrollEditMed"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Medication Form -->
+        <LinearLayout
+            android:id="@+id/layoutEditMed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/headlineEditMed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="@string/edit_medication_full"
+                android:textAppearance="?attr/textAppearanceHeadlineLarge" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedInfo"
+                android:name="com.example.mediminder.fragments.EditMedicationInfoFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_medication_info" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedDosage"
+                android:name="com.example.mediminder.fragments.EditDosageFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_medication_dosage" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedReminder"
+                android:name="com.example.mediminder.fragments.EditReminderFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_medication_reminder" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedSchedule"
+                android:name="com.example.mediminder.fragments.EditScheduleFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_medication_schedule" />
+
+            <Button
+                android:id="@+id/buttonSaveChanges"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/button_save_changes" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

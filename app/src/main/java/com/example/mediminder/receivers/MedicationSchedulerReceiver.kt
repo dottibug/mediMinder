@@ -54,7 +54,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
                             reminder?.let { rem ->
                                 val reminderTimes = when (rem.reminderFrequency) {
                                     "daily" -> rem.dailyReminderTimes
-                                    "hourly" -> getHourlyReminderTimes(
+                                    "every x hours" -> getHourlyReminderTimes(
                                         rem.hourlyReminderInterval,
                                         rem.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                                         rem.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }

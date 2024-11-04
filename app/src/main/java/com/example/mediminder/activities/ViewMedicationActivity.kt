@@ -149,7 +149,7 @@ class ViewMedicationActivity(): BaseActivity() {
     private fun setReminders(details: MedicationWithDetails) {
         when (details.reminders?.reminderFrequency) {
             "daily" -> setDailyReminders(details.reminders)
-            "hourly" -> setHourlyReminders(details.reminders)
+            "every x hours" -> setHourlyReminders(details.reminders)
         }
     }
 

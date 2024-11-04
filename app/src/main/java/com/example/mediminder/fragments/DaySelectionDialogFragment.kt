@@ -11,7 +11,7 @@ import com.example.mediminder.databinding.FragmentDaySelectionDialogBinding
 import com.example.mediminder.viewmodels.AddMedicationScheduleViewModel
 
 class DaySelectionDialogFragment(
-    private val parentFragment: AddMedicationScheduleFragment,
+    private val parentFragment: BaseScheduleFragment,
     private val editingDaySelection: Boolean,
     private val selectedDays: List<String> = emptyList()
 ) : DialogFragment() {

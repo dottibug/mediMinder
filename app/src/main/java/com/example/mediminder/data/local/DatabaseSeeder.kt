@@ -152,9 +152,9 @@ class DatabaseSeeder(
                     startDate = LocalDate.now(),
                     durationType = "numDays",
                     numDays = 7,
-                    scheduleType = "daily",
+                    scheduleType = "interval",
                     selectedDays = "",
-                    daysInterval = 0
+                    daysInterval = 2
                 )
             )
 
@@ -204,7 +204,7 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = testMed3,
-                    reminderFrequency = "hourly",
+                    reminderFrequency = "every x hours",
                     hourlyReminderInterval = "6",
                     hourlyReminderStartTime = LocalTime.of(8, 30),
                     hourlyReminderEndTime = LocalTime.of(21, 0),

@@ -41,19 +41,19 @@ object ValidationUtils {
             } else "",
 
             // Interval is required for hourly reminders
-            hourlyReminderInterval = if (reminderData.reminderFrequency == "hourly") {
+            hourlyReminderInterval = if (reminderData.reminderFrequency == "every x hours") {
                 reminderData.hourlyReminderInterval?.takeIf { it.isNotEmpty() }
                     ?: throw IllegalArgumentException("Hourly reminder interval is required for hourly reminders")
             } else null,
 
             // Start time is required for hourly reminders
-            hourlyReminderStartTime = if (reminderData.reminderFrequency == "hourly") {
+            hourlyReminderStartTime = if (reminderData.reminderFrequency == "every x hours") {
                 reminderData.hourlyReminderStartTime
                     ?: throw IllegalArgumentException("Start time is required for hourly reminders")
             } else null,
 
             // End time is required for hourly reminders
-            hourlyReminderEndTime = if (reminderData.reminderFrequency == "hourly") {
+            hourlyReminderEndTime = if (reminderData.reminderFrequency == "every x hours") {
                 reminderData.hourlyReminderEndTime
                     ?: throw IllegalArgumentException("End time is required for hourly reminders")
             } else null,

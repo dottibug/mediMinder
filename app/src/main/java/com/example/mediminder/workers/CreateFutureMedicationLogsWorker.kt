@@ -135,7 +135,7 @@ class CreateFutureMedicationLogsWorker(
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
             "daily" -> reminder.dailyReminderTimes
-            "hourly" -> ReminderTimesUtil.getHourlyReminderTimes(
+            "every x hours" -> ReminderTimesUtil.getHourlyReminderTimes(
                 reminder.hourlyReminderInterval,
                 reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                 reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }

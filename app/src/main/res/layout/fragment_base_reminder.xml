@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutAddMedReminder"
+    android:id="@+id/layoutReminderSetup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".fragments.AddMedicationReminderFragment">
+    android:padding="16dp">
 
-    <!-- Reminder -->
     <TextView
         android:id="@+id/headlineReminder"
         android:layout_width="wrap_content"
@@ -23,12 +21,12 @@
         android:text="@string/switch_set_reminder" />
 
     <LinearLayout
-        android:id="@+id/layoutReminderSetup"
+        android:id="@+id/layoutReminderSettings"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-    <!-- Frequency -->
+        <!-- Frequency -->
         <TextView
             android:id="@+id/headlineFrequency"
             android:layout_width="wrap_content"
@@ -36,23 +34,23 @@
             android:text="@string/reminder_frequency_heading"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputFrequencyType"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="@string/reminder_frequency_menu_hint">
-
-        <AutoCompleteTextView
-            android:id="@+id/reminderFrequencyMenu"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputFrequencyType"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            app:simpleItems="@array/reminder_frequency_options" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="8dp"
+            android:hint="@string/reminder_frequency_menu_hint">
 
-    <!-- Reminder: x times hourly -->
+            <AutoCompleteTextView
+                android:id="@+id/reminderFrequencyMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                app:simpleItems="@array/reminder_frequency_options" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Reminder: x times hourly -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/hourlyReminderOptions"
             android:layout_width="match_parent"
@@ -132,7 +130,7 @@
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Reminder: x times daily -->
+        <!-- Reminder: x times daily -->
         <LinearLayout
             android:id="@+id/dailyReminderOptions"
             android:layout_width="match_parent"

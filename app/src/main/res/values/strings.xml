@@ -17,6 +17,19 @@
     <string name="show_med_name_summary_off">Show medication name in reminders</string>
     <string name="show_med_name_summary_on">Hide medication name in reminders</string>
 
+    <!-- BASE FRAGMENTS -->
+    <string name="hint_medication_name">Medication Name</string>
+    <string name="hint_doctor">Doctor</string>
+    <string name="hint_notes">Notes</string>
+    <string name="hint_icon">Medication Icon</string>
+    <string name="hint_dosage_amount">Dosage Amount</string>
+    <string name="hint_dosage_units">Dosage Units</string>
+    <string name="set_reminder">Set Reminder</string>
+
+    <!-- EDIT MEDICATION FRAGMENTS -->
+    <string name="button_save_changes">Save Changes</string>
+
+
     <!-- ADD MEDICATION FRAGMENTS -->
     <string name="add_new_medication_title">Add New Medication</string>
     <string name="button_add_medication">Add Medication</string>
