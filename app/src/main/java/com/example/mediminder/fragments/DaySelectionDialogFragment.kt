@@ -6,9 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.viewModels
 import com.example.mediminder.databinding.FragmentDaySelectionDialogBinding
-import com.example.mediminder.viewmodels.AddMedicationScheduleViewModel
 
 class DaySelectionDialogFragment(
     private val parentFragment: BaseScheduleFragment,
@@ -16,11 +14,9 @@ class DaySelectionDialogFragment(
     private val selectedDays: List<String> = emptyList()
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaySelectionDialogBinding
-    private val viewModel: AddMedicationScheduleViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentDaySelectionDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -28,9 +24,7 @@ class DaySelectionDialogFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (editingDaySelection) {
-            checkSpecificDays(selectedDays)
-        }
+        if (editingDaySelection) { checkSpecificDays(selectedDays) }
 
         binding.buttonCancelDaySelectionDialog.setOnClickListener {
             if (!editingDaySelection) { parentFragment.setScheduleTypeToDaily() }
@@ -64,7 +58,6 @@ class DaySelectionDialogFragment(
     }
 
     private fun getSelectedDays(): String {
-        val days = mutableListOf<String>()
 
         val checkboxes = listOf(
             binding.checkboxMonday,

@@ -45,7 +45,7 @@ class AddMedicationActivity : AppCompatActivity() {
                 val scheduleData = medicationViewModel.getScheduleData()
 
                 if (medicationData != null && dosageData != null) {
-                    medicationViewModel.saveMedication(
+                    medicationViewModel.addMedication(
                         medicationData, dosageData, reminderData, scheduleData
                     )
 
@@ -56,6 +56,11 @@ class AddMedicationActivity : AppCompatActivity() {
                     // error message
                 }
             }
+        }
+
+        binding.buttonCancelAddMed.setOnClickListener {
+            setResult(RESULT_CANCELED)
+            finish()
         }
     }
 

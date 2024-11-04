@@ -47,7 +47,7 @@ class EditMedicationActivity : BaseActivity() {
     }
 
     private fun setupUI(medicationId: Long) {
-        binding.buttonSaveChanges.setOnClickListener {
+        binding.buttonUpdateMed.setOnClickListener {
             lifecycleScope.launch {
                 val medicationFragment = supportFragmentManager.findFragmentById(
                     R.id.fragmentEditMedInfo
@@ -77,6 +77,11 @@ class EditMedicationActivity : BaseActivity() {
                     // Show error message
                 }
             }
+        }
+
+        binding.buttonCancelUpdateMed.setOnClickListener {
+            setResult(RESULT_CANCELED)
+            finish()
         }
     }
 

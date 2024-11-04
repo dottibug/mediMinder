@@ -83,6 +83,12 @@ class BaseReminderViewModel: ViewModel() {
         _dailyReminderTimes.value = sortDailyReminderTimes(times)
     }
 
+    fun clearReminderSettings() {
+        _reminderFrequency.value = ""
+        _dailyReminderTimes.value = emptyList()
+        clearHourlyReminderSettings()
+    }
+
     private fun sortDailyReminderTimes(times: List<Pair<Int, Int>>): MutableList<Pair<Int, Int>> {
         val sortedTimes = times.sortedBy { it.first }
         return sortedTimes.toMutableList()

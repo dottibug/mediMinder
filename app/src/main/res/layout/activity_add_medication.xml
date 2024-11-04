@@ -44,21 +44,21 @@
                 android:name="com.example.mediminder.fragments.AddMedicationInfoFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_info" />
+                tools:layout="@layout/fragment_base_medication_info" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentAddMedDosage"
                 android:name="com.example.mediminder.fragments.AddMedicationDosageFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_dosage" />
+                tools:layout="@layout/fragment_base_dosage" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentAddMedReminder"
                 android:name="com.example.mediminder.fragments.AddMedicationReminderFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_reminder" />
+                tools:layout="@layout/fragment_base_reminder" />
 
             <!-- Button -->
             <androidx.fragment.app.FragmentContainerView
@@ -66,7 +66,7 @@
                 android:name="com.example.mediminder.fragments.AddMedicationScheduleFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_schedule" />
+                tools:layout="@layout/fragment_base_schedule" />
 
             <Button
                 android:id="@+id/buttonAddMed"
@@ -74,6 +74,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/button_add_medication" />
+
+            <Button
+                android:id="@+id/buttonCancelAddMed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/cancel" />
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

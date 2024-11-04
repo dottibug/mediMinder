@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.mediminder.data.local.classes.Dosage
 
 // Abstraction layer for the dosages table in the database
@@ -22,4 +23,7 @@ interface DosageDao {
 
     @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'dosages'")
     suspend fun resetSequence()
+
+    @Update
+    suspend fun update(dosage: Dosage)
 }

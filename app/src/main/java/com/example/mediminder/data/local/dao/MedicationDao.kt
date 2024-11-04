@@ -1,7 +1,6 @@
 package com.example.mediminder.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -35,9 +34,12 @@ interface MedicationDao {
     @Update
     suspend fun update(medication: Medication)
 
-    @Delete
-    suspend fun delete(medication: Medication)
+    @Query("DELETE FROM medications WHERE id = :medicationId")
+    suspend fun deleteById(medicationId: Long)
 
     @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'medications'")
     suspend fun resetSequence()
+
+    @Query("SELECT COUNT(*) FROM medications")
+    suspend fun getCount(): Int
 }

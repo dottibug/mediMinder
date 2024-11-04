@@ -53,35 +53,43 @@
                 android:name="com.example.mediminder.fragments.EditMedicationInfoFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_info" />
+                tools:layout="@layout/fragment_base_medication_info" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedDosage"
                 android:name="com.example.mediminder.fragments.EditDosageFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_dosage" />
+                tools:layout="@layout/fragment_base_dosage" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedReminder"
                 android:name="com.example.mediminder.fragments.EditReminderFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_reminder" />
+                tools:layout="@layout/fragment_base_reminder" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedSchedule"
                 android:name="com.example.mediminder.fragments.EditScheduleFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_add_medication_schedule" />
+                tools:layout="@layout/fragment_base_schedule" />
 
             <Button
-                android:id="@+id/buttonSaveChanges"
+                android:id="@+id/buttonUpdateMed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/button_save_changes" />
+                android:text="@string/button_update_med" />
+
+            <Button
+                android:id="@+id/buttonCancelUpdateMed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/cancel" />
+
         </LinearLayout>
     </ScrollView>
 

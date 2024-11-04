@@ -101,7 +101,7 @@ class BaseMedicationViewModel(
 
     // Coroutine off the main thread to avoid blocking the UI
     // Save medication data to database. Validates data before saving.
-    fun saveMedication(
+    fun addMedication(
         medicationData: MedicationData,
         dosageData: DosageData,
         reminderData: ReminderData,
@@ -170,7 +170,64 @@ class BaseMedicationViewModel(
         reminderData: ReminderData,
         scheduleData: ScheduleData
     ) {
-        // todo implement
+        val validatedMedicationData = ValidationUtils.validateMedicationData(medicationData)
+        val validatedDosageData = ValidationUtils.validateDosageData(dosageData)
+        val validatedReminderData = ValidationUtils.validateReminderData(reminderData)
+        val validatedScheduleData = ValidationUtils.validateScheduleData(scheduleData)
+
+        viewModelScope.launch {
+            try {
+                Log.d("testcat", "Starting medication update for id: $medicationId")
+                Log.d("testcat", "Validated dosage data: $validatedDosageData")
+
+                // Update in database
+                repository.updateMedication(
+                    medicationId,
+                    validatedMedicationData,
+                    validatedDosageData,
+                    validatedReminderData,
+                    validatedScheduleData
+                )
+
+                Log.d("testcat", "Successfully updated medication")
+
+                // Create future logs
+                val workManager = WorkManager.getInstance(applicationContext)
+                val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
+                    .build()
+                val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>()
+                    .build()
+
+                workManager.beginUniqueWork(
+                    "update_logs_${medicationId}_${System.currentTimeMillis()}",
+                    ExistingWorkPolicy.REPLACE,
+                    createFutureLogsRequest
+                )
+                    .then(checkMissedRequest)
+                    .enqueue()
+
+                // Observe work completion before sending broadcasts
+                workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
+                    .observeForever { workInfo ->
+                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                            // Send broadcast to update UI
+                            val updateIntent = Intent("com.example.mediminder.MEDICATION_STATUS_CHANGED").apply {
+                                setPackage(applicationContext.packageName)
+                            }
+                            applicationContext.sendBroadcast(updateIntent)
+
+                            // Reschedule notifications
+                            val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
+                                action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+                            }
+                            applicationContext.sendBroadcast(schedulerIntent)
+                        }
+                    }
+            } catch (e: Exception) {
+                Log.e("testcat", "Error updating medication: ${e.message}")
+                throw e
+            }
+        }
     }
 
     fun fetchMedication(medicationId: Long) {

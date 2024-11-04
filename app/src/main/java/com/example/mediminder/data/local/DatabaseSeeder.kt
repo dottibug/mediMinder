@@ -38,8 +38,8 @@ class DatabaseSeeder(
     private val scheduleDao: ScheduleDao,
     private val medicationLogDao: MedicationLogDao
 ) {
-    suspend fun seedDatabase() {
 
+    suspend fun seedDatabase() {
         try {
             Log.d("DatabaseSeeder testcat", "Starting database seeding")
 

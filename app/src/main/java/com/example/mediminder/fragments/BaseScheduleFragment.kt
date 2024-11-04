@@ -91,7 +91,7 @@ abstract class BaseScheduleFragment : Fragment() {
     // Date Picker Dialog (selects current date by default)
     protected fun showDatePickerDialog() {
         val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Select a reminder start date")
+            .setTitleText("Select start date")
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
 

@@ -19,7 +19,9 @@ class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
                     binding.inputMedName.setText(it.medication.name)
                     binding.inputDoctor.setText(it.medication.prescribingDoctor)
                     binding.inputMedNotes.setText(it.medication.notes)
-                    binding.medicationIconDropdown.setText(it.medication.icon.name)
+
+                    val iconName = it.medication.icon.name.lowercase().replaceFirstChar { it.uppercase() }
+                    binding.medicationIconDropdown.setText(iconName, false)
                 }
             }
         }

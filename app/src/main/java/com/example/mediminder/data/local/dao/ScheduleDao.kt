@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.mediminder.data.local.classes.Schedules
 
 // Abstraction layer for the schedules table in the database
@@ -21,4 +22,7 @@ interface ScheduleDao {
 
     @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'schedules'")
     suspend fun resetSequence()
+
+    @Update
+    suspend fun update(schedule: Schedules)
 }

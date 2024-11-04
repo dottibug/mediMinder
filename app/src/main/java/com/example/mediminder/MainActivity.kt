@@ -178,30 +178,59 @@ class MainActivity : BaseActivity() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    // Coroutine off the main thread to avoid blocking the UI
     private suspend fun setupDatabase() {
         val database = AppDatabase.getDatabase(this)
-        val seeder = DatabaseSeeder(
-            applicationContext,
-            database.medicationDao(),
-            database.dosageDao(),
-            database.remindersDao(),
-            database.scheduleDao(),
-            database.medicationLogDao()
-        )
+        val medicationDao = database.medicationDao()
 
-        try {
-            seeder.clearDatabase()
-            seeder.seedDatabase()
+        // Check if database is empty
+        val medicationCount = medicationDao.getCount()
 
-            // Verify seeded data
-//            val medicationDao = database.medicationDao()
-//            val medications = medicationDao.getAllWithRemindersEnabled()
-//            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
-        } catch (e: Exception) {
-            Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
+        if (medicationCount == 0) {
+            val seeder = DatabaseSeeder(
+                applicationContext,
+                medicationDao,
+                database.dosageDao(),
+                database.remindersDao(),
+                database.scheduleDao(),
+                database.medicationLogDao()
+            )
+
+            try {
+                seeder.clearDatabase()
+                seeder.seedDatabase()
+            } catch (e: Exception) {
+                Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
+            }
+        } else {
+            Log.d("MainActivity testcat", "Database already contains data, skipping seed")
         }
     }
+
+    // Coroutine off the main thread to avoid blocking the UI
+//    private suspend fun setupDatabase() {
+//        val database = AppDatabase.getDatabase(this)
+//
+//        val seeder = DatabaseSeeder(
+//            applicationContext,
+//            database.medicationDao(),
+//            database.dosageDao(),
+//            database.remindersDao(),
+//            database.scheduleDao(),
+//            database.medicationLogDao()
+//        )
+//
+//        try {
+//            seeder.clearDatabase()
+//            seeder.seedDatabase()
+//
+//            // Verify seeded data
+////            val medicationDao = database.medicationDao()
+////            val medications = medicationDao.getAllWithRemindersEnabled()
+////            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
+//        } catch (e: Exception) {
+//            Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
+//        }
+//    }
 
     // NOTE: Development purposes only
     private fun forceFutureLogsWorker() {

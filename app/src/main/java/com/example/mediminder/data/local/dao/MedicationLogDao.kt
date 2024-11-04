@@ -30,6 +30,9 @@ interface MedicationLogDao {
     @Query("DELETE FROM medication_logs")
     suspend fun deleteAll()
 
+    @Query("DELETE FROM medication_logs WHERE medication_id = :medicationId")
+    suspend fun deleteAllLogsForMedication(medicationId: Long)
+
     @Query("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'medication_logs'")
     suspend fun resetSequence()
 

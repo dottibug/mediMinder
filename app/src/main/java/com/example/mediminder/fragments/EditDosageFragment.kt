@@ -17,7 +17,7 @@ class EditDosageFragment : BaseDosageFragment() {
             medicationViewModel.currentMedication.collect { medication ->
                 medication?.dosage?.let { dosage ->
                     binding.inputDosage.setText(dosage.amount)
-                    binding.dosageUnitsDropdown.setText(dosage.units)
+                    binding.dosageUnitsDropdown.setText(dosage.units, false)
                 }
             }
         }

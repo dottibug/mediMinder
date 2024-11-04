@@ -55,6 +55,18 @@ class ViewMedicationActivity(): BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // Get medicationId from intent extras to refetch medication (in case it was edited and updated)
+        val medicationId = intent.getLongExtra("medicationId", -1)
+        if (medicationId != -1L) {
+            lifecycleScope.launch {
+                fetchMedication(medicationId)
+            }
+        }
+    }
+
     private fun setupUI(medicationId: Long) {
         binding.buttonEditMed.setOnClickListener {
             val intent = Intent(this, EditMedicationActivity::class.java)

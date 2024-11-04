@@ -36,6 +36,11 @@ class EditReminderFragment : BaseReminderFragment() {
         // Set reminder enabled
         medicationDetails.medication.let { med ->
             reminderViewModel.setReminderEnabled(med.reminderEnabled)
+
+            // Clear all reminder settings if reminders are disabled
+            if (!med.reminderEnabled) {
+                reminderViewModel.clearReminderSettings()
+            }
         }
 
         // Set reminder details if enabled
