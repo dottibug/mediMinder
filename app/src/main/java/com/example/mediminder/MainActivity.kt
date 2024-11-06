@@ -206,32 +206,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    // Coroutine off the main thread to avoid blocking the UI
-//    private suspend fun setupDatabase() {
-//        val database = AppDatabase.getDatabase(this)
-//
-//        val seeder = DatabaseSeeder(
-//            applicationContext,
-//            database.medicationDao(),
-//            database.dosageDao(),
-//            database.remindersDao(),
-//            database.scheduleDao(),
-//            database.medicationLogDao()
-//        )
-//
-//        try {
-//            seeder.clearDatabase()
-//            seeder.seedDatabase()
-//
-//            // Verify seeded data
-////            val medicationDao = database.medicationDao()
-////            val medications = medicationDao.getAllWithRemindersEnabled()
-////            Log.d("MainActivity testcat", "Found ${medications.size} medications with reminders enabled")
-//        } catch (e: Exception) {
-//            Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
-//        }
-//    }
-
     // NOTE: Development purposes only
     private fun forceFutureLogsWorker() {
         val workRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()

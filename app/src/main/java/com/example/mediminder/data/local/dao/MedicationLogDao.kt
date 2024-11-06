@@ -70,11 +70,16 @@ AND planned_datetime < :endOfDay
     @Query("SELECT * FROM medication_logs WHERE medication_id = :medicationId AND planned_datetime = :plannedDateTime LIMIT 1")
     suspend fun getLogByMedicationIdAndPlannedTime(medicationId: Long, plannedDateTime: LocalDateTime): MedicationLogs?
 
+
+    @Query("SELECT * FROM medication_logs")
+    suspend fun getAllLogs(): List<MedicationLogs>
+
     @Query("""
     SELECT * FROM medication_logs 
     WHERE medication_id = :medicationId 
-    AND date(planned_datetime) BETWEEN date(:startDate) AND date(:endDate)
-    """)
+    AND planned_datetime >= :startDate
+    AND planned_datetime < :endDate
+""")
     suspend fun getLogsForMedicationInRange(
         medicationId: Long,
         startDate: LocalDate,

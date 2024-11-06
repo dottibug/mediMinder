@@ -72,7 +72,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
                 R.id.nav_profile -> Log.i("Navigation", "Navigate to profile")
                 R.id.nav_schedule -> Log.i("Navigation", "Navigate to schedule")
-                R.id.nav_tracking -> Log.i("Navigation", "Navigate to tracking")
+                R.id.nav_history -> startActivity(Intent(this, HistoryActivity::class.java))
                 R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
             }
     }

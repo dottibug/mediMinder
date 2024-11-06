@@ -192,6 +192,15 @@
     <string name="button_go_to_medications">Medications</string>
 
 
+    <!-- HISTORY ACTIVITY -->
+    <string name="medication_history">Medication History</string>
+    <string name="button_prev_month">Previous Month</string>
+    <string name="button_next_month">Next Month</string>
+    <string name="select_month">Select Month</string>
+    <string name="no_data_message">No history available for %s. The date range for this medication is from %s to %s.</string>
+    <string name="history_log_dosage_time">%1$s %2$s at %3$s</string>
+    <string name="button_calendar">Select Date</string>
+
     <!--    ///////////////////////////////////////////////-->
     <!-- App -->
     <string name="app_name">MediMinder</string>
@@ -201,9 +210,9 @@
     <!-- Main Menu -->
     <string name="home">Home</string>
     <string name="profile">Profile</string>
-    <string name="medications">Medications</string>
+    <string name="medications">All Medications</string>
     <string name="schedule">Schedule</string>
-    <string name="tracking">Tracking</string>
+    <string name="history">Medication History</string>
     <string name="refills">Refills</string>
     <string name="settings">Settings</string>
 

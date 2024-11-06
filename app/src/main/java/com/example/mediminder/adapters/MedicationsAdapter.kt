@@ -49,11 +49,7 @@ class MedicationsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
-        val binding = ItemMedicationBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MedicationViewHolder(binding, onViewClick, onEditClick, onDeleteClick)
     }
 

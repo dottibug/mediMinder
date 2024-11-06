@@ -181,6 +181,7 @@ class MedicationRepository(
         )
     }
 
+    // TODO: this needs to be named get all medications detailed or something
     suspend fun getAllMedications(): List<MedicationWithDetails> {
         return medicationDao.getAll().map { medication ->
             MedicationWithDetails(
@@ -190,6 +191,10 @@ class MedicationRepository(
                 schedule = scheduleDao.getScheduleByMedicationId(medication.id)
             )
         }
+    }
+
+    suspend fun getAllMedicationsSimple(): List<Medication> {
+        return medicationDao.getAll()
     }
 
     suspend fun getMedicationDetailsById(medicationId: Long): MedicationWithDetails {
@@ -341,6 +346,10 @@ class MedicationRepository(
             throw Exception("Failed to update schedule: ${e.message}", e)
         }
     }
+
+
+    //////////// Medication history functions
+
 }
 
 data class MedicationItem(
@@ -356,4 +365,13 @@ data class MedicationWithDetails(
     val dosage: Dosage?,
     val reminders: MedReminders?,
     val schedule: Schedules?
+)
+
+data class MedicationLogWithDetails(
+    val id: Long,
+    val medication: Medication,
+    val dosage: Dosage,
+    val plannedDateTime: LocalDateTime,
+    val takenDateTime: LocalDateTime?,
+    val status: MedicationStatus
 )
