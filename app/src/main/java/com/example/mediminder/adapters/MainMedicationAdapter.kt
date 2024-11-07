@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.mediminder.data.repositories.MedicationItem
 import com.example.mediminder.databinding.ItemScheduledMedicationBinding
+import com.example.mediminder.models.MedicationItem
 import com.example.mediminder.utils.StatusIconUtil
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a

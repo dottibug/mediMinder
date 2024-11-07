@@ -200,6 +200,9 @@
     <string name="no_data_message">No history available for %s. The date range for this medication is from %s to %s.</string>
     <string name="history_log_dosage_time">%1$s %2$s at %3$s</string>
     <string name="button_calendar">Select Date</string>
+    <string name="no_medications_scheduled"><i>No medications scheduled</i></string>
+    <string name="no_logs_future_month"><i>There are no medication logs for this month yet.</i></string>
+    <string name="no_logs_past_month"><i>There were no medication logs for this month.</i></string>
 
     <!--    ///////////////////////////////////////////////-->
     <!-- App -->

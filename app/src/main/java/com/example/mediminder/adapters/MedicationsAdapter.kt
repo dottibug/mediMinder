@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.MedicationIcon
-import com.example.mediminder.data.repositories.MedicationWithDetails
 import com.example.mediminder.databinding.ItemMedicationBinding
+import com.example.mediminder.models.MedicationWithDetails
 
 class MedicationsAdapter(
     private val onViewClick: (Long) -> Unit,

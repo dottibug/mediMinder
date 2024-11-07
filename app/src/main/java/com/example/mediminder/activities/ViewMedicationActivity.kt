@@ -10,8 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.MedicationIcon
-import com.example.mediminder.data.repositories.MedicationWithDetails
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
+import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.utils.DateUtils
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.utils.WindowInsetsUtil

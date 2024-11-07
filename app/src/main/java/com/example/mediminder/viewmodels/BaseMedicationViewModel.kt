@@ -18,7 +18,7 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
-import com.example.mediminder.data.repositories.MedicationWithDetails
+import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.ValidationUtils
 import com.example.mediminder.workers.CheckMissedMedicationsWorker

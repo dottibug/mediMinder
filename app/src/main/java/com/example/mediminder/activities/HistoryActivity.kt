@@ -2,11 +2,14 @@ package com.example.mediminder.activities
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mediminder.R
 import com.example.mediminder.adapters.HistoryAdapter
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.ActivityHistoryBinding
@@ -27,6 +30,7 @@ class HistoryActivity : BaseActivity() {
     private lateinit var medicationAdapter: ArrayAdapter<String>
     private var medicationsList = mutableListOf<Medication>()
     private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
+    private val medicationIds = mutableListOf<Long?>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,25 +57,114 @@ class HistoryActivity : BaseActivity() {
 
     private fun setupMedicationDropdown() {
         medicationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
-            .apply{
+            .apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
+            }
 
         binding.medicationDropdown.adapter = medicationAdapter
+
+        binding.medicationDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // Simply use the selected medication ID directly
+                val selectedId = medicationIds.getOrNull(position)
+                Log.d("HistoryActivity testcat", "Selected position: $position, ID: $selectedId")
+                viewModel.setSelectedMedication(selectedId)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                viewModel.setSelectedMedication(null)
+            }
+        }
     }
+
+//    private fun setupMedicationDropdown() {
+//        medicationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
+//            .apply{
+//                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        }
+//
+//        binding.medicationDropdown.adapter = medicationAdapter
+//
+//        binding.medicationDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // Position 0 indicates "All Medications" and returns null to indicate we are not
+//                // filtering the query by medication id
+//                val selectedId = if (position == 0) {
+//                    null
+//                } else if (position - 1 < medicationsList.size) {
+//                    medicationsList[position - 1].id
+//                } else {
+//                    Log.e("HistoryActivity testcat", "Invalid position: $position for medications list size: ${medicationsList.size}")
+//                    null  // Default to "All Medications" if position is invalid
+//                }
+//
+//                viewModel.setSelectedMedication(selectedId)
+//            }
+//
+//            // Default to "all medications" if nothing is selected
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                    viewModel.setSelectedMedication(null)
+//            }
+//        }
+//    }
 
     private fun setupRecyclerView() {
         historyAdapter = HistoryAdapter()
-
-        binding.historyList.layoutManager = LinearLayoutManager(this)
-        binding.historyList.adapter = historyAdapter
+        binding.historyList.apply {
+            layoutManager = LinearLayoutManager(this@HistoryActivity)
+            adapter = historyAdapter
+        }
+        Log.d("HistoryActivity testcat", "RecyclerView setup complete")
     }
 
     private fun observeViewModel() {
+        // Handle medication selection changes
         lifecycleScope.launch {
             viewModel.selectedMedicationId.collect { medicationId ->
-                // Handle medication selection changes
-                Log.d("HistoryActivity testcat", "Selected medication ID: $medicationId")
+                refreshMedicationHistory(medicationId)
+//                if (medicationId != null) { refreshMedicationHistory(medicationId) }
+            }
+        }
+
+        // Refresh medication history when selected date changes
+        lifecycleScope.launch {
+            viewModel.selectedDate.collect { selectedMonth ->
+                Log.d("HistoryActivity testcat", "Selected date changed to: $selectedMonth")
+                // Here too, we should refresh regardless of medicationId being null
+                refreshMedicationHistory(viewModel.selectedMedicationId.value)
+            }
+        }
+    }
+
+    private suspend fun refreshMedicationHistory(medicationId: Long?) {
+        Log.d("HistoryActivity testcat", "Refreshing history for medicationId: $medicationId")
+
+        loadingSpinnerUtil.whileLoading {
+            try {
+                val dayLogs = viewModel.fetchMedicationHistory(medicationId)
+                Log.d("HistoryActivity testcat", "Submitting list to adapter: $dayLogs")
+
+
+                if (dayLogs == null) {
+                    // If no logs for this month, show no data message
+                    binding.historyList.visibility = View.GONE
+                    binding.noDataMessage.visibility = View.VISIBLE
+
+                    val selectedMonth = viewModel.selectedDate.value
+                    val currentMonth = YearMonth.now()
+
+                    binding.noDataMessage.text = if (selectedMonth.isAfter(currentMonth)) {
+                        getString(R.string.no_logs_future_month)
+                    } else {
+                        getString(R.string.no_logs_past_month)
+                    }
+                } else {
+                    binding.historyList.visibility = View.VISIBLE
+                    binding.noDataMessage.visibility = if (dayLogs.all { it.logs.isEmpty() }) View.VISIBLE else View.GONE
+                    historyAdapter.submitList(dayLogs)
+                }
+            } catch (e: Exception) {
+                Log.e("HistoryActivity testcat", "Error getting medication history", e)
             }
         }
     }
@@ -80,20 +173,21 @@ class HistoryActivity : BaseActivity() {
         loadingSpinnerUtil.whileLoading {
             try {
                 val medications = viewModel.fetchMedications()
-                val medicationNames = medications.map { it.name }
+
+                // Clear and update the IDs list
+                medicationIds.clear()
+                medicationIds.add(null)  // For "All Medications"
+                medicationIds.addAll(medications.map { it.id })
+
+                // Create list with "All Medications" option at the top
+                val dropdownItems = mutableListOf("All Medications")
+                dropdownItems.addAll(medications.map { it.name })
 
                 medicationAdapter.clear()
-                medicationAdapter.addAll(medicationNames)
+                medicationAdapter.addAll(dropdownItems)
                 medicationAdapter.notifyDataSetChanged()
 
-                // Update local list
-                medicationsList.clear()
-                medicationsList.addAll(medications)
-
-                // Select first medication by default if available
-                if (medications.isNotEmpty()) {
-                    viewModel.setSelectedMedication(medications.first().id)
-                }
+                viewModel.setSelectedMedication(null)
 
             } catch (e: Exception) {
                 Log.e("HistoryActivity testcat", "Error in fetchMedications", e)

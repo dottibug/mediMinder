@@ -6,7 +6,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.MedReminders
-import com.example.mediminder.data.repositories.MedicationWithDetails
+import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
 import kotlinx.coroutines.launch

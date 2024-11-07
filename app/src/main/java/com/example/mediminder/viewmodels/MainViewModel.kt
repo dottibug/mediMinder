@@ -11,8 +11,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.MedicationStatus
-import com.example.mediminder.data.repositories.MedicationItem
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.models.MedicationItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -100,13 +100,13 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
 
     ////////// currently unused code, but kept for future feature
 
-    fun fetchAdherenceData(medicationId: Long, startDate: LocalDate, endDate: LocalDate) {
-        viewModelScope.launch {
-            _adherenceData.value = repository.getMedicationAdherenceData(
-                medicationId = medicationId,
-                startDate = startDate,
-                endDate = endDate
-            )
-        }
-    }
+//    fun fetchAdherenceData(medicationId: Long, startDate: LocalDate, endDate: LocalDate) {
+//        viewModelScope.launch {
+//            _adherenceData.value = repository.getMedicationAdherenceData(
+//                medicationId = medicationId,
+//                startDate = startDate,
+//                endDate = endDate
+//            )
+//        }
+//    }
 }

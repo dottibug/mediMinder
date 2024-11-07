@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
-import com.example.mediminder.data.repositories.MedicationLogWithDetails
 import com.example.mediminder.databinding.ItemHistoryLogBinding
+import com.example.mediminder.models.MedicationLogWithDetails
 import com.example.mediminder.utils.StatusIconUtil
 import java.time.format.DateTimeFormatter
 
-class DayLogsAdapter: ListAdapter<MedicationLogWithDetails, DayLogsAdapter.LogViewHolder>(DiffCallback) {
+class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
         val binding = ItemHistoryLogBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -25,14 +25,14 @@ class DayLogsAdapter: ListAdapter<MedicationLogWithDetails, DayLogsAdapter.LogVi
     class LogViewHolder(private val binding: ItemHistoryLogBinding) : RecyclerView.ViewHolder(binding.root) {
         private val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
-        fun bind(log: MedicationLogWithDetails) {
-            binding.statusIcon.setImageResource(StatusIconUtil.getStatusIcon(log.status))
-            binding.medicationName.text = log.medication.name
+        fun bind(medLog: MedicationLogWithDetails) {
+            binding.statusIcon.setImageResource(StatusIconUtil.getStatusIcon(medLog.log.status))
+            binding.medicationName.text = medLog.name
             binding.dosageAndTime.text = itemView.context.getString(
                 R.string.history_log_dosage_time,
-                log.dosage.amount,
-                log.dosage.units,
-                log.plannedDateTime.format(timeFormatter)
+                medLog.dosageAmount,
+                medLog.dosageUnits,
+                medLog.log.plannedDatetime.format(timeFormatter)
             )
         }
     }
