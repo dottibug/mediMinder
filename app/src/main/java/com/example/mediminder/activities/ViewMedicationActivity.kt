@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
@@ -12,16 +11,16 @@ import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
 import com.example.mediminder.models.MedicationWithDetails
-import com.example.mediminder.utils.DateUtils
+import com.example.mediminder.utils.AppUtils.daysOfWeekString
+import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
+import com.example.mediminder.utils.AppUtils.formatToLongDate
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
-import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.ViewMedicationViewModel
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
 import java.util.Locale
 
 class ViewMedicationActivity(): BaseActivity() {
@@ -31,39 +30,37 @@ class ViewMedicationActivity(): BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        setupBindings()
 
-        setupBaseLayout()
-        binding = ActivityViewMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
-
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
-
-        // Get medicationId from intent extras
         val medicationId = intent.getLongExtra("medicationId", -1)
-        if (medicationId == -1L) {
-            finish()
-            return
-        }
+        checkMedicationId(medicationId)
 
         setupUI(medicationId)
         setupObservers()
 
-        lifecycleScope.launch {
-            fetchMedication(medicationId)
-        }
+        lifecycleScope.launch { fetchMedication(medicationId) }
     }
 
     override fun onResume() {
         super.onResume()
-
-        // Get medicationId from intent extras to refetch medication (in case it was edited and updated)
         val medicationId = intent.getLongExtra("medicationId", -1)
         if (medicationId != -1L) {
-            lifecycleScope.launch {
-                fetchMedication(medicationId)
-            }
+            lifecycleScope.launch { fetchMedication(medicationId) }
+        }
+    }
+
+    private fun setupBindings() {
+        setupBaseLayout()
+        binding = ActivityViewMedicationBinding.inflate(layoutInflater)
+        baseBinding.contentContainer.addView(binding.root)
+        setupWindowInsets(binding.root)
+        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+    }
+
+    private fun checkMedicationId(medId: Long) {
+        if (medId == -1L) {
+            finish()
+            return
         }
     }
 
@@ -84,44 +81,21 @@ class ViewMedicationActivity(): BaseActivity() {
     private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.medication.collect { medicationDetails ->
-                medicationDetails?.let {
-                    setIcon(it)
-                    setName(it)
-                    setDosage(it)
-
-                    if (!it.medication.prescribingDoctor.isNullOrEmpty()) {
-                        binding.medDoctor.visibility = View.VISIBLE
-                        setDoctor(it)
-                    } else {
-                        binding.medDoctor.visibility = View.GONE
-                    }
-
-                    if (!it.medication.notes.isNullOrEmpty()) {
-                        binding.medNotes.visibility = View.VISIBLE
-                        setNotes(it)
-                    } else {
-                        binding.medNotes.visibility = View.GONE
-                    }
-
-                    if (it.medication.reminderEnabled) {
-                        binding.medReminder.visibility = View.VISIBLE
-                        setReminders(it)
-                    } else {
-                        binding.medReminder.visibility = View.GONE
-                    }
-
-                    setSchedule(it)
-                    setStartDate(it)
-
-                    if (it.schedule?.numDays != null) {
-                        binding.medEndDate.visibility = View.VISIBLE
-                        setEndDate(it)
-                    } else {
-                        binding.medEndDate.visibility = View.GONE
-                    }
-                }
+                medicationDetails?.let { setupMedicationDetails(it) }
             }
         }
+    }
+
+    private fun setupMedicationDetails(details: MedicationWithDetails) {
+        setIcon(details)
+        setName(details)
+        setDosage(details)
+        setDoctor(details)
+        setNotes(details)
+        setReminders(details)
+        setSchedule(details)
+        setStartDate(details)
+        setEndDate(details)
     }
 
     private fun setIcon(details: MedicationWithDetails) {
@@ -146,23 +120,36 @@ class ViewMedicationActivity(): BaseActivity() {
         val amount = details.dosage?.amount
         val unit = details.dosage?.units
         val dosage = "$amount $unit"
-
         binding.medDosageContent.text = resources.getString(R.string.view_med_dosage_content, dosage)
     }
 
     private fun setDoctor(details: MedicationWithDetails) {
-        binding.medDoctorContent.text = resources.getString(R.string.view_med_doctor_content, details.medication.prescribingDoctor)
+        if (details.medication.prescribingDoctor.isNullOrEmpty()) {
+            binding.medDoctor.visibility = View.GONE
+        } else {
+            binding.medDoctor.visibility = View.VISIBLE
+            binding.medDoctorContent.text = resources.getString(R.string.view_med_doctor_content, details.medication.prescribingDoctor)
+        }
     }
 
     private fun setNotes(details: MedicationWithDetails) {
-        binding.medNotesContent.text = resources.getString(R.string.view_med_notes_content, details.medication.notes)
+        if (details.medication.notes.isNullOrEmpty()) {
+            binding.medNotes.visibility = View.GONE
+        } else {
+            binding.medNotes.visibility = View.VISIBLE
+            binding.medNotesContent.text = resources.getString(R.string.view_med_notes_content, details.medication.notes)
+        }
     }
 
     private fun setReminders(details: MedicationWithDetails) {
-        when (details.reminders?.reminderFrequency) {
-            "daily" -> setDailyReminders(details.reminders)
-            "every x hours" -> setHourlyReminders(details.reminders)
-        }
+        if (details.medication.reminderEnabled) {
+            binding.medReminder.visibility = View.VISIBLE
+
+            when (details.reminders?.reminderFrequency) {
+                "daily" -> setDailyReminders(details.reminders)
+                "every x hours" -> setHourlyReminders(details.reminders)
+            }
+        } else { binding.medReminder.visibility = View.GONE }
     }
 
     private fun setDailyReminders(reminders: MedReminders) {
@@ -185,10 +172,10 @@ class ViewMedicationActivity(): BaseActivity() {
         val interval = reminders.hourlyReminderInterval
 
         val startTime = reminders.hourlyReminderStartTime ?: LocalTime.now()
-        val startTimeString = DateUtils.formatLocalTimeTo12Hour(startTime)
+        val startTimeString = formatLocalTimeTo12Hour(startTime)
 
         val endTime = reminders.hourlyReminderEndTime ?: LocalTime.of(23, 59) // default to midnight
-        val endTimeString = DateUtils.formatLocalTimeTo12Hour(endTime)
+        val endTimeString = formatLocalTimeTo12Hour(endTime)
 
         val reminderString = "Hourly reminders every $interval from $startTimeString to $endTimeString"
         binding.medReminderContent.text = resources.getString(R.string.view_med_reminder_content, reminderString)
@@ -199,7 +186,7 @@ class ViewMedicationActivity(): BaseActivity() {
 
         val scheduleTypeString = when (scheduleType) {
             "daily" -> "daily"
-            "specificDays" -> daysToString(details.schedule.selectedDays)
+            "specificDays" -> "every " + daysOfWeekString(details.schedule.selectedDays)
             "daysIntervals" -> daysIntervalString(details.schedule.daysInterval)
             else -> ""
         }
@@ -213,17 +200,6 @@ class ViewMedicationActivity(): BaseActivity() {
         binding.medScheduleContent.text = resources.getString(R.string.view_med_schedule_content, scheduleString)
     }
 
-    private fun daysToString(days: String): String {
-        val dayNames = days.split(",")
-            .map { DayOfWeek.of(it.toInt()).getDisplayName(TextStyle.FULL, Locale.ENGLISH) }
-
-        return when {
-            dayNames.size == 1 -> "every ${dayNames[0]}"
-            dayNames.size == 2 -> "every ${dayNames[0]} and ${dayNames[1]}"
-            else -> "every " + dayNames.dropLast(1).joinToString(", ") + ", and ${dayNames.last()}"
-        }
-    }
-
     private fun daysIntervalString(daysInterval: Int?): String {
         return when (daysInterval) {
             1 -> "every day"
@@ -233,16 +209,21 @@ class ViewMedicationActivity(): BaseActivity() {
 
     private fun setStartDate(details: MedicationWithDetails) {
         val startDate = details.schedule?.startDate
-        val startDateString = DateUtils.formatToLongDate(startDate ?: LocalDate.now())
+        val startDateString = formatToLongDate(startDate ?: LocalDate.now())
         binding.medStartDateContent.text = resources.getString(R.string.view_med_start_date_content, startDateString)
     }
 
     private fun setEndDate(details: MedicationWithDetails) {
-        val startDate = details.schedule?.startDate
-        val numDays = details.schedule?.numDays
-        val endDate = startDate?.plusDays(numDays?.toLong() ?: 0)
-        val endDateString = DateUtils.formatToLongDate(endDate ?: LocalDate.now())
-        binding.medEndDateContent.text = resources.getString(R.string.view_med_end_date_content, endDateString)
+        if (details.schedule?.numDays == null) {
+            binding.medEndDate.visibility = View.GONE
+        } else {
+            binding.medEndDate.visibility = View.VISIBLE
+            val startDate = details.schedule.startDate
+            val numDays = details.schedule.numDays
+            val endDate = startDate.plusDays(numDays.toLong())
+            val endDateString = formatToLongDate(endDate ?: LocalDate.now())
+            binding.medEndDateContent.text = resources.getString(R.string.view_med_end_date_content, endDateString)
+        }
     }
 
     private suspend fun fetchMedication(medicationId: Long) {

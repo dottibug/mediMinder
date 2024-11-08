@@ -3,14 +3,13 @@ package com.example.mediminder.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
-import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MedicationsViewModel
 import kotlinx.coroutines.launch
 
@@ -22,20 +21,17 @@ class MedicationsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        setupBindings()
+        setupUI()
+        lifecycleScope.launch { fetchMedications() }
+    }
 
+    private fun setupBindings() {
         setupBaseLayout()
         binding = ActivityMedicationsBinding.inflate(layoutInflater)
         baseBinding.contentContainer.addView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
-
+        setupWindowInsets(binding.root)
         loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
-
-        setupUI()
-
-        lifecycleScope.launch {
-            fetchMedications()
-        }
     }
 
     private fun setupUI() {
@@ -68,9 +64,7 @@ class MedicationsActivity : BaseActivity() {
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            viewModel.medications.collect { medications ->
-                adapter.submitList(medications)
-            }
+            viewModel.medications.collect { medications -> adapter.submitList(medications) }
         }
     }
 
@@ -81,10 +75,7 @@ class MedicationsActivity : BaseActivity() {
                 viewModel.fetchMedications()
             } catch (e: Exception) {
                 Log.e("MedicationsActivity testcat", "Error fetching medications", e)
-                // Handle error
-                e.printStackTrace()
             }
         }
     }
-
 }

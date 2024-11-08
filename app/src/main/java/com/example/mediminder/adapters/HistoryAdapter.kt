@@ -1,6 +1,5 @@
 package com.example.mediminder.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,17 +14,12 @@ import java.time.format.DateTimeFormatter
 class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
-        Log.d("HistoryAdapter testcat", "Creating new ViewHolder")
-
         val binding = ItemHistoryDayBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return DayViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
-        val item = getItem(position)
-        Log.d("HistoryAdapter testcat", "Binding item for date: ${item.date}")
-
-        holder.bind(item)
+        holder.bind(getItem(position))
     }
 
     class DayViewHolder(private val binding: ItemHistoryDayBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -42,14 +36,16 @@ class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCa
         fun bind(dayLogs: DayLogs) {
             binding.dateHeader.text = dayLogs.date.format(dateFormatter)
 
-            if (dayLogs.logs.isEmpty()) {
-                binding.noMedicationsText.visibility = View.VISIBLE
-                binding.logsList.visibility = View.GONE
-            } else {
-                binding.noMedicationsText.visibility = View.GONE
-                binding.logsList.visibility = View.VISIBLE
+            if (dayLogs.logs.isEmpty()) { showLogs(false) }
+            else {
+                showLogs(true)
                 logsAdapter.submitList(dayLogs.logs)
             }
+        }
+
+        private fun showLogs(show: Boolean) {
+            binding.noMedicationsText.visibility = if (show) View.GONE else View.VISIBLE
+            binding.logsList.visibility = if (show) View.VISIBLE else View.GONE
         }
     }
 

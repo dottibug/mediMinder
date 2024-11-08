@@ -113,9 +113,9 @@
     <string name="radio_daily">Every day</string>
     <string name="radio_specific_days">Specific days</string>
     <string name="radio_day_interval">Take every</string>
-    <string name="day_selection_summary_label">Take medication on:</string>
+    <string name="day_selection_summary_label">Take every </string>
     <string name="day_selection_summary_value">%s</string>
-    <string name="days_interval_summary_label">Take medication every:</string>
+    <string name="days_interval_summary_label">Take every </string>
     <string name="days_interval_summary_value">%s days</string>
 
     <!-- DIALOGS -->

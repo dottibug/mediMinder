@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,15 +41,8 @@ class DeleteMedicationViewModel(
             initializer {
                 val application = this[APPLICATION_KEY] as Application
                 val database = AppDatabase.getDatabase(application)
-                val medicationRepository = MedicationRepository(
-                    database.medicationDao(),
-                    database.dosageDao(),
-                    database.remindersDao(),
-                    database.scheduleDao(),
-                    database.medicationLogDao(),
-                    application.applicationContext
-                )
-                DeleteMedicationViewModel(medicationRepository)
+                val repository = createMedicationRepository(database)
+                DeleteMedicationViewModel(repository)
             }
         }
     }

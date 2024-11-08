@@ -13,8 +13,8 @@ import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
-import com.example.mediminder.utils.MedScheduledForDateUtil
-import com.example.mediminder.utils.ReminderTimesUtil
+import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
+import com.example.mediminder.utils.AppUtils.isScheduledForDate
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -106,7 +106,7 @@ class CreateFutureMedicationLogsWorker(
 
 
         while (!currentDate.isAfter(endDate)) {
-            if (MedScheduledForDateUtil.isScheduledForDate(schedule, currentDate)) {
+            if (isScheduledForDate(schedule, currentDate)) {
                 val reminderTimes = getReminderTimes(reminder)
                 Log.d("testcat", "Reminder times for $currentDate: $reminderTimes")
 
@@ -135,7 +135,7 @@ class CreateFutureMedicationLogsWorker(
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
             "daily" -> reminder.dailyReminderTimes
-            "every x hours" -> ReminderTimesUtil.getHourlyReminderTimes(
+            "every x hours" -> getHourlyReminderTimes(
                 reminder.hourlyReminderInterval,
                 reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                 reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }

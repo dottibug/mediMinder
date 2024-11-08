@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.MedicationWithDetails
+import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,7 @@ class MedicationsViewModel(private val repository: MedicationRepository) : ViewM
     fun fetchMedications() {
         viewModelScope.launch {
             try {
-                _medications.value = repository.getAllMedications()
+                _medications.value = repository.getAllMedicationsDetailed()
             } catch (e: Exception) {
                 // Handle error
                 Log.e("MedicationsViewModel testcat", "Error loading medications", e)
@@ -36,14 +37,7 @@ class MedicationsViewModel(private val repository: MedicationRepository) : ViewM
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application)
                 val database = AppDatabase.getDatabase(application)
-                val repository = MedicationRepository(
-                    database.medicationDao(),
-                    database.dosageDao(),
-                    database.remindersDao(),
-                    database.scheduleDao(),
-                    database.medicationLogDao(),
-                    application.applicationContext
-                )
+                val repository = createMedicationRepository(database)
                 MedicationsViewModel(repository)
             }
         }

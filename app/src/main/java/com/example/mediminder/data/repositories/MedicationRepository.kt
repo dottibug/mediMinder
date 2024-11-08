@@ -1,6 +1,4 @@
 package com.example.mediminder.data.repositories
-import android.content.Context
-import android.util.Log
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
@@ -16,10 +14,10 @@ import com.example.mediminder.models.MedicationHistory
 import com.example.mediminder.models.MedicationItem
 import com.example.mediminder.models.MedicationLogWithDetails
 import com.example.mediminder.models.MedicationWithDetails
-import com.example.mediminder.viewmodels.DosageData
-import com.example.mediminder.viewmodels.MedicationData
-import com.example.mediminder.viewmodels.ReminderData
-import com.example.mediminder.viewmodels.ScheduleData
+import com.example.mediminder.models.DosageData
+import com.example.mediminder.models.MedicationData
+import com.example.mediminder.models.ReminderData
+import com.example.mediminder.models.ScheduleData
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -31,7 +29,6 @@ class MedicationRepository(
     private val remindersDao: MedRemindersDao,
     private val scheduleDao: ScheduleDao,
     private val medicationLogDao: MedicationLogDao,
-    private val context: Context
 ) {
 
     suspend fun getMedicationById(medicationId: Long): Medication {
@@ -39,12 +36,7 @@ class MedicationRepository(
     }
 
     suspend fun deleteMedication(medicationId: Long) {
-        Log.d("testcat", "Starting deletion of medication $medicationId")
         medicationDao.deleteById(medicationId)
-
-        // Verify deletion
-        val deletedMed = medicationDao.getMedicationById(medicationId)
-        Log.d("testcat", "After deletion, medication exists: ${deletedMed != null}")
     }
 
     suspend fun addMedication(
@@ -151,9 +143,7 @@ class MedicationRepository(
         val result = logs.mapNotNull { log ->
             val medication = medicationDao.getMedicationById(log.medicationId)
             // Skip this log if medication doesn't exist
-            if (medication == null) {
-                return@mapNotNull null
-            }
+            if (medication == null) { return@mapNotNull null }
 
             val dosage = dosageDao.getDosageByMedicationId(log.medicationId)
 
@@ -173,20 +163,8 @@ class MedicationRepository(
         medicationLogDao.updateStatus(logId, newStatus)
     }
 
-//    suspend fun getMedicationAdherenceData(
-//        medicationId: Long,
-//        startDate: LocalDate,
-//        endDate: LocalDate
-//    ): List<MedicationLogs> {
-//        return medicationLogDao.getLogsForMedicationInRange(
-//            medicationId = medicationId,
-//            startDate = startDate,
-//            endDate = endDate
-//        )
-//    }
-
     // TODO: this needs to be named get all medications detailed or something
-    suspend fun getAllMedications(): List<MedicationWithDetails> {
+    suspend fun getAllMedicationsDetailed(): List<MedicationWithDetails> {
         return medicationDao.getAll().map { medication ->
             MedicationWithDetails(
                 medication = medication,
@@ -252,8 +230,6 @@ class MedicationRepository(
         try {
             // Get the current dosage id
             val currentDosage = dosageDao.getDosageByMedicationId(medicationId)
-            Log.d("DosageDao testcat", "Current dosage: $currentDosage")
-            Log.d("DosageDao testcat", "Dosage id: ${currentDosage?.id}")
 
             dosageDao.update(
                 Dosage(
@@ -354,46 +330,22 @@ class MedicationRepository(
 
     //////////// Medication history functions
     suspend fun getMedicationHistory(medicationId: Long?, selectedYearMonth: YearMonth): MedicationHistory {
-        Log.d("MedicationRepository testcat", "Repository fetching medication history for medication ID: $medicationId")
 
         // Convert LocalDate to LocalDateTime for proper comparison to database
         val startDate = selectedYearMonth.atDay(1).atStartOfDay()
         // End date is exclusive, so add 1 day
         val endDate = selectedYearMonth.atEndOfMonth().plusDays(1).atStartOfDay()
-        Log.d("MedicationRepository testcat", "Repository start date: $startDate")
-        Log.d("MedicationRepository testcat", "Repository end date: $endDate")
 
-        val logs = if (medicationId == null) {
-            medicationLogDao.getLogsInRange(
+        val logs = when (medicationId) {
+            null -> medicationLogDao.getLogsInRange(
                 startDate = startDate,
                 endDate = endDate
             )
-        } else {
-            medicationLogDao.getLogsForMedicationInRange(
-                medicationId =medicationId,
+            else -> medicationLogDao.getLogsForMedicationInRange(
+                medicationId = medicationId,
                 startDate = startDate,
                 endDate = endDate
             )
-        }
-
-
-        // 1. get the medication by id
-//        val medication = medicationDao.getMedicationById(medicationId)
-//        Log.d("MedicationRepository testcat", "Repository Medication: $medication")
-
-        // 2. get the dosage by medication id
-//        val dosage = dosageDao.getDosageByMedicationId(medicationId)
-//        Log.d("MedicationRepository testcat", "Repository Dosage: $dosage")
-
-        // 3. get logs for the medication for specific date range
-//        val logs = medicationLogDao.getLogsForMedicationInRange(
-//            medicationId = medicationId,
-//            startDate = startDate,
-//            endDate = endDate
-//        )
-        Log.d("MedicationRepository testcat", "Found ${logs.size} logs")
-        logs.forEach { log ->
-            Log.d("MedicationRepository testcat", "Log: $log")
         }
 
         val logsWithDetails = logs.map { log ->
@@ -409,7 +361,6 @@ class MedicationRepository(
             )
         }
 
-        Log.d("MedicationRepository testcat", "Repository logs with details: $logsWithDetails")
         return MedicationHistory(logs = logsWithDetails)
     }
 }

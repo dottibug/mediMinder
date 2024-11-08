@@ -8,8 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.utils.MedScheduledForDateUtil
-import com.example.mediminder.utils.ReminderTimesUtil.getHourlyReminderTimes
+import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
+import com.example.mediminder.utils.AppUtils.isScheduledForDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,7 +46,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
                         Log.d("testcat", "Processing medication: ${medication.name}")
 
                         val schedule = database.scheduleDao().getScheduleByMedicationId(medication.id)
-                        if (MedScheduledForDateUtil.isScheduledForDate(schedule, today)) {
+                        if (isScheduledForDate(schedule, today)) {
                             Log.d("testcat", "Medication ${medication.name} is scheduled for today")
                             val dosage = database.dosageDao().getDosageByMedicationId(medication.id)
                             val reminder = database.remindersDao().getReminderByMedicationId(medication.id)

@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaySelectionDialogBinding
+import com.example.mediminder.utils.AppUtils.getDayNames
 
 class DaySelectionDialogFragment(
     private val parentFragment: BaseScheduleFragment,
     private val editingDaySelection: Boolean,
-    private val selectedDays: List<String> = emptyList()
+    private val selectedDays: String = ""
+//    private val selectedDays: List<String> = emptyList()
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaySelectionDialogBinding
 
@@ -34,26 +36,27 @@ class DaySelectionDialogFragment(
         binding.buttonSetDaySelectionDialog.setOnClickListener {
             val selectedDays = getSelectedDays()
             Log.d("testcat days", "Selected days: $selectedDays")
-            parentFragment.setSelectedDays(selectedDays)
+            parentFragment.updateSelectedDays(selectedDays)
             dismiss()
         }
     }
 
-    private fun checkSpecificDays(specificDays: List<String>) {
-        // [ Sunday, Monday, Tuesday ]
-        val checkboxes = listOf(
-            binding.checkboxMonday,     // 1
-            binding.checkboxTuesday,    // 2
-            binding.checkboxWednesday,  // 3
-            binding.checkboxThursday,   // 4
-            binding.checkboxFriday,     // 5
-            binding.checkboxSaturday,   // 6
-            binding.checkboxSunday,     // 7
+    private fun checkSpecificDays(specificDays: String) {
+        // Convert string "1,3,5" to list of days [Monday, Wednesday, Friday]
+        val dayNames = getDayNames(specificDays)
+
+        val checkboxMap = mapOf(
+            "Monday" to binding.checkboxMonday,
+            "Tuesday" to binding.checkboxTuesday,
+            "Wednesday" to binding.checkboxWednesday,
+            "Thursday" to binding.checkboxThursday,
+            "Friday" to binding.checkboxFriday,
+            "Saturday" to binding.checkboxSaturday,
+            "Sunday" to binding.checkboxSunday
         )
 
-        for ((index, checkbox) in checkboxes.withIndex()) {
-            val dayValue = (index + 1).toString()
-            checkbox.isChecked = specificDays.contains(dayValue)
+        for (day in dayNames) {
+            checkboxMap[day]?.isChecked = true
         }
     }
 

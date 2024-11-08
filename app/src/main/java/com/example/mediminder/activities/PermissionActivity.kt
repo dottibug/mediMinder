@@ -14,10 +14,9 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityPermissionBinding
 import com.example.mediminder.receivers.MedicationReminderReceiver
-import com.example.mediminder.utils.WindowInsetsUtil
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
 
 class PermissionActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var permissionManager: AlarmPermissionManager
 
@@ -41,8 +40,7 @@ class PermissionActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
-
+        setupWindowInsets(binding.root)
         permissionManager = AlarmPermissionManager(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -54,17 +52,15 @@ class PermissionActivity : AppCompatActivity() {
 
     private fun checkNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED
-        } else { true }
+            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        }
+        else true
     }
 
     private fun checkAlarmPermissionAndNavigate() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || permissionManager.hasAlarmPermission()) {
-            navigateToMainActivity()
-        } else {
-            handlePermissionDenied("alarm")
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+            || permissionManager.hasAlarmPermission()) { navigateToMainActivity() }
+        else { handlePermissionDenied("alarm") }
     }
 
     private fun showNotificationPermissionUI() {

@@ -25,8 +25,8 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
-import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.collectLatest
@@ -59,7 +59,7 @@ class MainActivity : BaseActivity() {
         setupBaseLayout()
         binding = ActivityMainBinding.inflate(layoutInflater)
         baseBinding.contentContainer.addView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
+        setupWindowInsets(binding.root)
 
         loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
 

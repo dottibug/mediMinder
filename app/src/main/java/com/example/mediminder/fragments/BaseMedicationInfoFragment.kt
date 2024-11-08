@@ -9,7 +9,7 @@ import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
-import com.example.mediminder.viewmodels.MedicationData
+import com.example.mediminder.models.MedicationData
 
 abstract class BaseMedicationInfoFragment: Fragment() {
     protected lateinit var binding: FragmentBaseMedicationInfoBinding

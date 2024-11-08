@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.mediminder.databinding.FragmentBaseDosageBinding
-import com.example.mediminder.viewmodels.DosageData
+import com.example.mediminder.models.DosageData
 
 abstract class BaseDosageFragment : Fragment() {
     protected lateinit var binding: FragmentBaseDosageBinding

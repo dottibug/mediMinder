@@ -1,27 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--  TODO: android:icon="@drawable/ic_home" -->
-    <!--  TODO: android:icon="@drawable/ic_profile"  -->
-    <!--  TODO: android:icon="@drawable/ic_medications"  -->
-    <!--  TODO: android:icon="@drawable/ic_schedule"  -->
-    <!--  TODO: android:icon="@drawable/ic_tracking"  -->
-    <!--  TODO: android:icon="@drawable/ic_settings"  -->
-
     <item
         android:id="@+id/nav_home"
         android:title="@string/home" />
     <item
-        android:id="@+id/nav_profile"
-        android:title="@string/profile" />
-    <item
         android:id="@+id/nav_medications"
         android:title="@string/medications" />
     <item
-        android:id="@+id/nav_schedule"
-        android:title="@string/schedule" />
-    <item
         android:id="@+id/nav_history"
         android:title="@string/history" />
+    <item
+        android:id="@+id/nav_add_medication"
+        android:title="@string/add_medication" />
     <item
         android:id="@+id/nav_settings"
         android:title="@string/settings" />

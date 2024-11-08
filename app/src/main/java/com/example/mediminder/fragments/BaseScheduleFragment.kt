@@ -10,7 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentBaseScheduleBinding
-import com.example.mediminder.utils.AppUtils
+import com.example.mediminder.utils.AppUtils.daysOfWeekString
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -23,9 +23,8 @@ abstract class BaseScheduleFragment : Fragment() {
     protected lateinit var binding: FragmentBaseScheduleBinding
     protected val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     protected abstract val medicationViewModel: BaseMedicationViewModel
-    protected val appUtils = AppUtils()
     protected var prevScheduleWasDaily: Boolean = true
-    protected lateinit var selectedDays: List<String>
+    protected lateinit var selectedDays: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -217,7 +216,7 @@ abstract class BaseScheduleFragment : Fragment() {
     }
 
     // Set the selected days and update the day selection summary
-    fun setSelectedDays(selectedDaysInt: String) {
+    fun updateSelectedDays(selectedDaysInt: String) {
         if (selectedDaysInt.isEmpty()) {
             setScheduleTypeToDaily()
             hideScheduleSummaries()
@@ -229,10 +228,10 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Show the day selection summary to the user
     protected fun showDaySelectionSummary(selectedDaysInt: String) {
-        val daysStringList = appUtils.convertDaysIntToDaysStringList(selectedDaysInt)
-        selectedDays = daysStringList
+        val daysString = daysOfWeekString(selectedDaysInt)
+        selectedDays = selectedDaysInt
         binding.layoutDaySelectionSummary.visibility = View.VISIBLE
-        binding.textViewDaySelectionSummaryValue.text = daysStringList.joinToString(", ")
+        binding.textViewDaySelectionSummaryValue.text = daysString
         binding.buttonEditDaySelection.setOnClickListener{ showDaySelectionDialog(true) }
     }
 
@@ -243,7 +242,7 @@ abstract class BaseScheduleFragment : Fragment() {
 
     protected fun hideDaySelectionSummary() {
         binding.layoutDaySelectionSummary.visibility = View.GONE
-        selectedDays = emptyList()
+        selectedDays = ""
     }
 
     protected fun hideDaysIntervalSummary() {

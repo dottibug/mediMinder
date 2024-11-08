@@ -1,10 +1,10 @@
 package com.example.mediminder.utils
 
 import com.example.mediminder.data.local.classes.MedicationIcon
-import com.example.mediminder.viewmodels.DosageData
-import com.example.mediminder.viewmodels.MedicationData
-import com.example.mediminder.viewmodels.ReminderData
-import com.example.mediminder.viewmodels.ScheduleData
+import com.example.mediminder.models.DosageData
+import com.example.mediminder.models.MedicationData
+import com.example.mediminder.models.ReminderData
+import com.example.mediminder.models.ScheduleData
 import java.time.LocalDate
 
 object ValidationUtils {

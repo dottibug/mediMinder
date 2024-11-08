@@ -15,12 +15,15 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.data.local.classes.MedicationIcon
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.models.DosageData
+import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationWithDetails
+import com.example.mediminder.models.ReminderData
+import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.ValidationUtils
+import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -246,46 +249,9 @@ class BaseMedicationViewModel(
             initializer {
                 val application = (this[APPLICATION_KEY] as Application)
                 val database = AppDatabase.getDatabase(application)
-                val medicationRepository = MedicationRepository(
-                    database.medicationDao(),
-                    database.dosageDao(),
-                    database.remindersDao(),
-                    database.scheduleDao(),
-                    database.medicationLogDao(),
-                    application.applicationContext)
-                BaseMedicationViewModel(medicationRepository, application.applicationContext)
+                val repository = createMedicationRepository(database)
+                BaseMedicationViewModel(repository, application.applicationContext)
             }
         }
     }
 }
-
-data class MedicationData(
-    val name: String,
-    val doctor: String,
-    val notes: String,
-    val icon: MedicationIcon?,
-    val status: MedicationStatus
-)
-
-data class DosageData(
-    val dosageAmount: String,
-    val dosageUnits: String
-)
-
-data class ReminderData(
-    val reminderEnabled: Boolean,
-    val reminderFrequency: String,
-    val hourlyReminderInterval: String?,
-    val hourlyReminderStartTime: Pair<Int, Int>?,
-    val hourlyReminderEndTime: Pair<Int, Int>?,
-    val dailyReminderTimes: List<Pair<Int, Int>>,
-)
-
-data class ScheduleData(
-    val startDate: LocalDate?,
-    val durationType: String,
-    val numDays: Int?,
-    val scheduleType: String,
-    val selectedDays: String,
-    val daysInterval: Int?
-)

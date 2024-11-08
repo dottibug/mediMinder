@@ -1,62 +1,36 @@
 package com.example.mediminder.activities
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.mediminder.R
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.databinding.ActivityAddMedicationBinding
-import com.example.mediminder.fragments.AddMedicationDosageFragment
-import com.example.mediminder.fragments.AddMedicationInfoFragment
-import com.example.mediminder.utils.WindowInsetsUtil
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
-import com.example.mediminder.viewmodels.ReminderData
 import kotlinx.coroutines.launch
 
-class AddMedicationActivity : AppCompatActivity() {
+class AddMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityAddMedicationBinding
-    private val windowUtils = WindowInsetsUtil
+    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
     private val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        setupBindings()
+        setupListeners()
+    }
 
+    private fun setupBindings() {
+        setupBaseLayout()
         binding = ActivityAddMedicationBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        baseBinding.contentContainer.addView(binding.root)
+        setupWindowInsets(binding.root)
+        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+    }
 
-        windowUtils.setupWindowInsets(binding.root)
-
-        binding.buttonAddMed.setOnClickListener {
-            lifecycleScope.launch {
-                val medicationFragment = supportFragmentManager.findFragmentById(
-                    R.id.fragmentAddMedInfo
-                ) as AddMedicationInfoFragment?
-                val medicationData = medicationFragment?.getMedicationData()
-
-                val dosageFragment = supportFragmentManager.findFragmentById(
-                    R.id.fragmentAddMedDosage
-                ) as AddMedicationDosageFragment?
-                val dosageData = dosageFragment?.getDosageData()
-
-                val reminderData = medicationViewModel.getReminderData()
-                val scheduleData = medicationViewModel.getScheduleData()
-
-                if (medicationData != null && dosageData != null) {
-                    medicationViewModel.addMedication(
-                        medicationData, dosageData, reminderData, scheduleData
-                    )
-
-                    setResult(RESULT_OK)
-                    // TODO: show a toast message?
-                    finish()
-                } else {
-                    // error message
-                }
-            }
-        }
+    private fun setupListeners() {
+        binding.buttonAddMed.setOnClickListener { handleAddMedication() }
 
         binding.buttonCancelAddMed.setOnClickListener {
             setResult(RESULT_CANCELED)
@@ -64,15 +38,20 @@ class AddMedicationActivity : AppCompatActivity() {
         }
     }
 
-    private fun getMedicationStatus(reminderData: ReminderData): MedicationStatus {
-        // Medication status for a new medication
-        // if no reminder is set, then UNSCHEDULED
-        // if reminder is set, then SCHEDULED
-        val status = if (reminderData.reminderEnabled) {
-                MedicationStatus.PENDING
-        } else {
-            MedicationStatus.UNSCHEDULED
+    private fun handleAddMedication() {
+        lifecycleScope.launch {
+            val medData = getMedicationData(MedicationAction.ADD)
+            val dosageData = getDosageData(MedicationAction.ADD)
+            val reminderData = medicationViewModel.getReminderData()
+            val scheduleData = medicationViewModel.getScheduleData()
+
+            if (medData != null && dosageData != null) {
+                medicationViewModel.addMedication(medData, dosageData, reminderData, scheduleData)
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                Log.e("AddMedicationActivity testcat", "Medication or dosage data is null")
+            }
         }
-        return status
     }
 }

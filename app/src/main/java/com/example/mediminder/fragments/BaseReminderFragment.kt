@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentBaseReminderBinding
-import com.example.mediminder.utils.AppUtils
+import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -24,7 +24,6 @@ abstract class BaseReminderFragment : Fragment() {
     protected lateinit var binding: FragmentBaseReminderBinding
     protected abstract val reminderViewModel: BaseReminderViewModel
     protected abstract val medicationViewModel: BaseMedicationViewModel
-    protected val appUtils = AppUtils()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -209,7 +208,7 @@ abstract class BaseReminderFragment : Fragment() {
 
     // Update the time picker button text
     protected fun updateTimePickerButtonText(hour: Int, minute: Int, button: Button) {
-        val convertedHour = appUtils.convert24HourTo12Hour(hour)
+        val convertedHour = convert24HourTo12Hour(hour)
         val amPm = if (hour < 12) "AM" else "PM"
         val formattedTime = String.format(Locale.CANADA, "%1d:%02d %s", convertedHour, minute, amPm)
         button.text = formattedTime

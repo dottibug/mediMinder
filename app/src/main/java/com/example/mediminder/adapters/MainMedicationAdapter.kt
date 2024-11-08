@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.databinding.ItemScheduledMedicationBinding
 import com.example.mediminder.models.MedicationItem
-import com.example.mediminder.utils.StatusIconUtil
+import com.example.mediminder.utils.AppUtils.getStatusIcon
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
 // given date.
@@ -34,7 +34,7 @@ class MainMedicationAdapter(
             binding.medicationName.text = item.medication.name
             binding.medicationDosage.text = item.dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
             binding.medicationTime.text = item.time.toString()
-            binding.medicationStatusIcon.setImageResource(StatusIconUtil.getStatusIcon(item.status))
+            binding.medicationStatusIcon.setImageResource(getStatusIcon(item.status))
             binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
         }
     }

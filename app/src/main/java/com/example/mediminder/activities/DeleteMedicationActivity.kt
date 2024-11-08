@@ -5,14 +5,13 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
-import com.example.mediminder.utils.WindowInsetsUtil
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
 
@@ -24,36 +23,38 @@ class DeleteMedicationActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        setupBaseLayout()
-        binding = ActivityDeleteMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        WindowInsetsUtil.setupWindowInsets(binding.root)
-
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+        setupBindings()
 
         // Handle back press
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (medicationDeleted) { navigateToMain() }
                 else { finish() }
             }
         })
 
-        // Get medicationId from intent extras
         val medicationId = intent.getLongExtra("medicationId", -1)
-        if (medicationId == -1L) {
+        checkMedicationId(medicationId)
+
+        setupUI()
+        setupListeners()
+        setupObservers()
+        lifecycleScope.launch { fetchMedication(medicationId) }
+    }
+
+    private fun setupBindings() {
+        setupBaseLayout()
+        binding = ActivityDeleteMedicationBinding.inflate(layoutInflater)
+        baseBinding.contentContainer.addView(binding.root)
+        setupWindowInsets(binding.root)
+        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+    }
+
+   private fun checkMedicationId(medId: Long) {
+        if (medId == -1L) {
             finish()
             return
         }
-
-        lifecycleScope.launch {
-            fetchMedication(medicationId)
-        }
-
-        setupUI()
-        setupObservers()
     }
 
     private suspend fun fetchMedication(medicationId: Long) {
@@ -69,49 +70,42 @@ class DeleteMedicationActivity : BaseActivity() {
 
     private fun setupUI() {
         val medicationName = viewModel.medicationName.value
-        binding.deleteMedicationMessage.text = resources.getString(R.string.delete_medication_instructions, medicationName)
+        val deleteMessage = resources.getString(R.string.delete_medication_instructions, medicationName)
+        binding.deleteMedicationMessage.text = deleteMessage
+    }
 
+    private fun setupListeners() {
         binding.buttonCancelDeleteMed.setOnClickListener {
             setResult(RESULT_CANCELED)
             finish()
         }
 
         binding.buttonConfirmDeleteMed.setOnClickListener {
-            lifecycleScope.launch {
-                deleteMedication()
-            }
+            lifecycleScope.launch { deleteMedication() }
         }
 
-        binding.buttonGoToMain.setOnClickListener {
-            navigateToMain()
-        }
-
-        binding.buttonGoToMedications.setOnClickListener {
-            navigateToMedications()
-        }
+        binding.buttonGoToMain.setOnClickListener { navigateToMain() }
+        binding.buttonGoToMedications.setOnClickListener { navigateToMedications() }
     }
 
     private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.medicationName.collect { name ->
-                binding.deleteMedicationMessage.text =
-                    resources.getString(R.string.delete_medication_instructions, name)
+                val message = resources.getString(R.string.delete_medication_instructions, name)
+                binding.deleteMedicationMessage.text = message
             }
         }
     }
 
     private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 
     private fun navigateToMedications() {
-        val intent = Intent(this, MedicationsActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, MedicationsActivity::class.java))
         finish()
     }
-
 
     private suspend fun deleteMedication() {
         loadingSpinnerUtil.whileLoading {
@@ -121,7 +115,6 @@ class DeleteMedicationActivity : BaseActivity() {
                 showSuccessMessage()
             } catch (e: Exception) {
                 Log.e("DeleteMedicationActivity", "Error deleting medication", e)
-                // Show error message
             }
         }
     }

@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ItemHistoryLogBinding
 import com.example.mediminder.models.MedicationLogWithDetails
-import com.example.mediminder.utils.StatusIconUtil
+import com.example.mediminder.utils.AppUtils.getStatusIcon
 import java.time.format.DateTimeFormatter
 
 class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHolder>(DiffCallback) {
@@ -26,7 +26,7 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
         private val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
         fun bind(medLog: MedicationLogWithDetails) {
-            binding.statusIcon.setImageResource(StatusIconUtil.getStatusIcon(medLog.log.status))
+            binding.statusIcon.setImageResource(getStatusIcon(medLog.log.status))
             binding.medicationName.text = medLog.name
             binding.dosageAndTime.text = itemView.context.getString(
                 R.string.history_log_dosage_time,
