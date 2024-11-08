@@ -1,12 +1,19 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reminder_type_entries">
-        <item>Alarm</item>
-        <item>Push notification</item>
+    <!-- Grace Period -->
+    <string-array name="grace_period_options">
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>4 hours</item>
+        <item>6 hours</item>
     </string-array>
 
-    <string-array name="reminder_type_values">
-        <item>Alarm</item>
-        <item>Push notification</item>
+    <string-array name="grace_period_values">
+        <item>0.5</item>
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>6</item>
     </string-array>
+
 </resources>

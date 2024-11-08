@@ -12,10 +12,13 @@
     <string name="permission_icon_description">Permission icon</string>
 
     <!-- SETTINGS -->
+    <string name="title_activity_settings">Settings</string>
     <string name="reminder_settings">Reminder Settings</string>
     <string name="show_medication_name">Show medication name</string>
     <string name="show_med_name_summary_off">Show medication name in reminders</string>
     <string name="show_med_name_summary_on">Hide medication name in reminders</string>
+    <string name="grace_period_title">Mark medication as missed</string>
+    <string name="grace_period_dialog_title">Select Time to Mark As Missed</string>
 
     <!-- BASE FRAGMENTS -->
     <string name="hint_medication_name">Medication Name</string>
@@ -204,7 +207,6 @@
     <string name="no_logs_future_month"><i>There are no medication logs for this month yet.</i></string>
     <string name="no_logs_past_month"><i>There were no medication logs for this month.</i></string>
 
-    <!--    ///////////////////////////////////////////////-->
     <!-- App -->
     <string name="app_name">MediMinder</string>
     <string name="app_logo_description">MediMinder Logo</string>
@@ -230,22 +232,6 @@
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
 
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>

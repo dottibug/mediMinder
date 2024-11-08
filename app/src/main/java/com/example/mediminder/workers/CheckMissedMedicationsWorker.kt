@@ -2,6 +2,7 @@ package com.example.mediminder.workers
 
 import android.content.Context
 import android.content.Intent
+import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
@@ -23,9 +24,16 @@ class CheckMissedMedicationsWorker(
         val database = AppDatabase.getDatabase(applicationContext)
         val medicationLogDao = database.medicationLogDao()
 
+        val settingsPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val gracePeriod = settingsPrefs.getString("grace_period", "1")?.toDouble() ?: 1.0
+
+        // NOTE: For development/testing purposes only, set grace period to 0.0 to see a
+        //  medication get marked as missed
+//        val gracePeriod = 0.0
+
         return try {
-            // Calculate cutoff time (current time minus grace period)
-            val cutoffTime = LocalDateTime.now().minusHours(GRACE_PERIOD_HOURS)
+            // Calculate cutoff time (current time minus grace period in minutes)
+            val cutoffTime = LocalDateTime.now().minusMinutes((gracePeriod * 60).toLong())
 
             // Get all logs that are still in pending status before the cutoff time
             // These logs have not been marked as taken or skipped, so they are missed
@@ -49,14 +57,4 @@ class CheckMissedMedicationsWorker(
             Result.retry()
         }
     }
-
-    companion object {
-        private val TAG = "CheckMissedMedicationsWorker"
-        // todo: do not hardcode the grace period; default to 2L, but allow user to change it in settings
-//        private const val GRACE_PERIOD_HOURS = 2L
-
-        // TEST: Grace period for development purposes
-        private const val GRACE_PERIOD_HOURS = 0L
-    }
-
 }

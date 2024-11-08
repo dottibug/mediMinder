@@ -1,6 +1,7 @@
 package com.example.mediminder
 
 import android.app.Application
+import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -23,15 +24,28 @@ class MediminderApplication: Application() {
 
 
     private fun setupMissedMedicationsWorker() {
-        // NOTE: For development/testing purposes only
-        val checkMissedMedicationsWorkRequest = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
-            15, TimeUnit.MINUTES  // Run every 15 minutes for testing
+        val settingsPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val gracePeriod = settingsPrefs.getString("grace_period", "1")
+
+        val repeatInterval = when (gracePeriod) {
+            "0.5" -> 30L
+            "1" -> 60L
+            else -> 120L // Default to 2 hours if period is longer than 1 hour
+        }
+
+        // NOTE: For development/testing purposes only, run every 15 minutes
+        val testRepeatInterval = 15L
+
+        val missedMedsWorkReq = PeriodicWorkRequestBuilder<CheckMissedMedicationsWorker>(
+//            testRepeatInterval,
+            repeatInterval,
+            TimeUnit.MINUTES
         ).build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
             "check_missed_medications",
             ExistingPeriodicWorkPolicy.KEEP,
-            checkMissedMedicationsWorkRequest
+            missedMedsWorkReq
         )
     }
 

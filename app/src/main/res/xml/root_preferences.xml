@@ -2,12 +2,25 @@
 
     <PreferenceCategory app:title="@string/reminder_settings">
 
+        <!-- Show medication name -->
         <SwitchPreferenceCompat
             app:key="show_medication_name"
             app:title="@string/show_medication_name"
             app:summaryOff="@string/show_med_name_summary_off"
             app:summaryOn="@string/show_med_name_summary_on" />
 
+        <!-- Grace period to mark medication as missed -->
+        <ListPreference
+            app:key="grace_period"
+            app:title="@string/grace_period_title"
+            app:dialogTitle="@string/grace_period_dialog_title"
+            app:entries="@array/grace_period_options"
+            app:entryValues="@array/grace_period_values"
+            app:defaultValue="1"
+            app:summary="After %s" />
+
     </PreferenceCategory>
+
+
 
 </PreferenceScreen>
