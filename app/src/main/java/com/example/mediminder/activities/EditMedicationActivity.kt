@@ -19,7 +19,7 @@ class EditMedicationActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setupBindings()
 
-        val medicationId = intent.getLongExtra("medicationId", -1)
+        val medicationId = intent.getLongExtra(MED_ID, NULL_INT)
         checkMedicationId(medicationId)
 
         setupListeners(medicationId)
@@ -36,7 +36,7 @@ class EditMedicationActivity : BaseActivity() {
     }
 
     private fun checkMedicationId(medId: Long) {
-        if (medId == -1L) {
+        if (medId == NULL_INT) {
             finish()
             return
         }

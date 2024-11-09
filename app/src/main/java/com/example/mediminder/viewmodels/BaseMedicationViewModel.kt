@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -20,10 +21,12 @@ import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.models.ReminderData
+import com.example.mediminder.models.ReminderState
 import com.example.mediminder.models.ScheduleData
+import com.example.mediminder.models.ScheduleState
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
-import com.example.mediminder.utils.ValidationUtils
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
+import com.example.mediminder.utils.ValidationUtils.getValidatedData
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,74 +34,63 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 
 class BaseMedicationViewModel(
-    protected val repository: MedicationRepository,
-    protected val applicationContext: Context
+    private val repository: MedicationRepository,
+    private val applicationContext: Context
 ) : ViewModel() {
-    // Reminder State
-    private val reminderEnabled = MutableStateFlow(false)
-    private val reminderFrequency = MutableStateFlow("")
-    private val hourlyReminderInterval = MutableStateFlow<String?>(null)
-    private val hourlyReminderStartTime = MutableStateFlow<Pair<Int, Int>?>(null)
-    private val hourlyReminderEndTime = MutableStateFlow<Pair<Int, Int>?>(null)
-    private val dailyReminderTimes = MutableStateFlow<List<Pair<Int, Int>>>(emptyList())
 
-    // Schedule State
-    private val startDate = MutableStateFlow<LocalDate?>(null)
-    private val durationType = MutableStateFlow("continuous")
-    private val numDays = MutableStateFlow<Int?>(0)
-    private val scheduleType = MutableStateFlow("daily")
-    private val selectedDays = MutableStateFlow("")
-    private val daysInterval = MutableStateFlow<Int?>(0)
+    private val reminderState = ReminderState()
+    private val scheduleState = ScheduleState()
 
     // Current medication (for editing medications)
     private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
     val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
 
     // Update Functions
-    fun updateIsReminderEnabled(enabled: Boolean) { reminderEnabled.value = enabled }
-    fun updateReminderFrequency(frequency: String?) { reminderFrequency.value = frequency ?: "" }
-    fun updateHourlyReminderInterval(interval: String?) { hourlyReminderInterval.value = interval }
-    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { hourlyReminderStartTime.value = startTime }
-    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { hourlyReminderEndTime.value = endTime }
-    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { dailyReminderTimes.value = times }
+    fun updateIsReminderEnabled(enabled: Boolean) { reminderState.reminderEnabled.value = enabled }
+    fun updateReminderFrequency(frequency: String?) { reminderState.reminderFrequency.value = frequency ?: "" }
+    fun updateHourlyReminderInterval(interval: String?) { reminderState.hourlyReminderInterval.value = interval }
+    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { reminderState.hourlyReminderStartTime.value = startTime }
+    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { reminderState.hourlyReminderEndTime.value = endTime }
+    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { reminderState.dailyReminderTimes.value = times }
 
-    fun updateStartDate(date: LocalDate?) { startDate.value = date }
-    fun updateDurationType(type: String) { durationType.value = type }
-    fun updateNumDays(days: Int?) { numDays.value = days }
-    fun updateScheduleType(type: String) { scheduleType.value = type }
+    fun updateStartDate(date: LocalDate?) { scheduleState.startDate.value = date }
+    fun updateDurationType(type: String) { scheduleState.durationType.value = type }
+    fun updateNumDays(days: Int?) { scheduleState.numDays.value = days }
+    fun updateScheduleType(type: String) { scheduleState.scheduleType.value = type }
 
     fun updateSelectedDays(days: String) {
-        selectedDays.value = days
-        daysInterval.value = 0
+        scheduleState.selectedDays.value = days
+        scheduleState.daysInterval.value = 0
     }
 
     fun updateDaysInterval(interval: Int?) {
-        daysInterval.value = interval
-        selectedDays.value = ""
+        scheduleState.daysInterval.value = interval
+        scheduleState.selectedDays.value = ""
     }
 
     // Getter Functions
     fun getReminderData(): ReminderData {
         return ReminderData(
-            reminderEnabled = reminderEnabled.value,
-            reminderFrequency = reminderFrequency.value,
-            hourlyReminderInterval = hourlyReminderInterval.value,
-            hourlyReminderStartTime = hourlyReminderStartTime.value,
-            hourlyReminderEndTime = hourlyReminderEndTime.value,
-            dailyReminderTimes = dailyReminderTimes.value,
+            reminderEnabled = reminderState.reminderEnabled.value,
+            reminderFrequency = reminderState.reminderFrequency.value,
+            hourlyReminderInterval = reminderState.hourlyReminderInterval.value,
+            hourlyReminderStartTime = reminderState.hourlyReminderStartTime.value,
+            hourlyReminderEndTime = reminderState.hourlyReminderEndTime.value,
+            dailyReminderTimes = reminderState.dailyReminderTimes.value,
         )
     }
 
     fun getScheduleData(): ScheduleData {
         return ScheduleData(
-            startDate = startDate.value,
-            durationType = durationType.value,
-            numDays = numDays.value,
-            scheduleType = scheduleType.value,
-            selectedDays = selectedDays.value,
-            daysInterval = daysInterval.value
+            startDate = scheduleState.startDate.value,
+            durationType = scheduleState.durationType.value,
+            numDays = scheduleState.numDays.value,
+            scheduleType = scheduleState.scheduleType.value,
+            selectedDays = scheduleState.selectedDays.value,
+            daysInterval = scheduleState.daysInterval.value
         )
     }
 
@@ -110,55 +102,18 @@ class BaseMedicationViewModel(
         reminderData: ReminderData,
         scheduleData: ScheduleData
     ) {
-        val validatedMedicationData = ValidationUtils.validateMedicationData(medicationData)
-        val validatedDosageData = ValidationUtils.validateDosageData(dosageData)
-        val validatedReminderData = ValidationUtils.validateReminderData(reminderData)
-        val validatedScheduleData = ValidationUtils.validateScheduleData(scheduleData)
+        val validatedData = getValidatedData(medicationData, dosageData, reminderData, scheduleData)
 
         viewModelScope.launch {
             try {
                 // Save to database
                 val medicationId = repository.addMedication(
-                    validatedMedicationData,
-                    validatedDosageData,
-                    validatedReminderData,
-                    validatedScheduleData
+                    validatedData.medicationData,
+                    validatedData.dosageData,
+                    validatedData.reminderData,
+                    validatedData.scheduleData
                 )
-
-                // Create future logs
-                val workManager = WorkManager.getInstance(applicationContext)
-                val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
-                    .build()
-                val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>()
-                    .build()
-
-                workManager.beginUniqueWork(
-                    "create_logs_${medicationId}_${System.currentTimeMillis()}",
-                    ExistingWorkPolicy.REPLACE,
-                    createFutureLogsRequest
-                )
-                    .then(checkMissedRequest)
-                    .enqueue()
-
-
-                // Send broadcast to update UI
-                // Observe work completion before sending broadcasts
-                workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
-                    .observeForever { workInfo ->
-                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                            // Send broadcast to update UI
-                            val updateIntent = Intent("com.example.mediminder.MEDICATION_STATUS_CHANGED").apply {
-                                setPackage(applicationContext.packageName)
-                            }
-                            applicationContext.sendBroadcast(updateIntent)
-
-                            // Schedule notifications
-                            val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
-                                action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
-                            }
-                            applicationContext.sendBroadcast(schedulerIntent)
-                        }
-                    }
+                createWorkers("create_logs", medicationId)
             } catch (e: Exception) {
                 Log.e("testcat", "Error saving medication: ${e.message}")
                 throw e
@@ -173,64 +128,64 @@ class BaseMedicationViewModel(
         reminderData: ReminderData,
         scheduleData: ScheduleData
     ) {
-        val validatedMedicationData = ValidationUtils.validateMedicationData(medicationData)
-        val validatedDosageData = ValidationUtils.validateDosageData(dosageData)
-        val validatedReminderData = ValidationUtils.validateReminderData(reminderData)
-        val validatedScheduleData = ValidationUtils.validateScheduleData(scheduleData)
+        val validatedData = getValidatedData(medicationData, dosageData, reminderData, scheduleData)
 
         viewModelScope.launch {
             try {
-                Log.d("testcat", "Starting medication update for id: $medicationId")
-                Log.d("testcat", "Validated dosage data: $validatedDosageData")
-
                 // Update in database
                 repository.updateMedication(
                     medicationId,
-                    validatedMedicationData,
-                    validatedDosageData,
-                    validatedReminderData,
-                    validatedScheduleData
+                    validatedData.medicationData,
+                    validatedData.dosageData,
+                    validatedData.reminderData,
+                    validatedData.scheduleData
                 )
-
-                Log.d("testcat", "Successfully updated medication")
-
-                // Create future logs
-                val workManager = WorkManager.getInstance(applicationContext)
-                val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
-                    .build()
-                val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>()
-                    .build()
-
-                workManager.beginUniqueWork(
-                    "update_logs_${medicationId}_${System.currentTimeMillis()}",
-                    ExistingWorkPolicy.REPLACE,
-                    createFutureLogsRequest
-                )
-                    .then(checkMissedRequest)
-                    .enqueue()
-
-                // Observe work completion before sending broadcasts
-                workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
-                    .observeForever { workInfo ->
-                        if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                            // Send broadcast to update UI
-                            val updateIntent = Intent("com.example.mediminder.MEDICATION_STATUS_CHANGED").apply {
-                                setPackage(applicationContext.packageName)
-                            }
-                            applicationContext.sendBroadcast(updateIntent)
-
-                            // Reschedule notifications
-                            val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
-                                action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
-                            }
-                            applicationContext.sendBroadcast(schedulerIntent)
-                        }
-                    }
+                createWorkers("update_logs", medicationId)
             } catch (e: Exception) {
                 Log.e("testcat", "Error updating medication: ${e.message}")
                 throw e
             }
         }
+    }
+
+    private fun createWorkers(workerPrefix: String, medicationId: Long) {
+        val workManager = WorkManager.getInstance(applicationContext)
+        val (createFutureLogsRequest, checkMissedRequest) = createWorkRequests()
+
+        workManager.beginUniqueWork(
+            "${workerPrefix}_${medicationId}_${System.currentTimeMillis()}",
+            ExistingWorkPolicy.REPLACE,
+            createFutureLogsRequest
+        ).then(checkMissedRequest).enqueue()
+
+        val futureLogsReqId = createFutureLogsRequest.id
+        observeWorkCompletion(workManager, futureLogsReqId)
+    }
+
+    private fun createWorkRequests(): Pair<OneTimeWorkRequest, OneTimeWorkRequest> {
+        val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
+        val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
+        return Pair(createFutureLogsRequest, checkMissedRequest)
+    }
+
+    private fun observeWorkCompletion(workManager: WorkManager, futureLogsReqId: UUID) {
+        // Observe work completion before sending broadcasts
+        workManager.getWorkInfoByIdLiveData(futureLogsReqId)
+            .observeForever { workInfo ->
+                if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
+                    // Send broadcast to update UI
+                    val updateIntent = Intent(MED_STATUS_CHANGED).apply {
+                        setPackage(applicationContext.packageName)
+                    }
+                    applicationContext.sendBroadcast(updateIntent)
+
+                    // Reschedule notifications
+                    val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
+                        action = SCHEDULE_NEW_MEDICATION
+                    }
+                    applicationContext.sendBroadcast(schedulerIntent)
+                }
+            }
     }
 
     fun fetchMedication(medicationId: Long) {
@@ -245,6 +200,9 @@ class BaseMedicationViewModel(
     }
 
     companion object {
+        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
+        private const val SCHEDULE_NEW_MEDICATION = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as Application)

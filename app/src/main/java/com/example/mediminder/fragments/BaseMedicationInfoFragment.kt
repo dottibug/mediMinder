@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.mediminder.data.local.classes.MedicationIcon
-import com.example.mediminder.data.local.classes.MedicationStatus
+import com.example.mediminder.models.MedicationIcon
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.viewmodels.BaseMedicationViewModel
 
 abstract class BaseMedicationInfoFragment: Fragment() {
     protected lateinit var binding: FragmentBaseMedicationInfoBinding
@@ -23,7 +23,7 @@ abstract class BaseMedicationInfoFragment: Fragment() {
         return binding.root
     }
 
-    protected fun getIcon(iconName: String): MedicationIcon {
+    private fun getIcon(iconName: String): MedicationIcon {
         return MedicationIcon.valueOf(iconName.uppercase())
     }
 

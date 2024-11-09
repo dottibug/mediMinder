@@ -234,4 +234,12 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
 
+    <!-- NOTIFICATIONS -->
+    <string name="time_to_take">Time to take %s</string>
+    <string name="time_to_take_private">Time to take medication</string>
+    <string name="take">Take</string>
+    <string name="skip">Skip</string>
+    <string name="notification_title">Medication Reminder</string>
+    <string name="take_action_response">Medication marked as taken</string>
+    <string name="skip_action_response">Medication marked as skipped</string>
 </resources>

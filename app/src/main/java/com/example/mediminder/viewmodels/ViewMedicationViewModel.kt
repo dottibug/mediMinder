@@ -1,6 +1,7 @@
 package com.example.mediminder.viewmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -25,7 +26,7 @@ class ViewMedicationViewModel(private val repository: MedicationRepository) : Vi
             try {
                 _medication.value = repository.getMedicationDetailsById(medicationId)
             } catch (e: Exception) {
-                // Handle error
+                Log.e("ViewMedicationViewModel testcat", "Error loading medication", e)
             }
         }
     }

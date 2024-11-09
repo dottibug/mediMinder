@@ -16,7 +16,6 @@ import java.time.LocalTime
 data class MedReminders (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,
-
     @ColumnInfo(name = "reminder_frequency") val reminderFrequency: String,
     @ColumnInfo(name = "hourly_reminder_interval") val hourlyReminderInterval: String?,
     @ColumnInfo(name = "hourly_reminder_start_time") val hourlyReminderStartTime: LocalTime?,

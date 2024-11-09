@@ -10,6 +10,9 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
+import com.example.mediminder.activities.BaseActivity.Companion.DAILY
+import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
+import com.example.mediminder.activities.BaseActivity.Companion.X_TIMES_DAILY
 import com.example.mediminder.databinding.FragmentBaseReminderBinding
 import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
@@ -28,6 +31,7 @@ abstract class BaseReminderFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentBaseReminderBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -47,13 +51,13 @@ abstract class BaseReminderFragment : Fragment() {
         binding.reminderFrequencyMenu.setOnItemClickListener { _, _, position, _ ->
             val selectedFrequency = resources.getStringArray(R.array.reminder_frequency_options)[position]
             reminderViewModel.setReminderFrequency(selectedFrequency)
-            if (selectedFrequency == "x times daily") resetDailyFrequencyButtonText()
+            if (selectedFrequency == X_TIMES_DAILY) resetDailyFrequencyButtonText()
         }
 
         // Click listeners
         binding.buttonHourlyRemindEvery.setOnClickListener { showHourlyReminderPopupMenu() }
-        binding.buttonReminderStartTime.setOnClickListener { showTimePickerDialog("every x hours") }
-        binding.buttonReminderEndTime.setOnClickListener { showTimePickerDialog("every x hours", isEndTime = true) }
+        binding.buttonReminderStartTime.setOnClickListener { showTimePickerDialog(EVERY_X_HOURS) }
+        binding.buttonReminderEndTime.setOnClickListener { showTimePickerDialog(EVERY_X_HOURS, isEndTime = true) }
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
     }
 
@@ -135,7 +139,7 @@ abstract class BaseReminderFragment : Fragment() {
             updateTimePickerButtonText(time.first, time.second, timePickerButton)
 
             // Click listeners
-            timePickerButton.setOnClickListener { showTimePickerDialog("daily", index) }
+            timePickerButton.setOnClickListener { showTimePickerDialog(DAILY, index) }
             deleteButton.setOnClickListener { reminderViewModel.removeDailyReminderTime(index) }
 
             // Add the time picker button to the container
@@ -145,8 +149,8 @@ abstract class BaseReminderFragment : Fragment() {
 
     // Show the relevant frequency options based on the selected frequency
     protected fun showFrequencyOptions(frequency: String) {
-        binding.hourlyReminderOptions.visibility = if (frequency == "every x hours") View.VISIBLE else View.GONE
-        binding.dailyReminderOptions.visibility = if (frequency == "daily") View.VISIBLE else View.GONE
+        binding.hourlyReminderOptions.visibility = if (frequency == EVERY_X_HOURS) View.VISIBLE else View.GONE
+        binding.dailyReminderOptions.visibility = if (frequency == DAILY) View.VISIBLE else View.GONE
     }
 
     // Show hourly reminder popup menu
@@ -189,7 +193,7 @@ abstract class BaseReminderFragment : Fragment() {
             val minute = timePicker.minute
 
             when (reminderType) {
-                "every x hours" -> {
+                EVERY_X_HOURS -> {
                     if (isEndTime) {
                         updateTimePickerButtonText(hour, minute, binding.buttonReminderEndTime)
                         reminderViewModel.setHourlyReminderEndTime(hour, minute)
@@ -198,7 +202,7 @@ abstract class BaseReminderFragment : Fragment() {
                         reminderViewModel.setHourlyReminderStartTime(hour, minute)
                     }
                 }
-                "daily" -> {
+                DAILY -> {
                     if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
                     else { reminderViewModel.addDailyReminderTime(hour, minute) }
                 }

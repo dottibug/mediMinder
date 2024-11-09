@@ -3,6 +3,7 @@ package com.example.mediminder.data.local.classes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.mediminder.models.MedicationIcon
 
 // Represents a medication entity (row) in the database medications table
 // https://developer.android.com/training/data-storage/room/defining-data

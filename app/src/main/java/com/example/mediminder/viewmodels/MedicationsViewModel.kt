@@ -26,7 +26,6 @@ class MedicationsViewModel(private val repository: MedicationRepository) : ViewM
             try {
                 _medications.value = repository.getAllMedicationsDetailed()
             } catch (e: Exception) {
-                // Handle error
                 Log.e("MedicationsViewModel testcat", "Error loading medications", e)
             }
         }

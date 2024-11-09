@@ -5,9 +5,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mediminder.R
 import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.repositories.MedicationRepository
+import com.example.mediminder.models.MedicationStatus
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -18,9 +18,15 @@ import java.util.Locale
 
 object AppUtils {
 
+    fun getLocalTimeFromPair(pair: Pair<Int, Int>?): LocalTime? {
+        return pair?.let { LocalTime.of(it.first, it.second) }
+    }
+
     // Convert 24-hour digit to 12-hour digit (ex. 13 -> 1)
     fun convert24HourTo12Hour(hour: Int): Int {
-        return if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
+        if (hour == 0) return 12
+        else if (hour > 12) return hour - 12
+        else return hour
     }
 
     fun formatLocalTimeTo12Hour(localTime: LocalTime): String {
@@ -72,10 +78,8 @@ object AppUtils {
 
         // Parse interval to hours (extract first number from string like "2 hours")
         val intervalHours = interval.split(" ")[0].toIntOrNull()?.toLong() ?: return emptyList()
-
         val startLocalTime = LocalTime.of(startTime.first, startTime.second)
         val endLocalTime = LocalTime.of(endTime.first, endTime.second)
-
         val times = mutableListOf<LocalTime>()
 
         // Calculate how many intervals fit between start and end time
@@ -90,7 +94,6 @@ object AppUtils {
             if (time.isAfter(endLocalTime)) break
             times.add(time)
         }
-
         return times
     }
 
@@ -105,35 +108,6 @@ object AppUtils {
         )
     }
 
-    fun isScheduledForDate(schedule: Schedules?, date: LocalDate): Boolean {
-        if (schedule == null) return false
-        if (!dateWithinMedicationDuration(date, schedule)) return false
-
-        return when (schedule.scheduleType) {
-            "daily" -> true
-
-            "specificDays" -> {
-                schedule.selectedDays.split(",").contains(date.dayOfWeek.value.toString())
-            }
-
-            // Checks if the number of days between the start date and current date is evenly
-            // divisible by the interval; if it is, the medication is scheduled for the current day
-            // Ex. Interval = 3
-            // Day 0 (start date): 0 % 3 == 0, medication is scheduled
-            // Day 1: 1 % 3 == 1, medication is not scheduled
-            // Day 2: 2 % 3 == 2, medication is not scheduled
-            // Day 3: 3 % 3 == 0, medication is scheduled
-            // Day 4: 4 % 3 == 1, medication is not scheduled, etc
-            "interval" -> {
-                val daysSinceStart = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
-                daysSinceStart % (schedule.daysInterval ?: 1) == 0
-            }
-
-            else -> false
-        }
-
-    }
-
     // Checks if the medication is within the scheduled number of days from the start date
     private fun dateWithinMedicationDuration(date: LocalDate, schedule: Schedules): Boolean {
         if (date < schedule.startDate) return false
@@ -143,6 +117,37 @@ object AppUtils {
             "numDays" -> date <= schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
             else -> false
         }
+    }
+
+    fun isScheduledForDate(schedule: Schedules?, date: LocalDate): Boolean {
+        if (schedule == null) { return false }
+        if (!dateWithinMedicationDuration(date, schedule)) { return false }
+
+        return when (schedule.scheduleType) {
+            "daily" -> true
+            "specificDays" -> isScheduledForDayOfWeek(schedule, date)
+            "interval" -> isScheduledForInterval(schedule, date)
+            else -> false
+        }
+    }
+
+    private fun isScheduledForDayOfWeek(schedule: Schedules, date: LocalDate): Boolean {
+        return schedule.selectedDays
+            .split(",")
+            .contains(date.dayOfWeek.value.toString())
+    }
+
+    // Checks if the number of days between the start date and current date is evenly
+    // divisible by the interval; if it is, the medication is scheduled for the current day
+    // Ex. Interval = 3
+    // Day 0 (start date): 0 % 3 == 0, medication is scheduled
+    // Day 1: 1 % 3 == 1, medication is not scheduled
+    // Day 2: 2 % 3 == 2, medication is not scheduled
+    // Day 3: 3 % 3 == 0, medication is scheduled
+    // Day 4: 4 % 3 == 1, medication is not scheduled, etc
+    private fun isScheduledForInterval(schedule: Schedules, date: LocalDate): Boolean {
+        val daysSinceStart = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
+        return daysSinceStart % (schedule.daysInterval ?: 1) == 0
     }
 
     fun setupWindowInsets(rootView: View) {

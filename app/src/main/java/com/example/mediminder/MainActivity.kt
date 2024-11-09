@@ -9,7 +9,6 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -42,9 +41,7 @@ class MainActivity : BaseActivity() {
 
     private val statusChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Log.d("MainActivity testcat", "Received status change broadcast")
-
-            if (intent?.action == "com.example.mediminder.MEDICATION_STATUS_CHANGED") {
+            if (intent?.action == MED_STATUS_CHANGED) {
                 lifecycleScope.launch {
                     viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
                 }
@@ -54,33 +51,32 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
-        setupBaseLayout()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
-
-        // Register broadcast receiver
-        registerReceiver(
-            statusChangeReceiver,
-            IntentFilter("com.example.mediminder.MEDICATION_STATUS_CHANGED"),
-            Context.RECEIVER_EXPORTED
-        )
-
+        setupBindings()
+        registerStatusChangeReceiver()
         setupUI()
         createNotificationChannel()
-
-        lifecycleScope.launch {
-            initializeDatabaseAndFetchData()
-        }
+        lifecycleScope.launch { initializeDatabaseAndFetchData() }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(statusChangeReceiver)
+    }
+
+    private fun registerStatusChangeReceiver() {
+        registerReceiver(
+            statusChangeReceiver,
+            IntentFilter(MED_STATUS_CHANGED),
+            Context.RECEIVER_EXPORTED
+        )
+    }
+
+    private fun setupBindings() {
+        setupBaseLayout()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        baseBinding.contentContainer.addView(binding.root)
+        setupWindowInsets(binding.root)
+        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
     }
 
     // Coroutine off the main thread to avoid blocking the UI
@@ -145,8 +141,8 @@ class MainActivity : BaseActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.selectedDate.collectLatest {
-                date -> binding.selectedDateText.text = date.toString()
+            viewModel.selectedDate.collectLatest { date ->
+                binding.selectedDateText.text = date.toString()
             }
         }
 
@@ -167,12 +163,10 @@ class MainActivity : BaseActivity() {
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            "medication_reminders",
-            "Medication Reminders",
+            MED_REMINDERS_CHANNEL_ID,
+            MED_REMINDERS_CHANNEL_NAME,
             NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = "Channel for medication reminders"
-        }
+        ).apply { description = MED_REMINDERS_CHANNEL_DESCRIPTION }
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
@@ -217,5 +211,12 @@ class MainActivity : BaseActivity() {
                     viewModel.fetchMedicationsForDate(LocalDate.now())
                 }
             }
+    }
+
+    companion object {
+        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
+        private const val MED_REMINDERS_CHANNEL_ID = "medication_reminders"
+        private const val MED_REMINDERS_CHANNEL_NAME = "Medication Reminders"
+        private const val MED_REMINDERS_CHANNEL_DESCRIPTION = "Channel for medication reminders"
     }
 }

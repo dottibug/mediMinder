@@ -15,17 +15,13 @@ class DaysIntervalDialogFragment(
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
+        super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentDaysIntervalDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (editingDaysInterval) {
-            // todo
-        }
 
         binding.buttonCancelDaysIntervalDialog.setOnClickListener {
             if (!editingDaysInterval) { parentFragment.setScheduleTypeToDaily() }
@@ -40,6 +36,6 @@ class DaysIntervalDialogFragment(
     }
 
     companion object {
-        val TAG = "DaysIntervalDialogFragment"
+        const val TAG = "DaysIntervalDialogFragment"
     }
 }

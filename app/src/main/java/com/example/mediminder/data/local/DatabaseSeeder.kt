@@ -10,15 +10,15 @@ import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.data.local.classes.MedicationIcon
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationLogs
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.DosageDao
 import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.schedulers.MidnightMedicationScheduler
 import com.example.mediminder.workers.CheckMissedMedicationsWorker

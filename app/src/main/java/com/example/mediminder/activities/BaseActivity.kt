@@ -114,4 +114,16 @@ abstract class BaseActivity : AppCompatActivity() {
         ADD,
         EDIT
     }
+
+    companion object {
+        const val EVERY_X_HOURS = "every x hours"
+        const val X_TIMES_DAILY = "x times daily"
+        const val NUM_DAYS = "numDays"
+        const val CONTINUOUS = "continuous"
+        const val SPECIFIC_DAYS = "specificDays"
+        const val INTERVAL = "interval"
+        const val DAILY = "daily"
+        const val MED_ID = "medicationId"
+        const val NULL_INT = -1L
+    }
 }

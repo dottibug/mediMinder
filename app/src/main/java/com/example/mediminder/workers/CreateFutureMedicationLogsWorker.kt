@@ -8,7 +8,7 @@ import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.MedicationLogs
-import com.example.mediminder.data.local.classes.MedicationStatus
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
@@ -26,8 +26,6 @@ class CreateFutureMedicationLogsWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        Log.d("testcat", "CreateFutureMedicationLogsWorker started")
-
         val database = AppDatabase.getDatabase(applicationContext)
         val medicationDao = database.medicationDao()
         val scheduleDao = database.scheduleDao()
@@ -36,20 +34,15 @@ class CreateFutureMedicationLogsWorker(
 
         return try {
             val medications = medicationDao.getAllWithRemindersEnabled()
-            Log.d("testcat", "Found ${medications.size} medications with reminders")
-
             val today = LocalDate.now()
 
             medications.forEach { medication ->
-                Log.d("testcat", "Processing medication: ${medication.name}")
-
                 processMedication(medication.id, today, scheduleDao, reminderDao, medicationLogDao)
             }
 
             Result.success()
         } catch (e: Exception) {
             Log.e("testcat", "Error in CreateFutureMedicationLogsWorker: ${e.message}")
-
             Result.retry()
         }
     }
@@ -64,18 +57,11 @@ class CreateFutureMedicationLogsWorker(
         val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
         val reminder = reminderDao.getReminderByMedicationId(medicationId)
 
-        Log.d("testcat", "Processing medication ID: $medicationId")
-        Log.d("testcat", "Schedule: $schedule")
-        Log.d("testcat", "Reminder: $reminder")
-
+        // Create logs for medication if it doesn't have enough future logs (otherwise, skip)
         if (schedule != null && reminder != null) {
             val futureLogs = medicationLogDao.getFutureLogsCount(medicationId, today)
-            Log.d("testcat", "Future logs count: $futureLogs")
-
 
             if (futureLogs < MIN_FUTURE_DAYS) {
-                Log.d("testcat", "Creating logs from ${today.plusDays(futureLogs.toLong())}")
-
                 createLogsForMedication(
                     medicationId = medicationId,
                     scheduleId = schedule.id,
@@ -84,9 +70,6 @@ class CreateFutureMedicationLogsWorker(
                     startDate = today.plusDays(futureLogs.toLong()),
                     medicationLogDao = medicationLogDao
                 )
-            }
-            else {
-                Log.d("LogsWorker testcat", "Skipping medication $medicationId - has enough future logs")
             }
         }
     }
@@ -102,18 +85,10 @@ class CreateFutureMedicationLogsWorker(
         val endDate = calculateEndDate(schedule, startDate)
         var currentDate = startDate
 
-        Log.d("testcat", "Creating logs from $startDate to $endDate")
-
-
         while (!currentDate.isAfter(endDate)) {
             if (isScheduledForDate(schedule, currentDate)) {
                 val reminderTimes = getReminderTimes(reminder)
-                Log.d("testcat", "Reminder times for $currentDate: $reminderTimes")
-
                 insertLogsForDate(medicationId, scheduleId, currentDate, reminderTimes, medicationLogDao)
-            }
-            else {
-                Log.d("testcat", "Medication not scheduled for $currentDate")
             }
             currentDate = currentDate.plusDays(1)
         }
@@ -121,15 +96,22 @@ class CreateFutureMedicationLogsWorker(
 
     private fun calculateEndDate(schedule: Schedules, startDate: LocalDate): LocalDate {
         return when (schedule.durationType) {
-            "numDays" -> {
-                val daysLeft = schedule.numDays?.minus(
-                    ChronoUnit.DAYS.between(schedule.startDate, startDate).toInt()
-                ) ?: DAYS_TO_CREATE // Default to DAYS_TO_CREATE if numDays is null
-                if (daysLeft <= 0) return startDate.plusDays(DAYS_TO_CREATE.toLong())
-                startDate.plusDays(daysLeft.toLong())
-            }
+            "numDays" -> getEndDateForSetNumDays(schedule, startDate)
             else -> startDate.plusDays(DAYS_TO_CREATE.toLong())
         }
+    }
+
+    private fun getEndDateForSetNumDays(schedule: Schedules, startDate: LocalDate): LocalDate {
+        val daysLeft = calculateDaysLeft(schedule, startDate)
+        if (daysLeft <= 0) { return startDate.plusDays(DAYS_TO_CREATE.toLong()) }
+        else { return startDate.plusDays(daysLeft.toLong()) }
+    }
+
+    private fun calculateDaysLeft(schedule: Schedules, startDate: LocalDate): Int {
+        val daysLeft = schedule.numDays
+            ?.minus(ChronoUnit.DAYS.between(schedule.startDate, startDate).toInt())
+            ?: DAYS_TO_CREATE // Default to DAYS_TO_CREATE if numDays is null
+        return daysLeft
     }
 
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
@@ -155,31 +137,28 @@ class CreateFutureMedicationLogsWorker(
         reminderTimes.forEach { time ->
             val plannedDateTime = LocalDateTime.of(date, time)
             // Check if log already exists for this medication at this time
-            val existingLog = medicationLogDao.getLogByMedicationIdAndPlannedTime(medicationId, plannedDateTime)
+            val existingLog = medicationLogDao.getLogByMedIdAndTime(medicationId, plannedDateTime)
 
             if (existingLog == null) {
                 try {
-                    val log = MedicationLogs(
-                        medicationId = medicationId,
-                        scheduleId = scheduleId,
-                        plannedDatetime = plannedDateTime,
-                        takenDatetime = null,
-                        status = MedicationStatus.PENDING
+                    medicationLogDao.insert(
+                        MedicationLogs(
+                            medicationId = medicationId,
+                            scheduleId = scheduleId,
+                            plannedDatetime = plannedDateTime,
+                            takenDatetime = null,
+                            status = MedicationStatus.PENDING
+                        )
                     )
-                    val id = medicationLogDao.insert(log)
                 } catch (e: Exception) {
                     Log.e("testcat", "Failed to insert log: ${e.message}")
                     throw e
                 }
             }
-//            else {
-//                Log.d("testcat", "Skipped inserting duplicate log for time: $plannedDateTime")
-//            }
         }
     }
 
     companion object {
-        private const val TAG = "CreateFutureMedicationLogsWorker"
         private const val MIN_FUTURE_DAYS = 7
         private const val DAYS_TO_CREATE = 7
     }

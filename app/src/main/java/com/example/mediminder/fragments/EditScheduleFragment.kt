@@ -4,6 +4,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.mediminder.activities.BaseActivity.Companion.CONTINUOUS
+import com.example.mediminder.activities.BaseActivity.Companion.DAILY
+import com.example.mediminder.activities.BaseActivity.Companion.INTERVAL
+import com.example.mediminder.activities.BaseActivity.Companion.NUM_DAYS
+import com.example.mediminder.activities.BaseActivity.Companion.SPECIFIC_DAYS
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import kotlinx.coroutines.launch
@@ -39,12 +44,12 @@ class EditScheduleFragment : BaseScheduleFragment() {
     }
 
     private fun initDuration(numDays : Int) {
-        val durationType = if (numDays != 0) "numDays" else "continuous"
+        val durationType = if (numDays != 0) NUM_DAYS else CONTINUOUS
         isInitialSetup = true
         scheduleViewModel.setDurationType(durationType)
         updateDurationRadioSelection(durationType)
 
-        if (durationType == "continuous") { hideDurationNumDaysSummary() }
+        if (durationType == CONTINUOUS) { hideDurationNumDaysSummary() }
         else {
             scheduleViewModel.setNumDays(numDays)
             showDurationNumDaysSummary(numDays.toString())
@@ -59,11 +64,11 @@ class EditScheduleFragment : BaseScheduleFragment() {
         setRadioButtons(scheduleType)
 
         when (scheduleType) {
-            "specificDays" -> {
+            SPECIFIC_DAYS -> {
                 scheduleViewModel.setSelectedDays(schedule.selectedDays)
                 showDaySelectionSummary(schedule.selectedDays)
             }
-            "interval" -> {
+            INTERVAL -> {
                 scheduleViewModel.setDaysInterval(schedule.daysInterval.toString())
                 showDaysIntervalSummary(schedule.daysInterval.toString())
             }
@@ -73,20 +78,20 @@ class EditScheduleFragment : BaseScheduleFragment() {
     }
 
     private fun setRadioButtons(scheduleType: String) {
-        binding.radioDaysSpecificDays.isChecked = scheduleType == "specificDays"
-        binding.radioDaysInterval.isChecked = scheduleType == "interval"
-        binding.radioDaysEveryDay.isChecked = scheduleType == "daily"
+        binding.radioDaysSpecificDays.isChecked = scheduleType == SPECIFIC_DAYS
+        binding.radioDaysInterval.isChecked = scheduleType == INTERVAL
+        binding.radioDaysEveryDay.isChecked = scheduleType == DAILY
     }
 
     // Prevent duration dialog from showing on initial setup
     override fun handleDurationSettings() {
-        if (isInitialSetup) return
+        if (isInitialSetup) { return }
         super.handleDurationSettings()
     }
 
     // Prevent day selection dialog from showing on initial setup
     override fun handleScheduleSettings() {
-        if (isInitialSetup) return
+        if (isInitialSetup) { return }
         super.handleScheduleSettings()
     }
 }

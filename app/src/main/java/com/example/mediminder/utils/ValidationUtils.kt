@@ -1,17 +1,57 @@
 package com.example.mediminder.utils
 
-import com.example.mediminder.data.local.classes.MedicationIcon
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
+import com.example.mediminder.models.ValidatedData
 import java.time.LocalDate
 
 object ValidationUtils {
-    fun validateMedicationData(medicationData: MedicationData): MedicationData {
+    private const val MED_NAME_REQ = "Medication name is required"
+    private const val DOSE_AMT_REQ = "Dosage amount is required"
+    private const val DOSE_UNIT_DEFAULT = "units"
+    private const val REM_FREQ_REQ = "Reminder frequency is required when reminders are enabled"
+    private const val EMPTY_STRING = ""
+    private const val EVERY_X_HOURS = "every x hours"
+    private const val HOURLY_INTERVAL_REQ = "An interval is required for hourly reminders"
+    private const val START_TIME_REQ = "A start time is required for hourly reminders"
+    private const val END_TIME_REQ = "An end time is required for hourly reminders"
+    private const val DAILY = "daily"
+    private const val REM_TIME_REQ = "At least one reminder time is required for daily reminders"
+    private const val DURATION_DEFAULT = "continuous"
+    private const val NUM_DAYS = "numDays"
+    private const val NUM_DAYS_REQ = "Number of days must be greater than 0"
+    private const val SPECIFIC_DAYS = "specificDays"
+    private const val SPECIFIC_DAYS_REQ = "Specific days of the week must be selected"
+    private const val INTERVAL = "interval"
+    private const val DAYS_INTERVAL_REQ = "Days interval must be greater than 0"
+
+    fun getValidatedData(
+        medicationData: MedicationData,
+        dosageData: DosageData,
+        reminderData: ReminderData,
+        scheduleData: ScheduleData
+    ): ValidatedData {
+        val validatedMedicationData = validateMedicationData(medicationData)
+        val validatedDosageData = validateDosageData(dosageData)
+        val validatedReminderData = validateReminderData(reminderData)
+        val validatedScheduleData = validateScheduleData(scheduleData)
+
+        return ValidatedData(
+            validatedMedicationData,
+            validatedDosageData,
+            validatedReminderData,
+            validatedScheduleData
+        )
+    }
+
+    private fun validateMedicationData(medicationData: MedicationData): MedicationData {
         return medicationData.copy(
-            name = medicationData.name.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Medication name is required"),
+            name = medicationData.name
+                .trim().takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(MED_NAME_REQ),
             doctor = medicationData.doctor.trim(),
             notes = medicationData.notes.trim(),
             icon = medicationData.icon ?: MedicationIcon.TABLET
@@ -19,86 +59,112 @@ object ValidationUtils {
     }
 
     // Validate dosage data before saving: dosage amount and units are not empty
-    fun validateDosageData(dosageData: DosageData): DosageData {
+    private fun validateDosageData(dosageData: DosageData): DosageData {
         return dosageData.copy(
-            dosageAmount = dosageData.dosageAmount.trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException("Dosage amount is required"),
+            dosageAmount = dosageData.dosageAmount
+                .trim().takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(DOSE_AMT_REQ),
 
-            // default units to "units" if not specified
-            dosageUnits = dosageData.dosageUnits.trim().takeIf { it.isNotEmpty() }
-                ?: "units",
+            dosageUnits = dosageData.dosageUnits
+                .trim().takeIf { it.isNotEmpty() }
+                ?: DOSE_UNIT_DEFAULT,
         )
     }
 
     // Validate reminder data before saving
-    fun validateReminderData(reminderData: ReminderData): ReminderData {
+    private fun validateReminderData(reminderData: ReminderData): ReminderData {
         return reminderData.copy(
             reminderEnabled = reminderData.reminderEnabled,
-            // Reminder frequency is required when reminders are enabled
-            reminderFrequency = if (reminderData.reminderEnabled) {
-                reminderData.reminderFrequency.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Reminder frequency is required when reminders are enabled")
-            } else "",
-
-            // Interval is required for hourly reminders
-            hourlyReminderInterval = if (reminderData.reminderFrequency == "every x hours") {
-                reminderData.hourlyReminderInterval?.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Hourly reminder interval is required for hourly reminders")
-            } else null,
-
-            // Start time is required for hourly reminders
-            hourlyReminderStartTime = if (reminderData.reminderFrequency == "every x hours") {
-                reminderData.hourlyReminderStartTime
-                    ?: throw IllegalArgumentException("Start time is required for hourly reminders")
-            } else null,
-
-            // End time is required for hourly reminders
-            hourlyReminderEndTime = if (reminderData.reminderFrequency == "every x hours") {
-                reminderData.hourlyReminderEndTime
-                    ?: throw IllegalArgumentException("End time is required for hourly reminders")
-            } else null,
-
-            // At least one reminder time is required for daily reminders
-            dailyReminderTimes = if (reminderData.reminderFrequency == "daily") {
-                reminderData.dailyReminderTimes.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("At least one reminder time is required for daily reminders")
-            } else emptyList(),
+            reminderFrequency = getReminderFrequency(reminderData),
+            hourlyReminderInterval = getHourlyReminderInterval(reminderData),
+            hourlyReminderStartTime = getReminderStartTime(reminderData),
+            hourlyReminderEndTime = getReminderEndTime(reminderData),
+            dailyReminderTimes = getDailyReminderTimes(reminderData),
         )
     }
 
-    // Validate schedule data before saving
-    fun validateScheduleData(scheduleData: ScheduleData): ScheduleData {
+    private fun getReminderFrequency(reminderData: ReminderData): String {
+        if (reminderData.reminderEnabled) {
+            return reminderData.reminderFrequency.takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(REM_FREQ_REQ)
+        }
+        else { return EMPTY_STRING }
+    }
+
+    private fun getHourlyReminderInterval(reminderData: ReminderData): String? {
+        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
+            return reminderData.hourlyReminderInterval?.takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(HOURLY_INTERVAL_REQ)
+        }
+        else { return null }
+    }
+
+    private fun getReminderStartTime (reminderData: ReminderData): Pair<Int, Int>? {
+        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
+            return reminderData.hourlyReminderStartTime
+                ?: throw IllegalArgumentException(START_TIME_REQ)
+        }
+        else { return null }
+    }
+
+    private fun getReminderEndTime (reminderData: ReminderData): Pair<Int, Int>? {
+        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
+            return reminderData.hourlyReminderEndTime
+                ?: throw IllegalArgumentException(END_TIME_REQ)
+        }
+        else { return null }
+    }
+
+    private fun getDailyReminderTimes(reminderData: ReminderData): List<Pair<Int, Int>> {
+        if (reminderData.reminderFrequency == DAILY) {
+            return reminderData.dailyReminderTimes.takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(REM_TIME_REQ)
+        } else { return emptyList() }
+    }
+
+   // Validate schedule data before saving
+    private fun validateScheduleData(scheduleData: ScheduleData): ScheduleData {
         return scheduleData.copy(
-            // Start date defaults to today if not specified
             startDate = scheduleData.startDate ?: LocalDate.now(),
-
-            // Duration defaults to continuous unless specified otherwise
-            durationType = if (scheduleData.durationType.isEmpty()) {
-                "continuous"
-            } else scheduleData.durationType,
-
-            // Number of days is required for numDays duration type
-            numDays = if (scheduleData.durationType == "numDays") {
-                scheduleData.numDays?.takeIf { it > 0 }
-                    ?: throw IllegalArgumentException("Number of days must be greater than 0")
-            } else null,
-
-            // Schedule type defaults to daily if not specified
-            scheduleType = if (scheduleData.scheduleType.isEmpty()) {
-                "daily"
-            } else scheduleData.scheduleType,
-
-            // Selected days are required for specificDays schedule
-            selectedDays = if (scheduleData.scheduleType == "specificDays") {
-                scheduleData.selectedDays.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException("Specific days are required for this schedule")
-            } else "",
-
-            // Days interval is required for interval schedule
-            daysInterval = if (scheduleData.scheduleType == "interval") {
-                scheduleData.daysInterval?.takeIf { it > 0 }
-                    ?: throw IllegalArgumentException("Days interval must be greater than 0")
-            } else 0
+            durationType = getDurationType(scheduleData),
+            numDays = getNumDays(scheduleData),
+            scheduleType = getScheduleType(scheduleData),
+            selectedDays = getSelectDays(scheduleData),
+            daysInterval = getDaysInterval(scheduleData)
         )
+    }
+
+    private fun getDurationType(scheduleData: ScheduleData): String {
+        if (scheduleData.durationType.isEmpty()) { return DURATION_DEFAULT }
+        else { return scheduleData.durationType }
+    }
+
+    private fun getNumDays(scheduleData: ScheduleData): Int? {
+        if (scheduleData.durationType == NUM_DAYS) {
+            return scheduleData.numDays?.takeIf { it > 0 }
+                ?: throw IllegalArgumentException(NUM_DAYS_REQ)
+        }
+        else { return null }
+    }
+
+    private fun getScheduleType(scheduleData: ScheduleData): String {
+        if (scheduleData.scheduleType.isEmpty()) { return DAILY }
+        else { return scheduleData.scheduleType }
+    }
+
+    private fun getSelectDays(scheduleData: ScheduleData): String {
+        if (scheduleData.scheduleType == SPECIFIC_DAYS) {
+            return scheduleData.selectedDays.takeIf { it.isNotEmpty() }
+                ?: throw IllegalArgumentException(SPECIFIC_DAYS_REQ)
+        }
+        else { return EMPTY_STRING }
+    }
+
+    private fun getDaysInterval(scheduleData: ScheduleData): Int {
+        if (scheduleData.scheduleType == INTERVAL) {
+            return scheduleData.daysInterval?.takeIf { it > 0 }
+                ?: throw IllegalArgumentException(DAYS_INTERVAL_REQ)
+        }
+        else { return 0 }
     }
 }

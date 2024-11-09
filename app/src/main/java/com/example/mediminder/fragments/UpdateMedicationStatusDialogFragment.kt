@@ -1,13 +1,12 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.example.mediminder.data.local.classes.MedicationStatus
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.databinding.FragmentUpdateMedicationStatusDialogBinding
 import com.example.mediminder.viewmodels.MainViewModel
 
@@ -22,14 +21,13 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentUpdateMedicationStatusDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("UpdateDialog testcat", "Dialog created with logId: $logId")
-
 
         binding.radioGroupMedStatus.setOnCheckedChangeListener { _, checkedId ->
             selectedStatus = when (checkedId) {
@@ -38,14 +36,11 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
                 binding.radioButtonMissed.id -> MedicationStatus.MISSED
                 else -> MedicationStatus.PENDING
             }
-            Log.d("UpdateDialog testcat", "Selected status changed to: $selectedStatus")
         }
 
         binding.buttonCancelMedStatusDialog.setOnClickListener { dismiss() }
 
         binding.buttonSetMedStatusDialog.setOnClickListener {
-            Log.d("UpdateDialog testcat", "Set button clicked. Updating logId: $logId with status: $selectedStatus")
-
             viewModel.updateMedicationLogStatus(logId, selectedStatus)
             dismiss()
         }
@@ -53,21 +48,7 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
 
     companion object {
         fun newInstance(logId: Long): UpdateMedicationStatusDialogFragment {
-            return UpdateMedicationStatusDialogFragment().apply {
-                this.logId = logId
-            }
+            return UpdateMedicationStatusDialogFragment().apply { this.logId = logId }
         }
     }
-
-//    companion object {
-//        fun newInstance(
-//            medId: Long,
-//            onStatusUpdate: (MedicationStatus) -> Unit
-//        ): UpdateMedicationStatusDialogFragment {
-//            return UpdateMedicationStatusDialogFragment().apply {
-//                this.medicationId = medId
-//                this.onStatusUpdate = onStatusUpdate
-//            }
-//        }
-//    }
 }

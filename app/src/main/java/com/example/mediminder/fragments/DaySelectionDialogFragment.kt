@@ -8,17 +8,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaySelectionDialogBinding
 import com.example.mediminder.utils.AppUtils.getDayNames
+import java.time.DayOfWeek
 
 class DaySelectionDialogFragment(
     private val parentFragment: BaseScheduleFragment,
     private val editingDaySelection: Boolean,
     private val selectedDays: String = ""
-//    private val selectedDays: List<String> = emptyList()
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaySelectionDialogBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentDaySelectionDialogBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -61,20 +62,19 @@ class DaySelectionDialogFragment(
     }
 
     private fun getSelectedDays(): String {
-
-        val checkboxes = listOf(
-            binding.checkboxMonday,
-            binding.checkboxTuesday,
-            binding.checkboxWednesday,
-            binding.checkboxThursday,
-            binding.checkboxFriday,
-            binding.checkboxSaturday,
-            binding.checkboxSunday,
+        val dayOfWeekMap = mapOf(
+            binding.checkboxMonday to DayOfWeek.MONDAY.value,
+            binding.checkboxTuesday to DayOfWeek.TUESDAY.value,
+            binding.checkboxWednesday to DayOfWeek.WEDNESDAY.value,
+            binding.checkboxThursday to DayOfWeek.THURSDAY.value,
+            binding.checkboxFriday to DayOfWeek.FRIDAY.value,
+            binding.checkboxSaturday to DayOfWeek.SATURDAY.value,
+            binding.checkboxSunday to DayOfWeek.SUNDAY.value
         )
 
-        return checkboxes.mapIndexedNotNull { index, checkbox ->
-            if (checkbox.isChecked) (index + 1).toString() else null
-        }.joinToString(",")
+        return dayOfWeekMap.entries
+            .filter { it.key.isChecked }
+            .joinToString(",") { it.value.toString() }
     }
 
     companion object {

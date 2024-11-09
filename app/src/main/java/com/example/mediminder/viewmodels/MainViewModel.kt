@@ -9,9 +9,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.MedicationItem
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

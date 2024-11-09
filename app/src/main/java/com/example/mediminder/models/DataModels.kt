@@ -3,14 +3,28 @@ package com.example.mediminder.models
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.data.local.classes.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationLogs
-import com.example.mediminder.data.local.classes.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
 import java.time.LocalTime
 
-// TODO add your other models
+enum class MedicationStatus {
+    PENDING,        // Initial state when created
+    TAKEN,          // User marked as taken
+    SKIPPED,        // User skipped medication
+    MISSED,         // Time passed without action
+    UNSCHEDULED     // Unscheduled (as needed) medications
+}
+
+enum class MedicationIcon {
+    CAPSULE,
+    DROP,
+    INHALER,
+    INJECTION,
+    LIQUID,
+    TABLET,
+}
 
 data class MedicationData(
     val name: String,
@@ -73,4 +87,29 @@ data class MedicationLogWithDetails(
 data class DayLogs(
     val date: LocalDate,
     val logs: List<MedicationLogWithDetails>
+)
+
+data class ReminderState(
+    val reminderEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    val reminderFrequency: MutableStateFlow<String> = MutableStateFlow(""),
+    val hourlyReminderInterval: MutableStateFlow<String?> = MutableStateFlow(null),
+    val hourlyReminderStartTime: MutableStateFlow<Pair<Int, Int>?> = MutableStateFlow(null),
+    val hourlyReminderEndTime: MutableStateFlow<Pair<Int, Int>?> = MutableStateFlow(null),
+    val dailyReminderTimes: MutableStateFlow<List<Pair<Int, Int>>> = MutableStateFlow(emptyList())
+)
+
+data class ScheduleState(
+    val startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(null),
+    val durationType: MutableStateFlow<String> = MutableStateFlow("continuous"),
+    val numDays: MutableStateFlow<Int?> = MutableStateFlow(0),
+    val scheduleType: MutableStateFlow<String> = MutableStateFlow("daily"),
+    val selectedDays: MutableStateFlow<String> = MutableStateFlow(""),
+    val daysInterval: MutableStateFlow<Int?> = MutableStateFlow(0)
+)
+
+data class ValidatedData(
+    val medicationData: MedicationData,
+    val dosageData: DosageData,
+    val reminderData: ReminderData,
+    val scheduleData: ScheduleData
 )

@@ -43,17 +43,17 @@ class MedicationsActivity : BaseActivity() {
         adapter = MedicationsAdapter(
             onViewClick = { medicationId ->
                 val intent = Intent(this, ViewMedicationActivity::class.java)
-                intent.putExtra("medicationId", medicationId)
+                intent.putExtra(MED_ID, medicationId)
                 startActivity(intent)
             },
             onEditClick = { medicationId ->
                 val intent = Intent(this, EditMedicationActivity::class.java)
-                intent.putExtra("medicationId", medicationId)
+                intent.putExtra(MED_ID, medicationId)
                 startActivity(intent)
             },
             onDeleteClick = { medicationId ->
                 val intent = Intent(this, DeleteMedicationActivity::class.java)
-                intent.putExtra("medicationId", medicationId)
+                intent.putExtra(MED_ID, medicationId)
                 startActivity(intent)
             }
         )

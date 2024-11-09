@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
+import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
@@ -38,9 +39,7 @@ class EditReminderFragment : BaseReminderFragment() {
             reminderViewModel.setReminderEnabled(med.reminderEnabled)
 
             // Clear all reminder settings if reminders are disabled
-            if (!med.reminderEnabled) {
-                reminderViewModel.clearReminderSettings()
-            }
+            if (!med.reminderEnabled) { reminderViewModel.clearReminderSettings() }
         }
 
         // Set reminder details if enabled
@@ -57,7 +56,7 @@ class EditReminderFragment : BaseReminderFragment() {
         binding.reminderFrequencyMenu.setText(reminderFrequency)
 
         when (reminderFrequency) {
-            "every x hours" -> initHourlyReminderSettings(reminders)
+            EVERY_X_HOURS -> initHourlyReminderSettings(reminders)
             else -> initDailyReminderSettings(reminders)
         }
     }

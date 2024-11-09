@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.MedReminders
-import com.example.mediminder.data.local.classes.MedicationIcon
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.utils.AppUtils.daysOfWeekString
@@ -32,7 +32,7 @@ class ViewMedicationActivity(): BaseActivity() {
         super.onCreate(savedInstanceState)
         setupBindings()
 
-        val medicationId = intent.getLongExtra("medicationId", -1)
+        val medicationId = intent.getLongExtra(MED_ID, NULL_INT)
         checkMedicationId(medicationId)
 
         setupUI(medicationId)
@@ -43,8 +43,8 @@ class ViewMedicationActivity(): BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        val medicationId = intent.getLongExtra("medicationId", -1)
-        if (medicationId != -1L) {
+        val medicationId = intent.getLongExtra(MED_ID, NULL_INT)
+        if (medicationId != NULL_INT) {
             lifecycleScope.launch { fetchMedication(medicationId) }
         }
     }
@@ -58,7 +58,7 @@ class ViewMedicationActivity(): BaseActivity() {
     }
 
     private fun checkMedicationId(medId: Long) {
-        if (medId == -1L) {
+        if (medId == NULL_INT) {
             finish()
             return
         }
@@ -67,13 +67,13 @@ class ViewMedicationActivity(): BaseActivity() {
     private fun setupUI(medicationId: Long) {
         binding.buttonEditMed.setOnClickListener {
             val intent = Intent(this, EditMedicationActivity::class.java)
-            intent.putExtra("medicationId", medicationId)
+            intent.putExtra(MED_ID, medicationId)
             startActivity(intent)
         }
 
         binding.buttonDeleteMed.setOnClickListener {
             val intent = Intent(this, DeleteMedicationActivity::class.java)
-            intent.putExtra("medicationId", medicationId)
+            intent.putExtra(MED_ID, medicationId)
             startActivity(intent)
         }
     }
@@ -146,8 +146,8 @@ class ViewMedicationActivity(): BaseActivity() {
             binding.medReminder.visibility = View.VISIBLE
 
             when (details.reminders?.reminderFrequency) {
-                "daily" -> setDailyReminders(details.reminders)
-                "every x hours" -> setHourlyReminders(details.reminders)
+                DAILY -> setDailyReminders(details.reminders)
+                EVERY_X_HOURS -> setHourlyReminders(details.reminders)
             }
         } else { binding.medReminder.visibility = View.GONE }
     }
@@ -185,14 +185,14 @@ class ViewMedicationActivity(): BaseActivity() {
         val scheduleType = details.schedule?.scheduleType
 
         val scheduleTypeString = when (scheduleType) {
-            "daily" -> "daily"
-            "specificDays" -> "every " + daysOfWeekString(details.schedule.selectedDays)
-            "daysIntervals" -> daysIntervalString(details.schedule.daysInterval)
+            DAILY -> DAILY
+            SPECIFIC_DAYS -> "every " + daysOfWeekString(details.schedule.selectedDays)
+            INTERVAL -> daysIntervalString(details.schedule.daysInterval)
             else -> ""
         }
 
         val durationString = when (details.schedule?.durationType) {
-            "numDays" -> "for ${details.schedule.numDays.toString()} days"
+            NUM_DAYS -> "for ${details.schedule.numDays.toString()} days"
             else -> ""
         }
 

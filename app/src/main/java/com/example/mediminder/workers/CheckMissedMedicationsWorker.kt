@@ -6,7 +6,7 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.data.local.classes.MedicationStatus
+import com.example.mediminder.models.MedicationStatus
 import java.time.LocalDateTime
 
 
@@ -25,10 +25,9 @@ class CheckMissedMedicationsWorker(
         val medicationLogDao = database.medicationLogDao()
 
         val settingsPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val gracePeriod = settingsPrefs.getString("grace_period", "1")?.toDouble() ?: 1.0
+        val gracePeriod = settingsPrefs.getString(GRACE_PERIOD_KEY, GRACE_PERIOD_DEFAULT)?.toDouble() ?: 1.0
 
-        // NOTE: For development/testing purposes only, set grace period to 0.0 to see a
-        //  medication get marked as missed
+        // NOTE: For development/testing purposes only, set grace period to 0.0
 //        val gracePeriod = 0.0
 
         return try {
@@ -43,7 +42,7 @@ class CheckMissedMedicationsWorker(
                 medicationLogDao.updateStatus(log.id, MedicationStatus.MISSED)
 
                 // Send broadcast for each missed medication to update UI
-                val updateIntent = Intent("com.example.mediminder.MEDICATION_STATUS_CHANGED").apply {
+                val updateIntent = Intent(MED_STATUS_CHANGED).apply {
                     setPackage(applicationContext.packageName)
                     putExtra("logId", log.id)
                     putExtra("newStatus", MedicationStatus.MISSED.toString())
@@ -56,5 +55,11 @@ class CheckMissedMedicationsWorker(
         } catch (e: Exception) {
             Result.retry()
         }
+    }
+
+    companion object {
+        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
+        private const val GRACE_PERIOD_KEY = "grace_period"
+        private const val GRACE_PERIOD_DEFAULT = "1"
     }
 }

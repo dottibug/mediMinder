@@ -33,7 +33,7 @@ class DeleteMedicationActivity : BaseActivity() {
             }
         })
 
-        val medicationId = intent.getLongExtra("medicationId", -1)
+        val medicationId = intent.getLongExtra(MED_ID, NULL_INT)
         checkMedicationId(medicationId)
 
         setupUI()
@@ -51,7 +51,7 @@ class DeleteMedicationActivity : BaseActivity() {
     }
 
    private fun checkMedicationId(medId: Long) {
-        if (medId == -1L) {
+        if (medId == NULL_INT) {
             finish()
             return
         }
@@ -62,7 +62,7 @@ class DeleteMedicationActivity : BaseActivity() {
             try {
                 viewModel.fetchMedication(medicationId)
             } catch (e: Exception) {
-                Log.e("DeleteMedicationActivity", "Error fetching medication", e)
+                Log.e("DeleteMedicationActivity testcat", "Error fetching medication", e)
                 finish()
             }
         }

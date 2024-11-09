@@ -12,6 +12,7 @@ import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.util.concurrent.TimeUnit
 
 class MediminderApplication: Application() {
+
     override fun onCreate() {
         super.onCreate()
 
@@ -25,7 +26,7 @@ class MediminderApplication: Application() {
 
     private fun setupMissedMedicationsWorker() {
         val settingsPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        val gracePeriod = settingsPrefs.getString("grace_period", "1")
+        val gracePeriod = settingsPrefs.getString(GRACE_PERIOD_KEY, GRACE_PERIOD_DEFAULT)
 
         val repeatInterval = when (gracePeriod) {
             "0.5" -> 30L
@@ -43,7 +44,7 @@ class MediminderApplication: Application() {
         ).build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            "check_missed_medications",
+            MISSED_MED_WORKER_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
             missedMedsWorkReq
         )
@@ -55,13 +56,21 @@ class MediminderApplication: Application() {
             .build()
 
         val createFutureMedicationLogsRequest = PeriodicWorkRequestBuilder<CreateFutureMedicationLogsWorker>(
-            1, TimeUnit.DAYS
+            1,
+            TimeUnit.DAYS
         ).setConstraints(constraints).build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            "create_future_medication_logs",
+            FUTURE_MED_WORKER_NAME,
             ExistingPeriodicWorkPolicy.KEEP,
             createFutureMedicationLogsRequest
         )
+    }
+
+    companion object {
+        private const val MISSED_MED_WORKER_NAME = "check_missed_medications"
+        private const val FUTURE_MED_WORKER_NAME = "create_future_medication_logs"
+        private const val GRACE_PERIOD_KEY = "grace_period"
+        private const val GRACE_PERIOD_DEFAULT = "1"
     }
 }

@@ -15,17 +15,15 @@ class MidnightMedicationScheduler(private val context: Context) {
     // At midnight, create alarms for the following day
     fun scheduleMidnightAlarm() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-            && !alarmManager.canScheduleExactAlarms()) {
-            return
-        }
+            && !alarmManager.canScheduleExactAlarms()) { return }
 
         val intent = Intent(context, MedicationSchedulerReceiver::class.java).apply {
-            action = "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS"
+            action = SCHEDULE_DAILY_MEDICATIONS
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            "midnight_scheduler".hashCode(),
+            MIDNIGHT_SCHEDULER.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -52,7 +50,7 @@ class MidnightMedicationScheduler(private val context: Context) {
     // NOTE: For testing and development purposes only
     private fun testMidnightAlarm(pendingIntent: PendingIntent) {
         val calendar = Calendar.getInstance().apply { add(Calendar.MINUTE, 2) }
-        Log.d("testcat", "Scheduling midnight alarm for: ${calendar.time}")
+        Log.d("MidnightMedicationScheduler testcat", "Scheduling midnight alarm for: ${calendar.time}")
 
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
@@ -60,5 +58,10 @@ class MidnightMedicationScheduler(private val context: Context) {
             1000 * 60 * 5, // Repeat every 5 minutes instead of daily
             pendingIntent
         )
+    }
+
+    companion object {
+        private const val SCHEDULE_DAILY_MEDICATIONS = "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS"
+        private const val MIDNIGHT_SCHEDULER = "midnight_scheduler"
     }
 }

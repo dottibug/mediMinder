@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
-import com.example.mediminder.data.local.classes.MedicationIcon
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.databinding.ItemMedicationBinding
 import com.example.mediminder.models.MedicationWithDetails
 
