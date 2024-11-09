@@ -1,8 +1,10 @@
 package com.example.mediminder.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mediminder.R
 import com.example.mediminder.databinding.ItemDateSelectorBinding
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -33,11 +35,24 @@ class MainDateSelectorAdapter(
     // Bind the data for each date item to the ViewHolder
     override fun onBindViewHolder(holder: DateViewHolder, position: Int) {
         val date = dates[position]
-        holder.binding.dateText.text = date.format(dateFormatter)
-        holder.binding.root.isSelected = position == selectedPosition
+        val dateNum = date.format(DateTimeFormatter.ofPattern("d"))
+        val dateText = date.format(DateTimeFormatter.ofPattern("EEE"))
+
+        holder.binding.dateNum.text = dateNum
+        holder.binding.dateText.text = dateText
+
+        // Check if the current position is the selected date
+        if (position == selectedPosition) {
+            holder.binding.root.strokeWidth = 8
+            holder.binding.root.strokeColor = holder.binding.root.context.getColor(R.color.indigoDye)
+        } else {
+            holder.binding.root.strokeWidth = 0
+            holder.binding.root.strokeColor = holder.binding.root.context.getColor(android.R.color.transparent)
+        }
 
         // Set a click listener to handle date selection
         holder.binding.root.setOnClickListener {
+            Log.d("MainDateSelectorAdapter testcat", "Date selected: $date")
             val previousPosition = selectedPosition
             selectedPosition = holder.adapterPosition
             notifyItemChanged(previousPosition)

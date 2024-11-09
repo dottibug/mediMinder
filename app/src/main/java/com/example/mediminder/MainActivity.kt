@@ -24,6 +24,7 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
+import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MainViewModel
@@ -142,7 +143,8 @@ class MainActivity : BaseActivity() {
 
         lifecycleScope.launch {
             viewModel.selectedDate.collectLatest { date ->
-                binding.selectedDateText.text = date.toString()
+                val formattedDate = AppUtils.formatToLongDate(date)
+                binding.selectedDateText.text = formattedDate
             }
         }
 

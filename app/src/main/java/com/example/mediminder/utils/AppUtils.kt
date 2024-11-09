@@ -34,8 +34,9 @@ object AppUtils {
         return localTime.format(formatter).lowercase()
     }
 
+    // Format LocalDate as Jan 1, 2025
     fun formatToLongDate(localDate: LocalDate): String {
-        val formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
         return localDate.format(formatter)
     }
 
