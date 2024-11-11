@@ -1,6 +1,5 @@
 package com.example.mediminder.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,9 +12,7 @@ class MainDateSelectorAdapter(
     private var dates: List<LocalDate>,
     private val onDateSelected: (LocalDate) -> Unit
 ): RecyclerView.Adapter<MainDateSelectorAdapter.DateViewHolder>() {
-
     private var selectedPosition = findTodayIndex()
-    private val dateFormatter = DateTimeFormatter.ofPattern("d EEE") // ex. 11 Tue
 
     fun updateDates(newDates: List<LocalDate>) {
         dates = newDates
@@ -43,23 +40,24 @@ class MainDateSelectorAdapter(
 
         // Check if the current position is the selected date
         if (position == selectedPosition) {
-            holder.binding.root.strokeWidth = 8
+            holder.binding.root.strokeWidth = 12
+            holder.binding.root.setCardBackgroundColor(holder.binding.root.context.getColor(R.color.white))
             holder.binding.root.strokeColor = holder.binding.root.context.getColor(R.color.indigoDye)
         } else {
             holder.binding.root.strokeWidth = 0
             holder.binding.root.strokeColor = holder.binding.root.context.getColor(android.R.color.transparent)
+            holder.binding.root.setCardBackgroundColor(holder.binding.root.context.getColor(R.color.cadetGrayXLt))
+
         }
 
         // Set a click listener to handle date selection
         holder.binding.root.setOnClickListener {
-            Log.d("MainDateSelectorAdapter testcat", "Date selected: $date")
             val previousPosition = selectedPosition
             selectedPosition = holder.adapterPosition
             notifyItemChanged(previousPosition)
             notifyItemChanged(selectedPosition)
             onDateSelected(date)
         }
-
     }
 
     // Return size of dates list (required by RecyclerView)

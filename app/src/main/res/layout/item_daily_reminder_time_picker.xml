@@ -3,21 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
     android:orientation="horizontal">
 
     <Button
         android:id="@+id/buttonDeleteDailyTimeReminder"
         style="?attr/materialIconButtonFilledStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@android:color/transparent"
         android:contentDescription="@string/button_delete_reminder"
-        app:icon="@drawable/ic_close" />
+        android:gravity="center_horizontal|center_vertical"
+        app:icon="@drawable/close"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="12dp"
+        app:iconTint="@color/jet" />
 
     <Button
         android:id="@+id/buttonDailyReminderTimePicker"
-        style="?attr/materialIconButtonOutlinedStyle"
+        style="@style/med_settings_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
         android:text="@string/button_time_picker" />
 
 </LinearLayout>

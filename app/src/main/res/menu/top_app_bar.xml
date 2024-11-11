@@ -4,10 +4,10 @@
 
     <!-- Action menu items -->
     <item
-        android:id="@+id/settings"
-        android:icon="@drawable/settings"
-        android:title="@string/settings"
-        android:contentDescription="@string/settings"
-        app:showAsAction="always" />
+        android:id="@+id/quickAdd"
+        android:icon="@drawable/addmed"
+        android:title="@string/add_medication"
+        android:contentDescription="@string/add_medication"
+        app:showAsAction="always"/>
 
 </menu>

@@ -9,14 +9,12 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.example.mediminder.activities.AddMedicationActivity
 import com.example.mediminder.activities.BaseActivity
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
@@ -96,7 +94,6 @@ class MainActivity : BaseActivity() {
     private fun setupUI() {
         setupBaseUI(drawerLayout, navView, topAppBar)
         setupRecyclerViews()
-        setupFab()
         observeViewModel()
     }
 
@@ -118,19 +115,6 @@ class MainActivity : BaseActivity() {
         binding.dateSelector.apply {
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = dateSelectorAdapter
-        }
-    }
-
-    private val addMedicationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
-        }
-    }
-
-    private fun setupFab() {
-        binding.fabAddMedication.setOnClickListener {
-            val intent = Intent(this, AddMedicationActivity::class.java)
-            addMedicationLauncher.launch(intent)
         }
     }
 

@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,22 +21,25 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_horizontal|center_vertical"
-            android:src="@drawable/tablet" />
+            app:tint="@color/jet"
+            tools:src="@drawable/tablet" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/medicationName"
+                style="@style/section_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:hint="Medication Name"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/jet"
+                android:textStyle="bold"
+                tools:text="Medication Name" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,21 +48,44 @@
 
                 <Button
                     android:id="@+id/buttonViewMedication"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:text="@string/view_medication" />
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/view_medication"
+                    android:textColor="@color/cadetGray"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/cadetGray"
+                    app:strokeWidth="2dp" />
 
                 <Button
                     android:id="@+id/buttonEditMedication"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:text="@string/edit_medication" />
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/edit_medication"
+                    android:textColor="@color/cadetGray"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/cadetGray"
+                    app:strokeWidth="2dp" />
 
                 <Button
                     android:id="@+id/buttonDeleteMedication"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:text="@string/delete_medication" />
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/delete_medication"
+                    android:textColor="@color/red"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/red"
+                    app:strokeWidth="2dp" />
             </LinearLayout>
 
         </LinearLayout>

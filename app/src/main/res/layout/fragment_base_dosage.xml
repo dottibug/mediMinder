@@ -5,15 +5,14 @@
     android:id="@+id/layoutAddMedInfo"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="18dp"
     android:orientation="vertical"
     tools:context=".fragments.BaseDosageFragment">
 
     <TextView
         android:id="@+id/headlineDosage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/dosage_title"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+        style="@style/section_title"
+        android:text="@string/dosage_title" />
 
     <LinearLayout
         android:id="@+id/layoutDosage"
@@ -26,6 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:hint="@string/dosage_amount_hint">
 
@@ -42,13 +42,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:hint="@string/dosage_units_hint">
 
             <AutoCompleteTextView
                 android:id="@+id/dosageUnitsDropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:inputType="none"
                 app:simpleItems="@array/dosage_units_array" />
         </com.google.android.material.textfield.TextInputLayout>

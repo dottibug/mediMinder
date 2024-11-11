@@ -110,7 +110,7 @@
     <string name="duration_title">Duration</string>
     <string name="radio_continuous">Continuous</string>
     <string name="radio_num_days">Number of Days</string>
-    <string name="num_days_summary_label">Take medication for:</string>
+    <string name="num_days_summary_label">Take medication for</string>
     <string name="num_days_summary_value">%s days</string>
     <string name="days_title">Days</string>
     <string name="radio_daily">Every day</string>
@@ -191,7 +191,7 @@
     <string name="delete_medication_instructions">Are you sure you want to delete %s?</string>
     <string name="button_confirm_delete_med">Delete Medication</string>
     <string name="delete_medication_success">Medication deleted successfully.</string>
-    <string name="button_go_to_main">Home</string>
+    <string name="button_go_to_main">Today</string>
     <string name="button_go_to_medications">Medications</string>
 
 
@@ -204,8 +204,9 @@
     <string name="history_log_dosage_time">%1$s %2$s at %3$s</string>
     <string name="button_calendar">Select Date</string>
     <string name="no_medications_scheduled"><i>No medications scheduled</i></string>
-    <string name="no_logs_future_month"><i>There are no medication logs for this month yet.</i></string>
-    <string name="no_logs_past_month"><i>There were no medication logs for this month.</i></string>
+    <string name="no_logs_future_month"><i>No medication logs for this month.</i></string>
+    <string name="no_logs_past_month"><i>No medication logs for this month.</i></string>
+    <string name="all_meds">All Medications</string>
 
     <!-- App -->
     <string name="app_name">MediMinder</string>
@@ -221,9 +222,15 @@
     <!-- Main Activity -->
     <string name="selected_date">Selected Date</string>
     <string name="add_medication">Add Medication</string>
+    <string name="time_hint">1:00 pm</string>
+    <string name="bullet">bullet</string>
 
     <!-- Medication List Item -->
     <string name="medication_status_button">Update</string>
+    <string name="pending">Pending</string>
+    <string name="taken">Taken</string>
+    <string name="skipped">Skipped</string>
+    <string name="missed">Missed</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

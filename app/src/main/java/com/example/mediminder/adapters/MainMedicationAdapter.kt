@@ -5,8 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.mediminder.R
 import com.example.mediminder.databinding.ItemScheduledMedicationBinding
 import com.example.mediminder.models.MedicationItem
+import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.getStatusIcon
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
@@ -29,11 +32,26 @@ class MainMedicationAdapter(private val onUpdateStatusClick: (Long) -> Unit):
         private val onUpdateStatusClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: MedicationItem) {
+            val formattedTime = formatLocalTimeTo12Hour(item.time)
             binding.medicationName.text = item.medication.name
             binding.medicationDosage.text = item.dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
-            binding.medicationTime.text = item.time.toString()
+            binding.medicationTime.text = formattedTime
             binding.medicationStatusIcon.setImageResource(getStatusIcon(item.status))
+            binding.medicationStatusIcon.contentDescription = item.status.toString().lowercase()
+            setStatusIconColor(item)
             binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
+        }
+
+        private fun setStatusIconColor(item: MedicationItem) {
+            val tintColor = getStatusIconTintColor(item.status)
+            binding.medicationStatusIcon.imageTintList = binding.root.context.getColorStateList(tintColor)
+        }
+
+        private fun getStatusIconTintColor(status: MedicationStatus): Int {
+            return when (status) {
+                MedicationStatus.MISSED -> R.color.red
+                else -> R.color.cadetGray
+            }
         }
     }
 

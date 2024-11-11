@@ -8,31 +8,48 @@
     <!-- Screen Content -->
     <LinearLayout
         android:id="@+id/confirmDeleteMedContainer"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/deleteMedicationTitle">
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            style="@style/activity_title"
+            android:text="@string/delete_medication_title"
+            android:textAlignment="center" />
 
         <TextView
             android:id="@+id/deleteMedicationMessage"
-            android:layout_width="wrap_content"
+            style="@style/dialog_instructions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/delete_medication_instructions" />
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/delete_medication_instructions"
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/buttonConfirmDeleteMed"
-            android:layout_width="wrap_content"
+            style="@style/button_primary"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:text="@string/button_confirm_delete_med" />
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/red"
+            android:text="@string/button_confirm_delete_med"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/buttonCancelDeleteMed"
-            android:layout_width="wrap_content"
+            style="@style/button_primary"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:text="@string/cancel" />
+            android:text="@string/cancel"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -44,25 +61,40 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/deleteMedicationTitle">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
+
+        <TextView
+            style="@style/activity_title"
+            android:text="@string/delete_medication_title"
+            android:textAlignment="center" />
 
         <TextView
             android:id="@+id/successDeleteMedMessage"
-            android:layout_width="wrap_content"
+            style="@style/dialog_instructions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/delete_medication_success" />
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/delete_medication_success"
+            android:textAlignment="center" />
 
         <Button
             android:id="@+id/buttonGoToMain"
-            android:layout_width="wrap_content"
+            style="@style/button_primary"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:text="@string/button_go_to_main" />
+            android:layout_marginTop="24dp"
+            android:text="@string/button_go_to_main"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/buttonGoToMedications"
-            android:layout_width="wrap_content"
+            style="@style/button_primary"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:text="@string/button_go_to_medications" />
+            android:text="@string/button_go_to_medications"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -74,7 +106,6 @@
         app:indicatorSize="72dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/deleteMedicationTitle" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

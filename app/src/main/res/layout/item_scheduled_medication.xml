@@ -3,42 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp">
 
         <!-- Status Icon -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/medicationStatusIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:src="@drawable/pending" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonUpdateStatus"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:text="@string/medication_status_button" />
-        </LinearLayout>
-
-        <!-- Medication Info -->
-
-        <LinearLayout
+            android:id="@+id/layoutMedInfo"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
@@ -48,26 +33,62 @@
                 android:id="@+id/medicationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
+                android:hint="@string/hint_medication_name"
+                android:textColor="@color/jet"
+                android:textColorHint="@color/jet"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/medicationDosage"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="8dp"
+                android:hint="@string/dosage_title"
+                android:textColor="@color/jet"
+                android:textColorHint="@color/jet"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/medicationTime"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="14sp" />
+                android:hint="@string/time_hint"
+                android:textColor="@color/cadetGray"
+                android:textColorHint="@color/cadetGray"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutMedStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/medicationStatusIcon"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:contentDescription="@string/pending"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:src="@drawable/alarm_clock"
+                app:tint="@color/ashGray" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonUpdateStatus"
+                style="@style/button_text"
+                android:layout_marginTop="-2dp"
+                android:letterSpacing="0.05"
+                android:text="@string/medication_status_button" />
+        </LinearLayout>
+
+        <!-- Medication Info -->
 
     </LinearLayout>
 

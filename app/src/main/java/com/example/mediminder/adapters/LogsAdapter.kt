@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ItemHistoryLogBinding
 import com.example.mediminder.models.MedicationLogWithDetails
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.getStatusIcon
 import java.time.format.DateTimeFormatter
 
@@ -27,6 +28,7 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
 
         fun bind(medLog: MedicationLogWithDetails) {
             binding.statusIcon.setImageResource(getStatusIcon(medLog.log.status))
+            setStatusIconColor(medLog.log.status)
             binding.medicationName.text = medLog.name
             binding.dosageAndTime.text = itemView.context.getString(
                 R.string.history_log_dosage_time,
@@ -34,6 +36,14 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
                 medLog.dosageUnits,
                 medLog.log.plannedDatetime.format(timeFormatter)
             )
+        }
+
+        private fun setStatusIconColor(status: MedicationStatus) {
+            val tintColor = when (status) {
+                MedicationStatus.MISSED -> R.color.red
+                else -> R.color.jet
+            }
+            binding.statusIcon.imageTintList = binding.root.context.getColorStateList(tintColor)
         }
     }
 

@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="jet">#353535</color>
+    <color name="davyGray">#5F5F5F</color>
     <color name="white">#FFFFFF</color>
-    <color name="platinum">#D9D9D9</color>
+    <color name="platinum">#E1E1E1</color>
     <color name="ashGray">#AEC8C9</color>
     <color name="caribbeanCurrent">#3C6E71</color>
     <color name="indigoDye">#284B63</color>
+    <color name="cadetGray">#7F95A2</color>
+    <color name="cadetGrayLt">#807F95A2</color>
+    <color name="cadetGrayXLt">#507F95A2</color>
+    <color name="red">#CA5E5E</color>
+    <color name="outerSpace">#47545D</color>
 </resources>

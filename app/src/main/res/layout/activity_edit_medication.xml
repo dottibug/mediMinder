@@ -24,9 +24,9 @@
     <!-- Content -->
     <ScrollView
         android:id="@+id/scrollEditMed"
+        style="@style/activity_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,6 +35,7 @@
         <!-- Medication Form -->
         <LinearLayout
             android:id="@+id/layoutEditMed"
+            style="@style/activity_vertical_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -42,10 +43,11 @@
 
             <TextView
                 android:id="@+id/headlineEditMed"
+                style="@style/activity_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
                 android:text="@string/edit_medication_full"
+                android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
             <androidx.fragment.app.FragmentContainerView
@@ -78,16 +80,18 @@
 
             <Button
                 android:id="@+id/buttonUpdateMed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                style="@style/button_primary"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
                 android:text="@string/button_update_med" />
 
             <Button
                 android:id="@+id/buttonCancelUpdateMed"
-                android:layout_width="match_parent"
+                style="@style/button_primary"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/cancel" />
 
         </LinearLayout>

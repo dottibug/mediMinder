@@ -1,5 +1,6 @@
 package com.example.mediminder.fragments
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -45,6 +46,7 @@ abstract class BaseReminderFragment : Fragment() {
     protected open fun setupListeners() {
         binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
             reminderViewModel.setReminderEnabled(isChecked)
+            updateSwitchThumbTint(isChecked)
         }
 
         // "Reminder frequency" menu
@@ -59,6 +61,12 @@ abstract class BaseReminderFragment : Fragment() {
         binding.buttonReminderStartTime.setOnClickListener { showTimePickerDialog(EVERY_X_HOURS) }
         binding.buttonReminderEndTime.setOnClickListener { showTimePickerDialog(EVERY_X_HOURS, isEndTime = true) }
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
+    }
+
+    protected fun updateSwitchThumbTint(isChecked: Boolean) {
+        val thumbColor = if (isChecked) { requireContext().getColor(R.color.indigoDye) }
+        else { requireContext().getColor(R.color.cadetGray) }
+        binding.switchReminder.thumbTintList = ColorStateList.valueOf(thumbColor)
     }
 
     // Reset hourly frequency buttons to default values
@@ -131,7 +139,7 @@ abstract class BaseReminderFragment : Fragment() {
 
         // Create a new time picker button for each time in the list (root is the dailyTimePickersContainer)
         times.forEachIndexed { index, time ->
-            val timePickersContainer = layoutInflater.inflate(R.layout.daily_reminder_time_picker_item, binding.dailyTimePickersContainer, false)
+            val timePickersContainer = layoutInflater.inflate(R.layout.item_daily_reminder_time_picker, binding.dailyTimePickersContainer, false)
             val timePickerButton = timePickersContainer.findViewById<Button>(R.id.buttonDailyReminderTimePicker)
             val deleteButton = timePickersContainer.findViewById<Button>(R.id.buttonDeleteDailyTimeReminder)
 

@@ -110,7 +110,7 @@ abstract class BaseScheduleFragment : Fragment() {
     // Update the button text with the selected date
     protected fun updateDateButtonText(button: Button) {
         val date = scheduleViewModel.startDate.value
-        val formattedDate = DateTimeFormatter.ofPattern("MMMM d, yyyy")
+        val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
         button.text = date?.format(formattedDate) ?: "Select a date"
     }
 

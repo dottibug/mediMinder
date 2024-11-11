@@ -4,12 +4,14 @@
     android:id="@+id/layoutAddMedSchedule"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="18dp"
     android:orientation="vertical"
     tools:context=".fragments.AddMedicationScheduleFragment">
 
     <!-- Schedule -->
     <TextView
         android:id="@+id/headlineSchedule"
+        style="@style/section_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/schedule_title"
@@ -20,27 +22,32 @@
         android:id="@+id/layoutMedStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/textViewMedStartDate"
+            style="@style/subsection_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/start_date_label" />
 
         <Button
             android:id="@+id/buttonMedStartDate"
-            style="?attr/materialIconButtonOutlinedStyle"
+            style="@style/med_settings_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:width="180dp"
             android:text="@string/button_date_picker" />
     </LinearLayout>
 
     <!-- Duration -->
     <TextView
         android:id="@+id/textViewAddMedDuration"
+        style="@style/subsection_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/duration_title" />
 
     <RadioGroup
@@ -51,6 +58,7 @@
 
         <RadioButton
             android:id="@+id/radioDurationContinuous"
+            style="@style/text_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:enabled="true"
@@ -58,6 +66,7 @@
 
         <RadioButton
             android:id="@+id/radioDurationNumDays"
+            style="@style/text_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:checked="false"
@@ -72,35 +81,32 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textViewNumDaysSummaryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/num_days_summary_label"
-            android:textSize="18sp" />
+        <LinearLayout style="@style/med_settings_summary_wrapper">
+            <TextView
+                android:id="@+id/textViewNumDaysSummaryLabel"
+                style="@style/med_settings_summary_text"
+                android:text="@string/num_days_summary_label" />
 
-        <TextView
-            android:id="@+id/textViewNumDaysSummaryValue"
-            android:layout_width="84dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="@string/num_days_summary_value"
-            android:textColor="@color/design_default_color_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textViewNumDaysSummaryValue"
+                style="@style/med_settings_summary_dynamic"
+                android:text="@string/num_days_summary_value" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonEditNumDays"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/button_text"
+            android:layout_gravity="center_vertical|end"
             android:text="@string/button_edit" />
     </LinearLayout>
 
     <!-- Days -->
     <TextView
         android:id="@+id/textViewAddMedSchedule"
+        style="@style/subsection_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/days_title" />
 
     <RadioGroup
@@ -111,6 +117,7 @@
 
         <RadioButton
             android:id="@+id/radioDaysEveryDay"
+            style="@style/text_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:enabled="true"
@@ -118,6 +125,7 @@
 
         <RadioButton
             android:id="@+id/radioDaysSpecificDays"
+            style="@style/text_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:checked="false"
@@ -126,6 +134,7 @@
 
         <RadioButton
             android:id="@+id/radioDaysInterval"
+            style="@style/text_style"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:checked="false"
@@ -140,27 +149,21 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textViewDaySelectionSummaryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/day_selection_summary_label"
-            android:textSize="18sp" />
+        <LinearLayout style="@style/med_settings_summary_wrapper">
+            <TextView
+                android:id="@+id/textViewDaySelectionSummaryLabel"
+                style="@style/med_settings_summary_text"
+                android:text="@string/day_selection_summary_label" />
 
-        <TextView
-            android:id="@+id/textViewDaySelectionSummaryValue"
-            android:layout_width="84dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="@string/day_selection_summary_value"
-            android:textColor="@color/design_default_color_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textViewDaySelectionSummaryValue"
+                style="@style/med_settings_summary_dynamic"
+                android:text="@string/day_selection_summary_value" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonEditDaySelection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/button_text"
             android:text="@string/button_edit" />
     </LinearLayout>
 
@@ -171,27 +174,21 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textViewDaysIntervalSummaryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/days_interval_summary_label"
-            android:textSize="18sp" />
+        <LinearLayout style="@style/med_settings_summary_wrapper">
+            <TextView
+                android:id="@+id/textViewDaysIntervalSummaryLabel"
+                style="@style/med_settings_summary_text"
+                android:text="@string/days_interval_summary_label" />
 
-        <TextView
-            android:id="@+id/textViewDaysIntervalSummaryValue"
-            android:layout_width="84dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:text="@string/days_interval_summary_value"
-            android:textColor="@color/design_default_color_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textViewDaysIntervalSummaryValue"
+                style="@style/med_settings_summary_dynamic"
+                android:text="@string/days_interval_summary_value" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/buttonEditDaysInterval"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/button_text"
             android:text="@string/button_edit" />
     </LinearLayout>
 

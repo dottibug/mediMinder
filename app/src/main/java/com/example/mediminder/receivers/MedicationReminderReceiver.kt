@@ -77,7 +77,7 @@ class MedicationReminderReceiver: BroadcastReceiver() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .addAction(R.drawable.taken, context.getString(R.string.take), takePendingIntent)
-            .addAction(R.drawable.skipped, context.getString(R.string.skip), skipPendingIntent)
+            .addAction(R.drawable.skip, context.getString(R.string.skip), skipPendingIntent)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

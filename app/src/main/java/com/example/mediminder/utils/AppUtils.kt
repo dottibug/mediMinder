@@ -29,6 +29,7 @@ object AppUtils {
         else return hour
     }
 
+    // Format LocalTime as 1:00 pm
     fun formatLocalTimeTo12Hour(localTime: LocalTime): String {
         val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
         return localTime.format(formatter).lowercase()
@@ -61,10 +62,10 @@ object AppUtils {
     // Get the resource id associated with a MedicationStatus
     fun getStatusIcon(status: MedicationStatus): Int {
         return when (status) {
-            MedicationStatus.PENDING -> R.drawable.pending
+            MedicationStatus.PENDING -> R.drawable.alarm_clock
             MedicationStatus.TAKEN -> R.drawable.taken
-            MedicationStatus.SKIPPED -> R.drawable.skipped
-            MedicationStatus.MISSED -> R.drawable.missed
+            MedicationStatus.SKIPPED -> R.drawable.skip
+            MedicationStatus.MISSED -> R.drawable.warning
             MedicationStatus.UNSCHEDULED -> R.drawable.unscheduled
         }
     }

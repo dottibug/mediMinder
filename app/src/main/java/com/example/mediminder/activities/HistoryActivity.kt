@@ -3,7 +3,6 @@ package com.example.mediminder.activities
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -55,21 +54,20 @@ class HistoryActivity : BaseActivity() {
 
     // Set up the medication dropdown, which allows users to view history of a specific medication or all medications
     private fun setupMedicationDropdown() {
-        medicationAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
-            .apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        medicationAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, mutableListOf<String>())
+        binding.medicationDropdown.setAdapter(medicationAdapter)
+        setDefaultMedicationDropdown()
 
-        binding.medicationDropdown.adapter = medicationAdapter
+        binding.medicationDropdown.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setSelectedMedication(medicationIds.getOrNull(position))
+        }
+    }
 
-        binding.medicationDropdown.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            // Handle medication selection changes
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                viewModel.setSelectedMedication(medicationIds.getOrNull(position))
-            }
-
-            // Default to "all medications" if nothing is selected
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                viewModel.setSelectedMedication(null)
-            }
+    private fun setDefaultMedicationDropdown() {
+        if (medicationIds.isEmpty()) {
+            binding.medicationDropdown.setText(getString(R.string.all_meds), false)
+        } else {
+            binding.medicationDropdown.setText(medicationAdapter.getItem(0), false)
         }
     }
 

@@ -42,8 +42,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                R.id.quickAdd -> {
+                    startActivity(Intent(this, AddMedicationActivity::class.java))
                     true
                 }
                 else -> false
@@ -86,7 +86,8 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
             }
 
-            R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.nav_settings ->
+                startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 

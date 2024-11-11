@@ -5,4 +5,163 @@
         <item name="elevation">0dp</item>
         <item name="titleTextColor">@color/white</item>
     </style>
+
+    <style name="section_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="subsection_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">9dp</item>
+    </style>
+
+    <style name="text_style">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/jet</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="activity_title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="activity_vertical_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+    </style>
+
+    <style name="activity_scroll">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_margin">0dp</item>
+    </style>
+
+    <style name="med_settings_button" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:width">140dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="cornerRadius">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+    </style>
+
+    <style name="med_settings_summary_wrapper">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="med_settings_summary_text" parent="@style/text_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/davyGray</item>
+        <item name="android:textStyle">bold|italic</item>
+    </style>
+
+    <style name="med_settings_summary_dynamic" parent="@style/med_settings_summary_text">
+        <item name="android:textColor">@color/cadetGray</item>
+        <item name="android:layout_marginStart">6dp</item>
+    </style>
+
+    <style name="button_primary">
+        <item name="android:layout_width">300dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:gravity">center_horizontal|center_vertical</item>
+        <item name="android:paddingLeft">32dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingRight">32dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="button_secondary">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:backgroundTint">@color/cadetGray</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="button_text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:gravity">center_horizontal|center_vertical</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/jet</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="dialog_box_padding">
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingBottom">18dp</item>
+        <item name="android:minWidth">380dp</item>
+    </style>
+
+    <style name="dialog_button_wrapper">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginTop">9dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="dialog_button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/cadetGray</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="dialog_button_cancel" parent="@style/dialog_button">
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:text">Cancel</item>
+    </style>
+
+    <style name="dialog_button_set" parent="@style/dialog_button">
+        <item name="android:text">Set</item>
+    </style>
+
+    <style name="dialog_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:textColor">@color/jet</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="dialog_instructions">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Widget.App.NavigationView" parent="Widget.Material3.NavigationView">
+        <item name="itemIconTint">@color/jet</item>
+        <item name="itemTextColor">@color/jet</item>
+    </style>
 </resources>

@@ -6,7 +6,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="invalid"
+    tools:openDrawer="start"
     >
 <!--    tools:openDrawer="start"-->
 
@@ -37,6 +37,7 @@
             android:id="@+id/contentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/white"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
@@ -48,9 +49,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:paddingTop="32dp"
-        app:itemIconTint="@color/indigoDye"
+        app:itemIconTint="@color/jet"
         app:itemTextAppearance="@style/CustomNavigationMenuItem"
-        app:itemTextColor="@color/indigoDye"
+        app:itemTextColor="@color/jet"
         app:itemVerticalPadding="16dp"
         app:menu="@menu/drawer_menu" />
 

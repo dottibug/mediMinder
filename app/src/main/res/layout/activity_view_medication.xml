@@ -8,12 +8,18 @@
     <!-- Screen Content -->
     <TextView
         android:id="@+id/medicationTitle"
-        android:layout_width="wrap_content"
+        style="@style/activity_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/view_medication_title"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="@string/view_medication_title"/>
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loadingSpinner"
@@ -27,206 +33,310 @@
         app:layout_constraintTop_toBottomOf="@id/medicationTitle" />
 
     <LinearLayout
-        android:id="@+id/medicationContent"
-        android:layout_width="match_parent"
+        android:id="@+id/layoutMedSummary"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/medicationTitle">
 
-        <!-- Medication name -->
-
-        <!-- Dosage -->
         <LinearLayout
-            android:id="@+id/medName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/medIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:src="@drawable/tablet" />
-
-            <TextView
-                android:id="@+id/medNameHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_name_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medNameContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_name_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/medDosage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/medDosageHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_dosage_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medDosageContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_dosage_content" />
-        </LinearLayout>
-
-        <!-- Doctor -->
-        <LinearLayout
-            android:id="@+id/medDoctor"
-            android:layout_width="wrap_content"
+            android:id="@+id/medicationContent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/medDoctorHeading"
+            <!-- Medication name -->
+
+            <!-- Dosage -->
+
+            <LinearLayout
+                android:id="@+id/medName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/view_med_doctor_heading"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/medDoctorContent"
+                <TextView
+                    android:id="@+id/medNameHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_name_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medNameContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_name_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/medDosage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/view_med_doctor_content" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/medDosageHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_dosage_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medDosageContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_dosage_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Doctor -->
+            <LinearLayout
+                android:id="@+id/medDoctor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/medDoctorHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_doctor_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medDoctorContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_doctor_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Notes -->
+            <LinearLayout
+                android:id="@+id/medNotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/medNotesHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_notes_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medNotesContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_notes_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Reminders -->
+            <LinearLayout
+                android:id="@+id/medReminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/medReminderHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_reminder_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medReminderContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_reminder_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Schedule -->
+            <LinearLayout
+                android:id="@+id/medSchedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/medScheduleHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_schedule_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medScheduleContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_schedule_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- Start Date -->
+            <LinearLayout
+                android:id="@+id/medStartDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/medStartDateHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_start_date_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medStartDateContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_start_date_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <!-- End Date -->
+            <LinearLayout
+                android:id="@+id/medEndDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/medEndDateHeading"
+                    style="@style/subsection_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/view_med_end_date_heading"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medEndDateContent"
+                    style="@style/text_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/view_med_end_date_content"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+
         </LinearLayout>
 
-        <!-- Notes -->
-        <LinearLayout
-            android:id="@+id/medNotes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/medNotesHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_notes_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medNotesContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_notes_content" />
-        </LinearLayout>
-
-        <!-- Reminders -->
-        <LinearLayout
-            android:id="@+id/medReminder"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/medReminderHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_reminder_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medReminderContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_reminder_content" />
-        </LinearLayout>
-
-        <!-- Schedule -->
-        <LinearLayout
-            android:id="@+id/medSchedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/medScheduleHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_schedule_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medScheduleContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_schedule_content" />
-        </LinearLayout>
-
-        <!-- Start Date -->
-        <LinearLayout
-            android:id="@+id/medStartDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/medStartDateHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_start_date_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medStartDateContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_start_date_content" />
-        </LinearLayout>
-
-        <!-- End Date -->
-        <LinearLayout
-            android:id="@+id/medEndDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/medEndDateHeading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_end_date_heading"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/medEndDateContent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_med_end_date_content" />
-        </LinearLayout>
-
-
+        <ImageView
+            android:id="@+id/medIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/tablet"
+            app:tint="@color/jet" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonEditMed"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/edit_medication_full"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/medicationContent" />
+        app:layout_constraintTop_toBottomOf="@+id/layoutMedSummary">
 
-    <Button
-        android:id="@+id/buttonDeleteMed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_medication_full"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonEditMed" />
+        <Button
+            android:id="@+id/buttonEditMed"
+            style="@style/button_primary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="9dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:paddingLeft="18dp"
+            android:paddingTop="9dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="9dp"
+            android:text="@string/edit_medication"
+            android:textColor="@color/cadetGray"
+            app:cornerRadius="4dp"
+            app:strokeColor="@color/cadetGray"
+            app:strokeWidth="3dp" />
+
+        <Button
+            android:id="@+id/buttonDeleteMed"
+            style="@style/button_primary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="9dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:paddingLeft="18dp"
+            android:paddingTop="9dp"
+            android:paddingRight="18dp"
+            android:paddingBottom="9dp"
+            android:text="@string/delete_medication"
+            android:textColor="@color/red"
+            app:cornerRadius="4dp"
+            app:strokeColor="@color/red"
+            app:strokeWidth="3dp" />
+    </LinearLayout>
 
     <!--
       Medication name

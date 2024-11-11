@@ -39,6 +39,7 @@ class DeleteMedicationActivity : BaseActivity() {
         setupUI()
         setupListeners()
         setupObservers()
+
         lifecycleScope.launch { fetchMedication(medicationId) }
     }
 
@@ -70,8 +71,7 @@ class DeleteMedicationActivity : BaseActivity() {
 
     private fun setupUI() {
         val medicationName = viewModel.medicationName.value
-        val deleteMessage = resources.getString(R.string.delete_medication_instructions, medicationName)
-        binding.deleteMedicationMessage.text = deleteMessage
+        binding.deleteMedicationMessage.text = resources.getString(R.string.delete_medication_instructions, medicationName)
     }
 
     private fun setupListeners() {
