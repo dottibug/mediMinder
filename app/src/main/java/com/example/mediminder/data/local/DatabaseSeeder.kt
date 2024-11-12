@@ -10,7 +10,6 @@ import androidx.work.WorkManager
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.DosageDao
@@ -18,17 +17,21 @@ import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.schedulers.MidnightMedicationScheduler
+import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
+import kotlin.random.Random
 
 // This class is for "seeding" the database with initial test data.
-//  It is only for development/testing purposes.
+//  It is for development/testing and demo purposes.
 
 class DatabaseSeeder(
     private val applicationContext: Context,
@@ -43,89 +46,81 @@ class DatabaseSeeder(
         try {
             Log.d("DatabaseSeeder testcat", "Starting database seeding")
 
-            // 1. Insert all medications first
-            val testMedAlarm = medicationDao.insert(
+            // Blood Pressure Med: Started 3 months ago, continuous daily schedule with
+            // morning and evening reminders
+            val bloodPressureMed = medicationDao.insert(
                 Medication(
-                    name = "Test Alarm Med",
-                    prescribingDoctor = "Dr. Test",
-                    notes = "This is a test medication for alarm testing",
+                    name = "Lisinopril",
+                    prescribingDoctor = "Dr. Smith",
+                    notes = "Take with food. Monitor blood pressure.",
+                    icon = MedicationIcon.TABLET,
+                    reminderEnabled = true,
+                )
+            )
+
+            // Antibiotic: Short-term daily medication (10-day course) taken 3 times daily. Started 5 days ago.
+            val antibioticMed = medicationDao.insert(
+                Medication(
+                    name = "Amoxicillin",
+                    prescribingDoctor = "Dr. Smith",
+                    notes = "Complete full course. Take with water.",
                     icon = MedicationIcon.CAPSULE,
                     reminderEnabled = true,
                 )
             )
 
-            val testMed1 = medicationDao.insert(
+            // Vitamin B12: Started 2 months ago. Continuous on specific days (every Sunday).
+            val vitaminB12 = medicationDao.insert(
                 Medication(
-                    name = "Hearto",
-                    prescribingDoctor = "Dr. Batman",
-                    notes = "Take with food",
+                    name = "Vitamin B12",
+                    prescribingDoctor = "Dr. Johnson",
+                    notes = "Weekly supplement",
+                    icon = MedicationIcon.CAPSULE,
+                    reminderEnabled = true,
+                )
+            )
+
+            // Anti-inflammatory: Started 1 month ago. Continuous, taken every 2 days (interval-based schedule).
+            val antiInflammatoryMed = medicationDao.insert(
+                Medication(
+                    name = "Naproxen",
+                    prescribingDoctor = "Dr. Chan",
+                    notes = "Take with food to prevent stomach upset",
                     icon = MedicationIcon.TABLET,
                     reminderEnabled = true,
                 )
             )
 
-            val testMed2 = medicationDao.insert(
+            // Allergy Med: Started 1.5 months ago. Continuous on specific days (Monday, Wednesday, Friday).
+            // Reminders every 6 hours between 8 am and 8 pm.
+            val allergyMed = medicationDao.insert(
                 Medication(
-                    name = "Ibuprofen",
-                    prescribingDoctor = "Dr. Joker",
-                    notes = "Take as needed",
+                    name = "Allegra",
+                    prescribingDoctor = "Dr. Chan",
+                    notes = "For seasonal allergies",
                     icon = MedicationIcon.TABLET,
-                    reminderEnabled = false,
-                )
-            )
-
-            val testMed3 = medicationDao.insert(
-                Medication(
-                    name = "Pressure thingy",
-                    prescribingDoctor = "Dr. Batman",
-                    notes = "",
-                    icon = MedicationIcon.INJECTION,
                     reminderEnabled = true,
                 )
             )
 
-            Log.d("DatabaseSeeder testcat", "Medications inserted")
+            // Insert dosages
+            dosageDao.insert(Dosage(medicationId = bloodPressureMed, amount = "10", units = "mg"))
+            dosageDao.insert(Dosage(medicationId = antibioticMed, amount = "500", units = "mg"))
+            dosageDao.insert(Dosage(medicationId = vitaminB12, amount = "1000", units = "mcg"))
+            dosageDao.insert(Dosage(medicationId = antiInflammatoryMed, amount = "250", units = "mg"))
+            dosageDao.insert(Dosage(medicationId = allergyMed, amount = "180", units = "mg"))
 
-            // 2. Insert all dosages
-            dosageDao.insert(
-                Dosage(
-                    medicationId = testMedAlarm,
-                    amount = "1",
-                    units = "mg"
-                )
-            )
+            // Insert schedules
+            val threeMonthsAgo = LocalDate.now().minusMonths(3)
+            val fiveDaysAgo = LocalDate.now().minusDays(5)
+            val twoMonthsAgo = LocalDate.now().minusMonths(2)
+            val oneMonthAgo = LocalDate.now().minusMonths(1)
+            val sixWeeksAgo = LocalDate.now().minusWeeks(6)
 
-            dosageDao.insert(
-                Dosage(
-                    medicationId = testMed1,
-                    amount = "5",
-                    units = "mg"
-                )
-            )
-
-            dosageDao.insert(
-                Dosage(
-                    medicationId = testMed2,
-                    amount = "200",
-                    units = "mg"
-                )
-            )
-
-            dosageDao.insert(
-                Dosage(
-                    medicationId = testMed3,
-                    amount = "10",
-                    units = "mcg"
-                )
-            )
-
-            Log.d("DatabaseSeeder testcat", "Dosages inserted")
-
-            // 3. Insert all schedules
-            val testMedAlarmScheduled = scheduleDao.insert(
+            val bloodPressureSchedule = scheduleDao.insert(
                 Schedules(
-                    medicationId = testMedAlarm,
-                    startDate = LocalDate.now(),
+                    medicationId = bloodPressureMed,
+                    startDate = threeMonthsAgo,
                     durationType = "continuous",
                     numDays = 0,
                     scheduleType = "daily",
@@ -134,139 +129,143 @@ class DatabaseSeeder(
                 )
             )
 
-            val schedule1 = scheduleDao.insert(
+            val antibioticSchedule = scheduleDao.insert(
                 Schedules(
-                    medicationId = testMed1,
-                    startDate = LocalDate.now(),
-                    durationType = "continuous",
-                    numDays = 0,
-                    scheduleType = "daily",
-                    selectedDays = "",
-                    daysInterval = 0
-                )
-            )
-
-            val schedule2 = scheduleDao.insert(
-                Schedules(
-                    medicationId = testMed2,
-                    startDate = LocalDate.now(),
+                    medicationId = antibioticMed,
+                    startDate = fiveDaysAgo,
                     durationType = "numDays",
-                    numDays = 7,
+                    numDays = 10,
+                    scheduleType = "daily",
+                    selectedDays = "",
+                    daysInterval = 0
+                )
+            )
+
+            val vitaminBSchedule = scheduleDao.insert(
+                Schedules(
+                    medicationId = vitaminB12,
+                    startDate = twoMonthsAgo,
+                    durationType = "continuous",
+                    numDays = 0,
+                    scheduleType = "specificDays",
+                    selectedDays = "7",  // Sun
+                    daysInterval = 0
+                )
+            )
+
+            val antiInflammatorySchedule = scheduleDao.insert(
+                Schedules(
+                    medicationId = antiInflammatoryMed,
+                    startDate = oneMonthAgo,
+                    durationType = "continuous",
+                    numDays = 0,
                     scheduleType = "interval",
                     selectedDays = "",
                     daysInterval = 2
                 )
             )
 
-            val schedule3 = scheduleDao.insert(
+            val allergySchedule = scheduleDao.insert(
                 Schedules(
-                    medicationId = testMed3,
-                    startDate = LocalDate.now(),
+                    medicationId = allergyMed,
+                    startDate = sixWeeksAgo,
                     durationType = "continuous",
                     numDays = 0,
                     scheduleType = "specificDays",
-                    selectedDays = "1,3,5", // Monday, Wednesday, Friday
+                    selectedDays = "1,3,5",     // Mon, Wed, Fri
                     daysInterval = 0
-                )
+                    )
             )
 
-            Log.d("DatabaseSeeder testcat", "Schedules inserted")
-
-
-            // 4. Insert all reminders
-            val now = LocalTime.now()
-            val testTime = now.plusMinutes(2)
-
+            // Insert reminders
             medRemindersDao.insert(
                 MedReminders(
-                    medicationId = testMedAlarm,
+                    medicationId = bloodPressureMed,
                     reminderFrequency = "daily",
                     hourlyReminderInterval = "",
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
                     dailyReminderTimes = listOf(
-                        LocalTime.of(testTime.hour, testTime.minute)
+                        LocalTime.of(8, 0),     // 8 am
+                        LocalTime.of(20, 0)     // 8 pm
                     )
                 )
             )
 
             medRemindersDao.insert(
                 MedReminders(
-                    medicationId = testMed1,
+                    medicationId = antibioticMed,
                     reminderFrequency = "daily",
                     hourlyReminderInterval = "",
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
-                    dailyReminderTimes = listOf(LocalTime.of(12, 0), LocalTime.of(18, 0)),
+                    dailyReminderTimes = listOf(
+                        LocalTime.of(8, 0),     // 8 am
+                        LocalTime.of(14, 0),    // 2 pm
+                        LocalTime.of(20, 0)     // 8 pm
+                    )
                 )
             )
 
             medRemindersDao.insert(
                 MedReminders(
-                    medicationId = testMed3,
+                    medicationId = vitaminB12,
+                    reminderFrequency = "daily",
+                    hourlyReminderInterval = "",
+                    hourlyReminderStartTime = null,
+                    hourlyReminderEndTime = null,
+                    dailyReminderTimes = listOf(LocalTime.of(9, 0))
+                )
+            )
+
+            medRemindersDao.insert(
+                MedReminders(
+                    medicationId = antiInflammatoryMed,
+                    reminderFrequency = "daily",
+                    hourlyReminderInterval = "",
+                    hourlyReminderStartTime = null,
+                    hourlyReminderEndTime = null,
+                    dailyReminderTimes = listOf(LocalTime.of(12, 0))
+                )
+            )
+
+            medRemindersDao.insert(
+                MedReminders(
+                    medicationId = allergyMed,
                     reminderFrequency = "every x hours",
                     hourlyReminderInterval = "6",
-                    hourlyReminderStartTime = LocalTime.of(8, 30),
-                    hourlyReminderEndTime = LocalTime.of(21, 0),
-                    dailyReminderTimes = emptyList(),
+                    hourlyReminderStartTime = LocalTime.of(8, 0),
+                    hourlyReminderEndTime = LocalTime.of(20, 0),
+                    dailyReminderTimes = emptyList()
                 )
             )
 
-            Log.d("DatabaseSeeder testcat", "Reminders inserted")
+            Log.d("DatabaseSeeder testcat", "Database seeded")
 
-            // 5. Finally, insert medication logs
-            val today = LocalDate.now()
-
-            medicationLogDao.insert(
-                MedicationLogs(
-                    medicationId = testMedAlarm,
-                    scheduleId = testMedAlarmScheduled,
-                    plannedDatetime = LocalDateTime.of(
-                        LocalDate.now(), LocalTime.of(testTime.hour, testTime.minute)
-                    ),
-                    takenDatetime = null,
-                    status = MedicationStatus.PENDING
-                )
+            // Create past logs
+            createPastLogs(
+                listOf(
+                    Triple(bloodPressureMed, bloodPressureSchedule, threeMonthsAgo),
+                    Triple(antibioticMed, antibioticSchedule, fiveDaysAgo),
+                    Triple(vitaminB12, vitaminBSchedule, twoMonthsAgo),
+                    Triple(antiInflammatoryMed, antiInflammatorySchedule, oneMonthAgo),
+                    Triple(allergyMed, allergySchedule, sixWeeksAgo)
+                ),
+                medicationLogDao,
+                scheduleDao,
+                medRemindersDao
             )
-
-            listOf(LocalTime.of(12, 0), LocalTime.of(18, 0)).forEach { time ->
-                medicationLogDao.insert(
-                    MedicationLogs(
-                        medicationId = testMed1,
-                        scheduleId = schedule1,
-                        plannedDatetime = LocalDateTime.of(today, time),
-                        takenDatetime = null,
-                        status = MedicationStatus.PENDING
-                    )
-                )
-            }
-
-            val pastDateTime = LocalDateTime.now().minusHours(3)
-            medicationLogDao.insert(
-                MedicationLogs(
-                    medicationId = testMed3,
-                    scheduleId = schedule3,
-                    plannedDatetime = pastDateTime,
-                    takenDatetime = null,
-                    status = MedicationStatus.PENDING
-                )
-            )
-
-            Log.d("DatabaseSeeder testcat", "Medication logs inserted")
 
             // Trigger the worker to create future logs for all medications
             val workManager = WorkManager.getInstance(applicationContext)
             val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
             val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
 
-
             workManager.beginUniqueWork(
                 "initial_setup",
                 ExistingWorkPolicy.REPLACE,
                 createFutureLogsRequest
-            )
-                .then(checkMissedRequest)
-                .enqueue()
+            ).then(checkMissedRequest).enqueue()
 
             // Observe work completion and schedule notifications after
             workManager.getWorkInfoByIdLiveData(createFutureLogsRequest.id)
@@ -284,6 +283,103 @@ class DatabaseSeeder(
         } catch (e: Exception) {
             Log.e("DatabaseSeeder testcat", "Error seeding database: ${e.message}", e)
             throw e
+        }
+    }
+
+    private suspend fun createPastLogs(
+        medications: List<Triple<Long, Long, LocalDate>>,
+        medicationLogDao: MedicationLogDao,
+        scheduleDao: ScheduleDao,
+        medRemindersDao: MedRemindersDao
+    ) {
+        val today = LocalDate.now()
+
+        medications.forEach { (medicationId, scheduleId, startDate) ->
+            val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
+            val reminder = medRemindersDao.getReminderByMedicationId(medicationId)
+
+            if (schedule != null && reminder != null) {
+                var currentDate = startDate
+
+                while (currentDate.isBefore(today)) {
+                    if (isMedScheduledForDate(schedule, currentDate)) {
+                        val reminderTimes = getReminderTimes(reminder)
+                        createPastLogsForDate(
+                            medicationId,
+                            scheduleId,
+                            currentDate,
+                            reminderTimes,
+                            medicationLogDao
+                        )
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
+            }
+        }
+    }
+
+    private fun isMedScheduledForDate(schedule: Schedules, date: LocalDate): Boolean {
+        return when (schedule.scheduleType) {
+            "daily" -> true
+            "specificDays" -> {
+                val dayOfWeek = date.dayOfWeek.value
+                schedule.selectedDays.split(",").map { it.toInt() }.contains(dayOfWeek)
+            }
+            "interval" -> {
+                val daysBetween = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
+                daysBetween % (schedule.daysInterval ?: 1) == 0
+            }
+            else -> false
+        }
+    }
+
+    private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
+        return when (reminder.reminderFrequency) {
+            "daily" -> reminder.dailyReminderTimes
+            "every x hours" -> getHourlyReminderTimes(
+                reminder.hourlyReminderInterval,
+                reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
+                reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
+            )
+            else -> emptyList()
+        }
+    }
+
+    private suspend fun createPastLogsForDate(
+        medicationId: Long,
+        scheduleId: Long,
+        date: LocalDate,
+        reminderTimes: List<LocalTime>,
+        medicationLogDao: MedicationLogDao
+    ) {
+        reminderTimes.forEach { time ->
+            val plannedDateTime = LocalDateTime.of(date, time)
+            val (status, takenDateTime) = generateMedStatus(plannedDateTime)
+
+            medicationLogDao.insert(
+                MedicationLogs(
+                    medicationId = medicationId,
+                    scheduleId = scheduleId,
+                    plannedDatetime = plannedDateTime,
+                    takenDatetime = takenDateTime,
+                    status = status
+                )
+            )
+        }
+    }
+
+    // Generate a medication status (80% taken, 15% missed, 5% skipped)
+    private fun generateMedStatus(plannedDateTime: LocalDateTime): Pair<MedicationStatus, LocalDateTime?> {
+        val random = Random.nextFloat()
+
+        return when {
+            random < 0.8 -> {
+                val randomMins = Random.nextLong(-30, 30)
+                val takenTime = plannedDateTime.minusMinutes(randomMins)
+                Pair(MedicationStatus.TAKEN, takenTime)
+            }
+            random < 0.95 -> Pair(MedicationStatus.MISSED, null)
+            else -> Pair(MedicationStatus.SKIPPED, null)
         }
     }
 

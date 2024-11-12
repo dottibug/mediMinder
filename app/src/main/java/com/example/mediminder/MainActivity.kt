@@ -176,7 +176,6 @@ class MainActivity : BaseActivity() {
             )
 
             try {
-                seeder.clearDatabase()
                 seeder.seedDatabase()
             } catch (e: Exception) {
                 Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
