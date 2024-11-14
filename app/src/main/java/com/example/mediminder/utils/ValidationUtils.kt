@@ -1,12 +1,15 @@
 package com.example.mediminder.utils
 
-import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
+import com.example.mediminder.models.ValidatedAsNeededData
 import com.example.mediminder.models.ValidatedData
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 object ValidationUtils {
     private const val MED_NAME_REQ = "Medication name is required"
@@ -30,20 +33,63 @@ object ValidationUtils {
 
     fun getValidatedData(
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ): ValidatedData {
-        val validatedMedicationData = validateMedicationData(medicationData)
-        val validatedDosageData = validateDosageData(dosageData)
-        val validatedReminderData = validateReminderData(reminderData)
-        val validatedScheduleData = validateScheduleData(scheduleData)
+        val isScheduled = !medicationData.asNeeded
 
         return ValidatedData(
-            validatedMedicationData,
-            validatedDosageData,
-            validatedReminderData,
-            validatedScheduleData
+            medicationData = validateMedicationData(medicationData),
+            dosageData = if (isScheduled) validateDosageData(dosageData) else null,
+            reminderData = if (isScheduled) reminderData?.let { validateReminderData(it) } else null,
+            scheduleData = if (isScheduled) scheduleData?.let { validateScheduleData(it) } else null
+        )
+
+
+//        return ValidatedData(
+//            medicationData = medicationData.copy(
+//                name = medicationData.name.trim().takeIf { it.isNotEmpty() }
+//                    ?: throw IllegalArgumentException("Medication name is required")
+//            ),
+//            dosageData = dosageData?.let { validateDosageData(it) },
+//            reminderData = reminderData,
+//            scheduleData = scheduleData
+//        )
+//        val validatedMedicationData = validateMedicationData(medicationData)
+//        val validatedDosageData = validateDosageData(dosageData)
+//        val validatedReminderData = validateReminderData(reminderData)
+//        val validatedScheduleData = validateScheduleData(scheduleData)
+//
+//        return ValidatedData(
+//            validatedMedicationData,
+//            validatedDosageData,
+//            validatedReminderData,
+//            validatedScheduleData
+//        )
+    }
+
+    fun getValidatedAsNeededData(
+        selectedMedId: Long?,
+        dosageAmount: String,
+        dosageUnits: String,
+        dateTaken: LocalDate?,
+        timeTaken: Pair<Int, Int>?
+    ): ValidatedAsNeededData {
+        val validatedMedId = selectedMedId ?: throw IllegalArgumentException("Medication is required")
+        val validatedDosageAmount = dosageAmount.trim().takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException(DOSE_AMT_REQ)
+        val validatedDosageUnits = dosageUnits.trim().takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
+        val validatedDateTaken = dateTaken ?: throw IllegalArgumentException("Date taken is required")
+        val validatedTimeTaken = timeTaken?.let { LocalTime.of(it.first, it.second) }
+
+        return ValidatedAsNeededData(
+            medicationId = validatedMedId,
+            scheduleId = null,
+            plannedDatetime = LocalDateTime.of(validatedDateTaken, validatedTimeTaken),
+            takenDatetime = LocalDateTime.of(validatedDateTaken, validatedTimeTaken),
+            status = com.example.mediminder.models.MedicationStatus.TAKEN,
+            asNeededDosageAmount = validatedDosageAmount,
+            asNeededDosageUnit = validatedDosageUnits
         )
     }
 
@@ -59,17 +105,29 @@ object ValidationUtils {
     }
 
     // Validate dosage data before saving: dosage amount and units are not empty
-    private fun validateDosageData(dosageData: DosageData): DosageData {
-        return dosageData.copy(
-            dosageAmount = dosageData.dosageAmount
-                .trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(DOSE_AMT_REQ),
+    private fun validateDosageData(dosageData: DosageData?): DosageData? {
+        if (dosageData != null) {
+            return dosageData.copy(
+                dosageAmount = dosageData.dosageAmount?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: throw IllegalArgumentException(DOSE_AMT_REQ),
 
-            dosageUnits = dosageData.dosageUnits
-                .trim().takeIf { it.isNotEmpty() }
-                ?: DOSE_UNIT_DEFAULT,
-        )
+                dosageUnits = dosageData.dosageUnits?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: DOSE_UNIT_DEFAULT
+            )
+        }
+        else return null
     }
+//    private fun validateDosageData(dosageData: DosageData): DosageData {
+//        return dosageData.copy(
+//            dosageAmount = dosageData.dosageAmount
+//                .trim().takeIf { it.isNotEmpty() }
+//                ?: throw IllegalArgumentException(DOSE_AMT_REQ),
+//
+//            dosageUnits = dosageData.dosageUnits
+//                .trim().takeIf { it.isNotEmpty() }
+//                ?: DOSE_UNIT_DEFAULT,
+//        )
+//    }
 
     // Validate reminder data before saving
     private fun validateReminderData(reminderData: ReminderData): ReminderData {
@@ -125,6 +183,7 @@ object ValidationUtils {
    // Validate schedule data before saving
     private fun validateScheduleData(scheduleData: ScheduleData): ScheduleData {
         return scheduleData.copy(
+            isScheduled = scheduleData.isScheduled,
             startDate = scheduleData.startDate ?: LocalDate.now(),
             durationType = getDurationType(scheduleData),
             numDays = getNumDays(scheduleData),

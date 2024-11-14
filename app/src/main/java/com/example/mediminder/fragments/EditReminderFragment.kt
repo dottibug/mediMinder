@@ -10,12 +10,14 @@ import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
+import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
 
 class EditReminderFragment : BaseReminderFragment() {
     override val reminderViewModel: BaseReminderViewModel by activityViewModels()
     override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
+    override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     private var isInitialSetup = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

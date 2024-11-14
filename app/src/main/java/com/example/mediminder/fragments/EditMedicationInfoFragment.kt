@@ -13,6 +13,19 @@ class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Hide the as-needed switch (users cannot change as-needed medications to
+        // a scheduled medication and vice versa)
+        binding.asNeededSwitch.visibility = View.GONE
+
+        val isAsNeeded = medicationViewModel.asNeeded.value
+
+        if (isAsNeeded) {
+            binding.asNeededMessage.visibility = View.VISIBLE
+            binding.asNeededMessage.text = "This medication is taken as needed."
+        } else {
+            binding.asNeededMessage.visibility = View.GONE
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             medicationViewModel.currentMedication.collect { medication ->
                 medication?.let {

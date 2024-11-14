@@ -27,8 +27,10 @@ import java.time.LocalDateTime
 data class MedicationLogs (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,
-    @ColumnInfo(name = "schedule_id") val scheduleId: Long,
+    @ColumnInfo(name = "schedule_id") val scheduleId: Long?,  // Nullable for as-needed medications
     @ColumnInfo(name = "planned_datetime") val plannedDatetime: LocalDateTime,
     @ColumnInfo(name = "taken_datetime") val takenDatetime: LocalDateTime?,
-    @ColumnInfo(name = "status") val status: MedicationStatus
+    @ColumnInfo(name = "status") val status: MedicationStatus,
+    @ColumnInfo(name = "as_needed_dosage_amount") val asNeededDosageAmount: String?, // Nullable for scheduled medications
+    @ColumnInfo(name = "as_needed_dosage_unit") val asNeededDosageUnit: String? // Nullable for scheduled medications
 )

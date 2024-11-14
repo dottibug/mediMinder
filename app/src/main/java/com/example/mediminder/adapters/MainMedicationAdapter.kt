@@ -1,6 +1,7 @@
 package com.example.mediminder.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -14,12 +15,15 @@ import com.example.mediminder.utils.AppUtils.getStatusIcon
 
 // Medication adapter for the main activity. Displays a list of medications to be taken for a
 // given date.
-class MainMedicationAdapter(private val onUpdateStatusClick: (Long) -> Unit):
+class MainMedicationAdapter(
+    private val onUpdateStatusClick: (Long) -> Unit,
+    private val onDeleteAsNeededClick: (Long) -> Unit
+):
     ListAdapter<MedicationItem, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
         val binding = ItemScheduledMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MedicationViewHolder(binding, onUpdateStatusClick)
+        return MedicationViewHolder(binding, onUpdateStatusClick, onDeleteAsNeededClick)
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
@@ -29,7 +33,8 @@ class MainMedicationAdapter(private val onUpdateStatusClick: (Long) -> Unit):
 
     class MedicationViewHolder(
         private val binding: ItemScheduledMedicationBinding,
-        private val onUpdateStatusClick: (Long) -> Unit
+        private val onUpdateStatusClick: (Long) -> Unit,
+        private val onDeleteAsNeededClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: MedicationItem) {
             val formattedTime = formatLocalTimeTo12Hour(item.time)
@@ -39,7 +44,17 @@ class MainMedicationAdapter(private val onUpdateStatusClick: (Long) -> Unit):
             binding.medicationStatusIcon.setImageResource(getStatusIcon(item.status))
             binding.medicationStatusIcon.contentDescription = item.status.toString().lowercase()
             setStatusIconColor(item)
-            binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
+
+            // Hide update button for as-needed medications (their status is always "taken")
+            if (item.medication.asNeeded) {
+                binding.buttonUpdateStatus.visibility = View.GONE
+                binding.buttonDeleteAsNeeded.visibility = View.VISIBLE
+                binding.buttonDeleteAsNeeded.setOnClickListener { onDeleteAsNeededClick(item.logId) }
+            } else {
+                binding.buttonUpdateStatus.visibility = View.VISIBLE
+                binding.buttonDeleteAsNeeded.visibility = View.GONE
+                binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
+            }
         }
 
         private fun setStatusIconColor(item: MedicationItem) {

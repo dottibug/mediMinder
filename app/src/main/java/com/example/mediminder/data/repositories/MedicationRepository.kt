@@ -1,4 +1,6 @@
 package com.example.mediminder.data.repositories
+import android.util.Log
+import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.dao.DosageDao
@@ -15,6 +17,7 @@ import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
+import com.example.mediminder.models.ValidatedAsNeededData
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -62,12 +65,16 @@ class MedicationRepository(
         )
     }
 
+    suspend fun getAsNeededMedications(): List<Medication> {
+        return medicationDao.getAsNeededMedications()
+    }
+
     // Add medication to the database
     suspend fun addMedication(
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ): Long {
         try {
             return insertHelper.addMedicationData(medicationData, dosageData, reminderData, scheduleData)
@@ -80,9 +87,9 @@ class MedicationRepository(
     suspend fun updateMedication(
         medicationId: Long,
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData,
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?,
     ) {
         try {
             updateHelper.updateMedicationData(medicationId, medicationData, dosageData, reminderData, scheduleData)
@@ -158,5 +165,63 @@ class MedicationRepository(
                 log = log
             )
         }
+    }
+
+    // Get logs for specific date
+    suspend fun getLogsForDate(date: LocalDate): List<MedicationItem> {
+        val startOfDay = LocalDateTime.of(date, LocalTime.MIN)
+        val endOfDay = LocalDateTime.of(date, LocalTime.MAX)
+
+        val logs = medicationLogDao.getLogsInRange(startOfDay, endOfDay)
+
+        return logs.map { log ->
+            val medication = medicationDao.getMedicationById(log.medicationId)
+            val dosage = getDosage(log)
+
+            MedicationItem(
+                medication = medication,
+                dosage = dosage,
+                time = log.plannedDatetime.toLocalTime(),
+                status = log.status,
+                logId = log.id
+            )
+        }
+    }
+
+    private suspend fun getDosage(log: MedicationLogs): Dosage? {
+        if (log.asNeededDosageAmount != null) {
+            // Create Dosage object for as-needed medications
+            return Dosage(
+                medicationId = log.medicationId,
+                amount = log.asNeededDosageAmount,
+                units = log.asNeededDosageUnit ?: ""
+            )
+        } else {
+            // Retrieve Dosage object from the database
+            return dosageDao.getDosageByMedicationId(log.medicationId)
+        }
+    }
+
+    // Add an as-needed (unscheduled) medication log
+    suspend fun addAsNeededLog(validatedData: ValidatedAsNeededData) {
+        try {
+            val log = MedicationLogs(
+                medicationId = validatedData.medicationId,
+                scheduleId = null, // No schedule for as-needed medications
+                plannedDatetime = validatedData.plannedDatetime,
+                takenDatetime = validatedData.takenDatetime,
+                status = validatedData.status,  // As-needed medications can not be "missed" or "skipped"
+                asNeededDosageAmount = validatedData.asNeededDosageAmount,
+                asNeededDosageUnit = validatedData.asNeededDosageUnit
+            )
+            val insertedId = medicationLogDao.insert(log)
+            Log.d("MedicationRepository testcat", "Inserted as-needed log with ID: $insertedId")
+        } catch (e: Exception) {
+            Log.e("MedicationRepository testcat ", "Error adding as-needed log", e)
+        }
+    }
+
+    suspend fun deleteAsNeededMedication(logId: Long) {
+        medicationLogDao.deleteById(logId)
     }
 }

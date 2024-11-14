@@ -1,6 +1,5 @@
 package com.example.mediminder.fragments
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -18,6 +17,7 @@ import com.example.mediminder.databinding.FragmentBaseReminderBinding
 import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
+import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
 import com.google.android.material.timepicker.TimeFormat
@@ -28,6 +28,7 @@ abstract class BaseReminderFragment : Fragment() {
     protected lateinit var binding: FragmentBaseReminderBinding
     protected abstract val reminderViewModel: BaseReminderViewModel
     protected abstract val medicationViewModel: BaseMedicationViewModel
+    protected abstract val scheduleViewModel: BaseScheduleViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,11 +45,6 @@ abstract class BaseReminderFragment : Fragment() {
     }
 
     protected open fun setupListeners() {
-        binding.switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            reminderViewModel.setReminderEnabled(isChecked)
-            updateSwitchThumbTint(isChecked)
-        }
-
         // "Reminder frequency" menu
         binding.reminderFrequencyMenu.setOnItemClickListener { _, _, position, _ ->
             val selectedFrequency = resources.getStringArray(R.array.reminder_frequency_options)[position]
@@ -63,12 +59,6 @@ abstract class BaseReminderFragment : Fragment() {
         binding.buttonAddDailyTimeReminder.setOnClickListener { addDailyTimePicker() }
     }
 
-    protected fun updateSwitchThumbTint(isChecked: Boolean) {
-        val thumbColor = if (isChecked) { requireContext().getColor(R.color.indigoDye) }
-        else { requireContext().getColor(R.color.cadetGray) }
-        binding.switchReminder.thumbTintList = ColorStateList.valueOf(thumbColor)
-    }
-
     // Reset hourly frequency buttons to default values
     protected fun resetDailyFrequencyButtonText() {
         binding.buttonHourlyRemindEvery.text = resources.getString(R.string.hourly_30)
@@ -77,26 +67,7 @@ abstract class BaseReminderFragment : Fragment() {
     }
 
     // Set up observers for LiveData
-    protected fun setupObservers() {
-        // Dynamically render reminder components based on the "Set reminders" switch state
-        viewLifecycleOwner.lifecycleScope.launch {
-            reminderViewModel.isReminderEnabled.collect { isEnabled ->
-                if (binding.switchReminder.isChecked != isEnabled) {
-                    binding.switchReminder.isChecked = isEnabled
-                }
-
-                if (isEnabled) {
-                    binding.layoutReminderSettings.visibility = View.VISIBLE
-                    binding.hourlyReminderOptions.visibility = View.GONE
-                    binding.dailyReminderOptions.visibility = View.GONE
-                } else {
-                    binding.layoutReminderSettings.visibility = View.GONE
-                }
-
-                medicationViewModel.updateIsReminderEnabled(isEnabled)
-            }
-        }
-
+    private fun setupObservers() {
         // Dynamically render the frequency options based on the selected frequency
         viewLifecycleOwner.lifecycleScope.launch {
             reminderViewModel.reminderFrequency.collect { frequency ->

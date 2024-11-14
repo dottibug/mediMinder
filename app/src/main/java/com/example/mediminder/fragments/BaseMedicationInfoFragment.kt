@@ -1,15 +1,18 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.mediminder.models.MedicationIcon
-import com.example.mediminder.models.MedicationStatus
+import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.models.MedicationIcon
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import kotlinx.coroutines.launch
 
 abstract class BaseMedicationInfoFragment: Fragment() {
     protected lateinit var binding: FragmentBaseMedicationInfoBinding
@@ -21,6 +24,33 @@ abstract class BaseMedicationInfoFragment: Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentBaseMedicationInfoBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.asNeededSwitch.setOnCheckedChangeListener { _, isChecked ->
+            medicationViewModel.setAsNeeded(isChecked)
+        }
+
+        setupObservers()
+    }
+
+    private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            medicationViewModel.asNeeded.collect { asNeeded ->
+                // Prevent infinite loop of setting the switch state
+                if (binding.asNeededSwitch.isChecked != asNeeded) {
+                    binding.asNeededSwitch.isChecked = asNeeded
+                }
+
+                medicationViewModel.setAsNeeded(asNeeded)
+                Log.d("BaseMedicationInfoFragment testcat", "medication vm as needed: ${medicationViewModel.asNeeded.value}")
+
+                // Toggle the visibility of the message based on the switch state
+                binding.asNeededMessage.visibility = if (asNeeded) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     private fun getIcon(iconName: String): MedicationIcon {

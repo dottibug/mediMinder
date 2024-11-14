@@ -10,12 +10,15 @@ import com.example.mediminder.activities.BaseActivity.Companion.INTERVAL
 import com.example.mediminder.activities.BaseActivity.Companion.NUM_DAYS
 import com.example.mediminder.activities.BaseActivity.Companion.SPECIFIC_DAYS
 import com.example.mediminder.data.local.classes.Schedules
+import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 
 class EditScheduleFragment : BaseScheduleFragment() {
+    override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
     private var isInitialSetup = true
 
@@ -27,15 +30,30 @@ class EditScheduleFragment : BaseScheduleFragment() {
     private fun observeCurrentMedication() {
         viewLifecycleOwner.lifecycleScope.launch {
             medicationViewModel.currentMedication.collect { medication ->
-                medication?.schedule?.let { initSchedule(it) }
+                medication?.let { initSchedule(it) }
             }
         }
     }
 
-    private fun initSchedule(schedule: Schedules) {
-        initStartDate(schedule.startDate)
-        schedule.numDays?.let { initDuration(it) }
-        initScheduleDays(schedule)
+    private fun initSchedule(medicationDetails: MedicationWithDetails) {
+        isInitialSetup = true
+
+        medicationDetails.medication.let { med ->
+//            val isScheduled = !med.asNeeded
+//            scheduleViewModel.setScheduleEnabled(isScheduled)
+//
+//            // Clear all schedule settings if scheduled is disabled
+//            if (!isScheduled) { scheduleViewModel.clearScheduleSettings() }
+        }
+
+        // Set schedule details if enabled
+        if (!medicationDetails.medication.asNeeded) {
+            medicationDetails.schedule?.let {
+                initStartDate(medicationDetails.schedule.startDate)
+                medicationDetails.schedule.numDays?.let { initDuration(it) }
+                initScheduleDays(medicationDetails.schedule)
+            }
+        }
     }
 
     private fun initStartDate(startDate: LocalDate) {

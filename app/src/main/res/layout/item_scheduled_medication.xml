@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginStart="16dp"
     android:layout_marginTop="8dp"
     android:layout_marginEnd="16dp"
@@ -80,15 +81,25 @@
                 android:src="@drawable/alarm_clock"
                 app:tint="@color/ashGray" />
 
+            <!-- Update Status Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonUpdateStatus"
                 style="@style/button_text"
                 android:layout_marginTop="-2dp"
                 android:letterSpacing="0.05"
                 android:text="@string/medication_status_button" />
-        </LinearLayout>
 
-        <!-- Medication Info -->
+            <!-- Delete As-Needed Medication Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonDeleteAsNeeded"
+                style="@style/button_text"
+                android:layout_marginTop="-2dp"
+                android:letterSpacing="0.05"
+                android:text="@string/delete_medication"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <!-- Dosage Amount -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputDosageAmount"
             android:layout_width="0dp"
@@ -36,6 +37,7 @@
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Dosage Units -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputDosageUnits"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"

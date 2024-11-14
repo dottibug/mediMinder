@@ -21,6 +21,7 @@ import com.example.mediminder.adapters.MainMedicationAdapter
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 import com.example.mediminder.databinding.ActivityMainBinding
+import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
@@ -93,15 +94,35 @@ class MainActivity : BaseActivity() {
 
     private fun setupUI() {
         setupBaseUI(drawerLayout, navView, topAppBar)
+        setupListeners()
         setupRecyclerViews()
         observeViewModel()
     }
 
-    private fun setupRecyclerViews() {
-        medicationAdapter = MainMedicationAdapter { logId ->
-            UpdateMedicationStatusDialogFragment.newInstance(logId)
-                .show(supportFragmentManager, "update_status")
+    private fun setupListeners() {
+        binding.buttonAddUnscheduled.setOnClickListener {
+            AddAsNeededMedicationDialog().show(supportFragmentManager, "add_as_needed_med")
         }
+    }
+
+    private fun setupRecyclerViews() {
+        medicationAdapter = MainMedicationAdapter (
+            // Update medication status callback
+            onUpdateStatusClick = { logId ->
+                UpdateMedicationStatusDialogFragment.newInstance(logId)
+                    .show(supportFragmentManager, "update_status")
+            },
+            // Delete medication callback
+            onDeleteAsNeededClick = { logId ->
+                viewModel.deleteAsNeededMedication(logId)
+            }
+        )
+
+
+//        medicationAdapter = MainMedicationAdapter { logId ->
+//            UpdateMedicationStatusDialogFragment.newInstance(logId)
+//                .show(supportFragmentManager, "update_status")
+//        }
 
         binding.medicationList.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)

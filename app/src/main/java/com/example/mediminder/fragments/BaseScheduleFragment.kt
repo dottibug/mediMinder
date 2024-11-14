@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 
 abstract class BaseScheduleFragment : Fragment() {
     protected lateinit var binding: FragmentBaseScheduleBinding
-    protected val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
+    protected open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     protected abstract val medicationViewModel: BaseMedicationViewModel
     private var prevScheduleWasDaily: Boolean = true
     protected lateinit var selectedDays: String
@@ -53,14 +53,49 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Listeners
     private fun setupListeners() {
+//        binding.switchSchedule.setOnCheckedChangeListener { _, isChecked ->
+//            scheduleViewModel.setScheduleEnabled(isChecked)
+//            updateSwitchThumbTint(isChecked)
+//        }
+
         binding.buttonMedStartDate.setOnClickListener { showDatePickerDialog() }
         binding.radioGroupAddMedDuration.setOnCheckedChangeListener { _, _ -> handleDurationSettings() }
         binding.radioGroupAddMedSchedule.setOnCheckedChangeListener { _, _ -> handleScheduleSettings() }
     }
 
+//    private fun updateSwitchThumbTint(isChecked: Boolean) {
+//        val thumbColor = if (isChecked) { requireContext().getColor(R.color.indigoDye) }
+//        else { requireContext().getColor(R.color.cadetGray) }
+//        binding.switchSchedule.thumbTintList = android.content.res.ColorStateList.valueOf(thumbColor)
+//    }
+
     // Sets up observers for schedule data. Collects state flow in the scheduleViewModel and updates
     // the corresponding data in the addMedViewModel.
     private fun setupObservers() {
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            scheduleViewModel.isScheduleEnabled.collect { isEnabled ->
+//                if (binding.switchSchedule.isChecked != isEnabled) {
+//                    binding.switchSchedule.isChecked = isEnabled
+//                }
+//
+//                if (isEnabled) {
+//                    binding.layoutScheduleSettings.visibility = View.VISIBLE
+//                    binding.asNeededMessage.visibility = View.GONE
+//                } else {
+//                    // If the schedule is disabled, reminders must also be disabled; which means
+//                    // the medication will be an as-needed medication
+//                    medicationViewModel.setAsNeeded(true)
+//
+//
+////                    binding.layoutScheduleSettings.visibility = View.GONE
+////                    binding.asNeededMessage.visibility = View.VISIBLE
+//                    resetScheduleSettings()
+//                }
+//
+//                medicationViewModel.updateIsScheduledMedication(isEnabled)
+//            }
+//        }
+
         // Start date observer
         viewLifecycleOwner.lifecycleScope.launch {
             scheduleViewModel.startDate.collect { date -> medicationViewModel.updateStartDate(date) }
@@ -92,10 +127,30 @@ abstract class BaseScheduleFragment : Fragment() {
         }
     }
 
+    private fun resetScheduleSettings() {
+        // Reset schedule switch (to default to enabled if user switches the as-needed toggle)
+//        scheduleViewModel.setScheduleEnabled(true)
+//        binding.switchSchedule.isChecked = true
+
+        // Reset start date
+        scheduleViewModel.setStartDate(null)
+        updateDateButtonText(binding.buttonMedStartDate)
+
+        // Reset duration type
+        scheduleViewModel.setDurationType(CONTINUOUS)
+        setDurationRadioToContinuous()
+        scheduleViewModel.setNumDays(null)
+
+        // Reset schedule type
+        setScheduleTypeToDaily()
+        scheduleViewModel.setSelectedDays("")
+        scheduleViewModel.setDaysInterval("")
+    }
+
     // Date Picker Dialog (selects current date by default)
     private fun showDatePickerDialog() {
         val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Select start date")
+            .setTitleText(getString(R.string.select_start_date))
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
 
@@ -110,8 +165,13 @@ abstract class BaseScheduleFragment : Fragment() {
     // Update the button text with the selected date
     protected fun updateDateButtonText(button: Button) {
         val date = scheduleViewModel.startDate.value
-        val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
-        button.text = date?.format(formattedDate) ?: "Select a date"
+
+        if (date == null) {
+            button.text = getString(R.string.select_start_date)
+        } else {
+            val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
+            button.text = date.format(formattedDate)
+        }
     }
 
     // Medication duration settings

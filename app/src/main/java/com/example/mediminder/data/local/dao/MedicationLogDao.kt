@@ -50,9 +50,13 @@ interface MedicationLogDao {
         endDate: LocalDateTime): List<MedicationLogs>
 
     // Get logs within a date range, sorted by date
-    @Query("""SELECT * FROM medication_logs WHERE planned_datetime >= :startDate
-        AND planned_datetime < :endDate ORDER BY planned_datetime ASC""")
+    @Query("""SELECT * FROM medication_logs WHERE planned_datetime BETWEEN :startDate AND :endDate 
+        ORDER BY planned_datetime ASC""")
     suspend fun getLogsInRange(startDate: LocalDateTime, endDate: LocalDateTime): List<MedicationLogs>
+
+    // Delete log by log id
+    @Query("DELETE FROM medication_logs WHERE id = :logId")
+    suspend fun deleteById(logId: Long)
 
     // Delete all logs for a specific medication
     @Query("DELETE FROM medication_logs WHERE medication_id = :medicationId")

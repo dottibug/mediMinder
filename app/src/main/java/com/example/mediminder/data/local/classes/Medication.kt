@@ -15,7 +15,5 @@ data class Medication (
     @ColumnInfo(name = "notes") val notes: String?,
     @ColumnInfo(name = "icon") val icon : MedicationIcon,
     @ColumnInfo(name = "reminder_enabled") val reminderEnabled: Boolean,
-
-    // todo: column for medication information from an API if time to implement that as a feature
-    // todo: column for symptoms? Or put that in a separate table if you include symptom tracking as a feature
+    @ColumnInfo(name = "as_needed") val asNeeded: Boolean = false,
 )

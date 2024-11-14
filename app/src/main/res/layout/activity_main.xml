@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -18,7 +19,7 @@
 
     <TextView
         android:id="@+id/selectedDateText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
         android:layout_marginTop="18dp"
@@ -27,10 +28,30 @@
         android:textColor="@color/jet"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/medicationList"
+        app:layout_constraintEnd_toStartOf="@+id/buttonAddUnscheduled"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateSelector" />
+        app:layout_constraintTop_toBottomOf="@+id/dateSelector"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <!-- Add As-Needed Med Button -->
+    <!--    app:icon="@drawable/ic_add"-->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonAddUnscheduled"
+        style="@style/button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/button_add_as_needed_med"
+        android:textColor="@color/cadetGray"
+        app:layout_constraintBottom_toTopOf="@+id/medicationList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/selectedDateText"
+        app:layout_constraintTop_toBottomOf="@+id/dateSelector"
+        app:layout_constraintVertical_bias="0.5" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loadingSpinner"

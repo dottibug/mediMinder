@@ -20,9 +20,9 @@ data class Schedules (
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "medication_id") val medicationId: Long,
     @ColumnInfo(name = "start_date") val startDate: LocalDate,
-    @ColumnInfo(name = "duration_type") val durationType: String,
-    @ColumnInfo(name = "num_days") val numDays: Int?,
-    @ColumnInfo(name = "schedule_type") val scheduleType: String,
-    @ColumnInfo(name = "selected_days") val selectedDays: String,
-    @ColumnInfo(name = "days_interval") val daysInterval: Int?
+    @ColumnInfo(name = "duration_type", defaultValue = "continuous") val durationType: String,
+    @ColumnInfo(name = "num_days") val numDays: Int? =  null,
+    @ColumnInfo(name = "schedule_type", defaultValue = "daily") val scheduleType: String,
+    @ColumnInfo(name = "selected_days", defaultValue = "") val selectedDays: String,
+    @ColumnInfo(name = "days_interval") val daysInterval: Int? = null
 )

@@ -27,13 +27,21 @@ interface MedicationDao {
     @Query("SELECT * FROM medications")
     suspend fun getAll(): List<Medication>
 
+    // Get all scheduled medications
+    @Query("SELECT * FROM medications WHERE as_needed = 0")
+    suspend fun getAllScheduledMedications(): List<Medication>
+
     // Get medication by medication id
     @Query("SELECT * FROM medications WHERE id = :medicationId")
     suspend fun getMedicationById(medicationId: Long): Medication
 
     // Get all medications with reminders enabled
-    @Query("SELECT * FROM medications WHERE reminder_enabled = 1")
-    suspend fun getAllWithRemindersEnabled(): List<Medication>
+//    @Query("SELECT * FROM medications WHERE reminder_enabled = 1")
+//    suspend fun getAllWithRemindersEnabled(): List<Medication>
+
+    // Get all as-needed medications
+    @Query("SELECT * FROM medications WHERE as_needed = 1")
+    suspend fun getAsNeededMedications(): List<Medication>
 
     // Delete all medications
     @Query("DELETE FROM medications")

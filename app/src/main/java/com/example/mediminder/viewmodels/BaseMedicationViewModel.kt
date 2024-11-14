@@ -15,6 +15,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.DosageData
@@ -24,6 +25,7 @@ import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ReminderState
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.models.ScheduleState
+import com.example.mediminder.models.ValidatedData
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import com.example.mediminder.utils.ValidationUtils.getValidatedData
@@ -41,12 +43,17 @@ class BaseMedicationViewModel(
     private val applicationContext: Context
 ) : ViewModel() {
 
-    private val reminderState = ReminderState()
-    private val scheduleState = ScheduleState()
-
     // Current medication (for editing medications)
     private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
     val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
+
+    private val _asNeeded = MutableStateFlow(false)
+    val asNeeded: StateFlow<Boolean> = _asNeeded.asStateFlow()
+
+    private val reminderState = ReminderState()
+    private val scheduleState = ScheduleState()
+
+    fun setAsNeeded(enabled: Boolean) { _asNeeded.value = enabled }
 
     // Update Functions
     fun updateIsReminderEnabled(enabled: Boolean) { reminderState.reminderEnabled.value = enabled }
@@ -56,6 +63,7 @@ class BaseMedicationViewModel(
     fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { reminderState.hourlyReminderEndTime.value = endTime }
     fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { reminderState.dailyReminderTimes.value = times }
 
+    fun updateIsScheduledMedication(scheduled: Boolean) { scheduleState.isScheduledMedication.value = scheduled }
     fun updateStartDate(date: LocalDate?) { scheduleState.startDate.value = date }
     fun updateDurationType(type: String) { scheduleState.durationType.value = type }
     fun updateNumDays(days: Int?) { scheduleState.numDays.value = days }
@@ -74,8 +82,9 @@ class BaseMedicationViewModel(
     // Getter Functions
     fun getReminderData(): ReminderData {
         return ReminderData(
-            reminderEnabled = reminderState.reminderEnabled.value,
-            reminderFrequency = reminderState.reminderFrequency.value,
+            reminderEnabled = true, // Always true for schedule medications
+            reminderFrequency = reminderState.reminderFrequency.value.takeIf { it.isNotEmpty() }
+                ?: "daily",  // Default to daily if not set
             hourlyReminderInterval = reminderState.hourlyReminderInterval.value,
             hourlyReminderStartTime = reminderState.hourlyReminderStartTime.value,
             hourlyReminderEndTime = reminderState.hourlyReminderEndTime.value,
@@ -85,6 +94,7 @@ class BaseMedicationViewModel(
 
     fun getScheduleData(): ScheduleData {
         return ScheduleData(
+            isScheduled = scheduleState.isScheduledMedication.value,
             startDate = scheduleState.startDate.value,
             durationType = scheduleState.durationType.value,
             numDays = scheduleState.numDays.value,
@@ -98,11 +108,28 @@ class BaseMedicationViewModel(
     // Save medication data to database. Validates data before saving.
     fun addMedication(
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ) {
-        val validatedData = getValidatedData(medicationData, dosageData, reminderData, scheduleData)
+        Log.d("BaseMedicationViewModel testcat", "addMedication called")
+
+        // Update medicationData to include asNeeded flag
+        val updatedMedicationData = medicationData.copy(asNeeded = _asNeeded.value)
+
+        val validatedData = if (dosageData != null) {
+            getValidatedData(updatedMedicationData, dosageData, reminderData, scheduleData)
+        } else {
+            // As-needed medications only need medicationData validated
+            ValidatedData(
+                medicationData = updatedMedicationData,
+                dosageData = null,
+                reminderData = null,
+                scheduleData = null
+            )
+        }
+
+        Log.d("BaseMedicationViewModel testcat", "Validated data: $validatedData")
 
         viewModelScope.launch {
             try {
@@ -124,11 +151,25 @@ class BaseMedicationViewModel(
     fun updateMedication(
         medicationId: Long,
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ) {
-        val validatedData = getValidatedData(medicationData, dosageData, reminderData, scheduleData)
+//        val validatedData = getValidatedData(medicationData, dosageData, reminderData, scheduleData)
+
+        val validatedData = if (dosageData != null) {
+            getValidatedData(medicationData, dosageData, reminderData, scheduleData)
+        } else {
+            ValidatedData(
+                medicationData = medicationData.copy(
+                    name = medicationData.name.trim().takeIf { it.isNotEmpty() }
+                        ?: throw IllegalArgumentException("Medication name is required")
+                ),
+                dosageData = null,
+                reminderData = null,
+                scheduleData = null
+            )
+        }
 
         viewModelScope.launch {
             try {
@@ -149,8 +190,14 @@ class BaseMedicationViewModel(
     }
 
     private fun createWorkers(workerPrefix: String, medicationId: Long) {
+        Log.d("BaseMedicationViewModel testcat", "Creating workers for $workerPrefix, medicationId: $medicationId")
+
         val workManager = WorkManager.getInstance(applicationContext)
-        val (createFutureLogsRequest, checkMissedRequest) = createWorkRequests()
+        val (createFutureLogsRequest, checkMissedRequest) = createWorkRequests(medicationId)
+
+        Log.d("BaseMedicationViewModel testcat", "Created work requests")
+        Log.d("BaseMedicationViewModel testcat", "createFutureLogsRequest: $createFutureLogsRequest")
+        Log.d("BaseMedicationViewModel testcat", "checkMissedRequest: $checkMissedRequest")
 
         workManager.beginUniqueWork(
             "${workerPrefix}_${medicationId}_${System.currentTimeMillis()}",
@@ -162,13 +209,25 @@ class BaseMedicationViewModel(
         observeWorkCompletion(workManager, futureLogsReqId)
     }
 
-    private fun createWorkRequests(): Pair<OneTimeWorkRequest, OneTimeWorkRequest> {
-        val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>().build()
+    private fun createWorkRequests(medId: Long): Pair<OneTimeWorkRequest, OneTimeWorkRequest> {
+        Log.d("BaseMedicationViewModel testcat", "Creating work requests for medicationId: $medId")
+
+        val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
+            .setInputData(workDataOf("medicationId" to medId))
+            .build()
+
+        Log.d("BaseMedicationViewModel testcat", "Created createFutureLogsRequest")
+
         val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
+
+        Log.d("BaseMedicationViewModel testcat", "Created checkMissedRequest")
+
         return Pair(createFutureLogsRequest, checkMissedRequest)
     }
 
     private fun observeWorkCompletion(workManager: WorkManager, futureLogsReqId: UUID) {
+        Log.d("BaseMedicationViewModel testcat", "Observing work completion for futureLogsReqId: $futureLogsReqId")
+
         // Observe work completion before sending broadcasts
         workManager.getWorkInfoByIdLiveData(futureLogsReqId)
             .observeForever { workInfo ->
@@ -192,6 +251,7 @@ class BaseMedicationViewModel(
         viewModelScope.launch {
             try {
                 _currentMedication.value = repository.getMedicationDetailsById(medicationId)
+                _asNeeded.value = _currentMedication.value?.medication?.asNeeded ?: false
             } catch (e: Exception) {
                 Log.e("BaseMedicationViewModel", "Error fetching medication", e)
                 throw e

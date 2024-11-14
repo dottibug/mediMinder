@@ -8,11 +8,11 @@ import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.MedicationLogs
-import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.local.dao.MedRemindersDao
 import com.example.mediminder.data.local.dao.MedicationLogDao
 import com.example.mediminder.data.local.dao.ScheduleDao
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.AppUtils.isScheduledForDate
 import java.time.LocalDate
@@ -33,13 +33,29 @@ class CreateFutureMedicationLogsWorker(
         val medicationLogDao = database.medicationLogDao()
 
         return try {
-            val medications = medicationDao.getAllWithRemindersEnabled()
-            val today = LocalDate.now()
+            // Check if updating a single medication
+            val medicationId = inputData.getLong("medicationId", -1)
+            Log.d("testcat", "CreateFutureMedicationLogsWorker - Processing medicationId: $medicationId")
 
-            medications.forEach { medication ->
-                processMedication(medication.id, today, scheduleDao, reminderDao, medicationLogDao)
+
+            if (medicationId != -1L) {
+                val medication = medicationDao.getMedicationById(medicationId)
+                Log.d("testcat", "Found medication: ${medication?.name}, asNeeded: ${medication?.asNeeded}")
+
+                if (medication != null && !medication.asNeeded) {
+                    val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
+                    val reminder = reminderDao.getReminderByMedicationId(medicationId)
+                    Log.d("testcat", "Schedule: ${schedule != null}, Reminder: ${reminder != null}")
+                    processMedication(medicationId, LocalDate.now(), scheduleDao, reminderDao, medicationLogDao)
+                }
+            } else {
+                // Process all medications (daily check)
+                val medications = medicationDao.getAllScheduledMedications()
+                val today = LocalDate.now()
+                medications.forEach { medication ->
+                    processMedication(medication.id, today, scheduleDao, reminderDao, medicationLogDao)
+                }
             }
-
             Result.success()
         } catch (e: Exception) {
             Log.e("testcat", "Error in CreateFutureMedicationLogsWorker: ${e.message}")
@@ -56,10 +72,14 @@ class CreateFutureMedicationLogsWorker(
     ){
         val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
         val reminder = reminderDao.getReminderByMedicationId(medicationId)
+        Log.d("testcat", "Processing medication $medicationId - Schedule: $schedule, Reminder: $reminder")
+
 
         // Create logs for medication if it doesn't have enough future logs (otherwise, skip)
         if (schedule != null && reminder != null) {
             val futureLogs = medicationLogDao.getFutureLogsCount(medicationId, today)
+            Log.d("testcat", "Future logs count for medication $medicationId: $futureLogs")
+
 
             if (futureLogs < MIN_FUTURE_DAYS) {
                 createLogsForMedication(
@@ -84,10 +104,14 @@ class CreateFutureMedicationLogsWorker(
     ) {
         val endDate = calculateEndDate(schedule, startDate)
         var currentDate = startDate
+        Log.d("testcat", "Creating logs from $startDate to $endDate for medication $medicationId")
+
 
         while (!currentDate.isAfter(endDate)) {
             if (isScheduledForDate(schedule, currentDate)) {
                 val reminderTimes = getReminderTimes(reminder)
+                Log.d("testcat", "Reminder times for $currentDate: $reminderTimes")
+
                 insertLogsForDate(medicationId, scheduleId, currentDate, reminderTimes, medicationLogDao)
             }
             currentDate = currentDate.plusDays(1)
@@ -116,7 +140,7 @@ class CreateFutureMedicationLogsWorker(
 
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
-            "daily" -> reminder.dailyReminderTimes
+            "daily", "" -> reminder.dailyReminderTimes
             "every x hours" -> getHourlyReminderTimes(
                 reminder.hourlyReminderInterval,
                 reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
@@ -147,7 +171,9 @@ class CreateFutureMedicationLogsWorker(
                             scheduleId = scheduleId,
                             plannedDatetime = plannedDateTime,
                             takenDatetime = null,
-                            status = MedicationStatus.PENDING
+                            status = MedicationStatus.PENDING,
+                            asNeededDosageAmount = null,
+                            asNeededDosageUnit = null
                         )
                     )
                 } catch (e: Exception) {

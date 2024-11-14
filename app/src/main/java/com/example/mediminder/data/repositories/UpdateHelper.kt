@@ -28,24 +28,28 @@ class UpdateHelper (
     suspend fun updateMedicationData(
         medicationId: Long,
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ) {
         try {
-            updateMedicationDetails(medicationId, medicationData, reminderData)
-            updateDosage(medicationId, dosageData)
-            updateReminder(medicationId, reminderData)
-            updateSchedule(medicationId, scheduleData)
+            updateMedicationDetails(medicationId, medicationData, reminderData, scheduleData)
+            if (dosageData != null) { updateDosage(medicationId, dosageData) }
+            if (reminderData != null) { updateReminder(medicationId, reminderData) }
+            if (scheduleData != null) { updateSchedule(medicationId, scheduleData) }
         } catch (e: Exception) {
             throw Exception("Failed to update medication: ${e.message}", e)
         }
     }
 
     private suspend fun updateMedicationDetails(
-        medicationId: Long, medicationData: MedicationData, reminderData: ReminderData
+        medicationId: Long,
+        medicationData: MedicationData,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ) {
         try {
+            val isScheduled = !medicationData.asNeeded
             medicationDao.update(
                 Medication(
                     id = medicationId,
@@ -53,7 +57,8 @@ class UpdateHelper (
                     prescribingDoctor = medicationData.doctor,
                     notes = medicationData.notes,
                     icon = medicationData.icon ?: MedicationIcon.TABLET,
-                    reminderEnabled = reminderData.reminderEnabled
+                    reminderEnabled = isScheduled,  // Always true for scheduled meds
+                    asNeeded = medicationData.asNeeded
                 )
             )
         } catch (e: Exception) {
@@ -61,20 +66,61 @@ class UpdateHelper (
         }
     }
 
+//    private suspend fun updateMedicationDetails(
+//        medicationId: Long,
+//        medicationData: MedicationData,
+//        reminderData: ReminderData?,
+//        scheduleData: ScheduleData?
+//    ) {
+//        try {
+//            medicationDao.update(
+//                Medication(
+//                    id = medicationId,
+//                    name = medicationData.name,
+//                    prescribingDoctor = medicationData.doctor,
+//                    notes = medicationData.notes,
+//                    icon = medicationData.icon ?: MedicationIcon.TABLET,
+//                    reminderEnabled = reminderData?.reminderEnabled ?: false,
+//                    asNeeded = scheduleData?.isScheduled?.not() ?: true
+//                )
+//            )
+//        } catch (e: Exception) {
+//            throw Exception("Failed to update medication details: ${e.message}", e)
+//        }
+//    }
+
 
     private suspend fun updateDosage(medicationId: Long, dosageData: DosageData) {
         try {
             // Get the current dosage id
             val currentDosage = dosageDao.getDosageByMedicationId(medicationId)
 
-            dosageDao.update(
-                Dosage(
-                    id = currentDosage?.id ?: throw(Exception("Error updating dosage: Dosage not found for medication with id $medicationId")),
-                    medicationId = medicationId,
-                    amount = dosageData.dosageAmount,
-                    units = dosageData.dosageUnits
+            if (currentDosage == null) {
+                // Create new dosage if none exists
+                dosageDao.insert(
+                    Dosage(
+                        medicationId = medicationId,
+                        amount = dosageData.dosageAmount,
+                        units = dosageData.dosageUnits
+                    )
                 )
-            )
+            } else {
+                // Update existing dosage
+                dosageDao.update(
+                    currentDosage.copy(
+                        amount = dosageData.dosageAmount,
+                        units = dosageData.dosageUnits
+                    )
+                )
+            }
+//            dosageDao.update(
+//                Dosage(
+//                    id = currentDosage?.id ?: throw(Exception("Error updating dosage: Dosage not found for medication with id $medicationId")),
+//                    medicationId = medicationId,
+//                    amount = dosageData.dosageAmount,
+//                    units = dosageData.dosageUnits
+//                )
+//            )
         } catch (e: Exception) {
             throw Exception("Failed to update dosage: ${e.message}", e)
         }

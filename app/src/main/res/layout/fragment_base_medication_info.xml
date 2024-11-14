@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingTop="16dp"
     android:paddingBottom="16dp">
 
+    <!-- Medication Name -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +22,7 @@
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Doctor -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,6 +38,7 @@
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Notes -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,6 +54,7 @@
             android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Medication Icon -->
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
@@ -66,5 +71,34 @@
             android:textSize="18sp"
             app:simpleItems="@array/medication_icon_array" />
     </com.google.android.material.textfield.TextInputLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal">-->
+
+    <!-- As-Needed Switch -->
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/asNeededSwitch"
+        style="@style/text_style"
+        android:text="@string/as_needed_switch"
+        android:textOn="Scheduled medication"
+        android:textOff="As-needed medication"
+        app:trackTint="@color/cadetGrayLt"
+        app:thumbTint="@color/cadetGray"/>
+
+    <!-- As-Needed Switch Message -->
+    <TextView
+        android:id="@+id/asNeededMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/as_needed_message"
+        style="@style/dialog_instructions"
+        android:textColor="@color/cadetGray"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+<!--    </LinearLayout>-->
 
 </LinearLayout>

@@ -7,7 +7,7 @@
     android:id="@+id/main"
     tools:context=".activities.EditMedicationActivity">
 
-    <!-- Screen Content -->
+    <!-- Loading Spinner -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/loadingSpinner"
         android:layout_width="wrap_content"
@@ -50,6 +50,7 @@
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
+            <!-- Medication Info -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedInfo"
                 android:name="com.example.mediminder.fragments.EditMedicationInfoFragment"
@@ -57,6 +58,7 @@
                 android:layout_height="wrap_content"
                 tools:layout="@layout/fragment_base_medication_info" />
 
+            <!-- Medication Dosage -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedDosage"
                 android:name="com.example.mediminder.fragments.EditDosageFragment"
@@ -64,13 +66,7 @@
                 android:layout_height="wrap_content"
                 tools:layout="@layout/fragment_base_dosage" />
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentEditMedReminder"
-                android:name="com.example.mediminder.fragments.EditReminderFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_reminder" />
-
+            <!-- Medication Schedule -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentEditMedSchedule"
                 android:name="com.example.mediminder.fragments.EditScheduleFragment"
@@ -78,6 +74,15 @@
                 android:layout_height="wrap_content"
                 tools:layout="@layout/fragment_base_schedule" />
 
+            <!-- Medication Reminder -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedReminder"
+                android:name="com.example.mediminder.fragments.EditReminderFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_base_reminder" />
+
+            <!-- Buttons -->
             <Button
                 android:id="@+id/buttonUpdateMed"
                 style="@style/button_primary"
@@ -93,7 +98,6 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/cancel" />
-
         </LinearLayout>
     </ScrollView>
 

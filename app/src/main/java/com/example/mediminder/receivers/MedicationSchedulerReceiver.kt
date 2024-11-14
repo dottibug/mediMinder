@@ -46,7 +46,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
     private suspend fun processMedications(context: Context, alarmManager: AlarmManager) {
         val today = LocalDate.now()
         val database = AppDatabase.getDatabase(context)
-        val medications = database.medicationDao().getAllWithRemindersEnabled()
+        val medications = database.medicationDao().getAllScheduledMedications()
 
         medications.forEach { medication ->
             val schedule = database.scheduleDao().getScheduleByMedicationId(medication.id)
@@ -68,24 +68,40 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         val dosage = database.dosageDao().getDosageByMedicationId(medication.id)
         val dosageString = getDosageString(dosage)
 
-        if (reminder != null) {
-            val reminderTimes = getReminderTimes(reminder)
+        val reminderTimes = getReminderTimes(reminder)
+        reminderTimes.forEach { time ->
+            val medTime = LocalDateTime.of(today, time)
+            val log = database.medicationLogDao().getLogByMedIdAndTime(medication.id, medTime)
 
-            reminderTimes.forEach { time ->
-                val medTime = LocalDateTime.of(today, time)
-                val log = database.medicationLogDao().getLogByMedIdAndTime(medication.id, medTime)
-
-                scheduleReminder(
-                    context,
-                    medication.id,
-                    medication.name,
-                    dosageString,
-                    log.id,
-                    time,
-                    alarmManager,
-                )
-            }
+            scheduleReminder(
+                context,
+                medication.id,
+                medication.name,
+                dosageString,
+                log.id,
+                time,
+                alarmManager,
+            )
         }
+
+//        if (reminder != null) {
+//            val reminderTimes = getReminderTimes(reminder)
+//
+//            reminderTimes.forEach { time ->
+//                val medTime = LocalDateTime.of(today, time)
+//                val log = database.medicationLogDao().getLogByMedIdAndTime(medication.id, medTime)
+//
+//                scheduleReminder(
+//                    context,
+//                    medication.id,
+//                    medication.name,
+//                    dosageString,
+//                    log.id,
+//                    time,
+//                    alarmManager,
+//                )
+//            }
+//        }
     }
 
     private fun getDosageString(dosage: Dosage?): String {
@@ -93,16 +109,18 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         else { return "${dosage.amount} ${dosage.units}" }
     }
 
-    private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
-        return when (reminder.reminderFrequency) {
-            "daily" -> reminder.dailyReminderTimes
-            "every x hours" -> getHourlyReminderTimes(
-                reminder.hourlyReminderInterval,
-                reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
-                reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
-            )
-            else -> emptyList()
-        }
+    private fun getReminderTimes(reminder: MedReminders?): List<LocalTime> {
+        if (reminder != null) {
+            return when (reminder.reminderFrequency) {
+                "daily" -> reminder.dailyReminderTimes
+                "every x hours" -> getHourlyReminderTimes(
+                    reminder.hourlyReminderInterval,
+                    reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
+                    reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
+                )
+                else -> emptyList()
+            }
+        } else { return emptyList() }
     }
 
 

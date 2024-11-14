@@ -7,6 +7,7 @@ import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.Schedules
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 enum class MedicationStatus {
@@ -31,12 +32,13 @@ data class MedicationData(
     val doctor: String,
     val notes: String,
     val icon: MedicationIcon?,
-    val status: MedicationStatus
+    val status: MedicationStatus,
+    val asNeeded: Boolean = false
 )
 
 data class DosageData(
-    val dosageAmount: String,
-    val dosageUnits: String
+    val dosageAmount: String?,
+    val dosageUnits: String?
 )
 
 data class ReminderData(
@@ -49,6 +51,7 @@ data class ReminderData(
 )
 
 data class ScheduleData(
+    val isScheduled: Boolean,
     val startDate: LocalDate?,
     val durationType: String,
     val numDays: Int?,
@@ -99,6 +102,7 @@ data class ReminderState(
 )
 
 data class ScheduleState(
+    val isScheduledMedication: MutableStateFlow<Boolean> = MutableStateFlow(true),
     val startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(null),
     val durationType: MutableStateFlow<String> = MutableStateFlow("continuous"),
     val numDays: MutableStateFlow<Int?> = MutableStateFlow(0),
@@ -109,7 +113,17 @@ data class ScheduleState(
 
 data class ValidatedData(
     val medicationData: MedicationData,
-    val dosageData: DosageData,
-    val reminderData: ReminderData,
-    val scheduleData: ScheduleData
+    val dosageData: DosageData?,
+    val reminderData: ReminderData?,
+    val scheduleData: ScheduleData?
+)
+
+data class ValidatedAsNeededData(
+    val medicationId: Long,
+    val scheduleId: Long?,
+    val plannedDatetime: LocalDateTime,
+    val takenDatetime: LocalDateTime,
+    val status: MedicationStatus,
+    val asNeededDosageAmount: String?,
+    val asNeededDosageUnit: String?
 )

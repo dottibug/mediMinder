@@ -30,12 +30,25 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
             binding.statusIcon.setImageResource(getStatusIcon(medLog.log.status))
             setStatusIconColor(medLog.log.status)
             binding.medicationName.text = medLog.name
-            binding.dosageAndTime.text = itemView.context.getString(
-                R.string.history_log_dosage_time,
-                medLog.dosageAmount,
-                medLog.dosageUnits,
-                medLog.log.plannedDatetime.format(timeFormatter)
-            )
+
+            if (medLog.dosageUnits == null || medLog.dosageAmount == null) {
+                // TODO get the units and amount fro the log
+                val dosageAmount = medLog.log.asNeededDosageAmount
+                val dosageUnits = medLog.log.asNeededDosageUnit
+                binding.dosageAndTime.text = itemView.context.getString(
+                    R.string.history_log_dosage_time,
+                    dosageAmount,
+                    dosageUnits,
+                    medLog.log.plannedDatetime.format(timeFormatter)
+                )
+            } else {
+                binding.dosageAndTime.text = itemView.context.getString(
+                    R.string.history_log_dosage_time,
+                    medLog.dosageAmount,
+                    medLog.dosageUnits,
+                    medLog.log.plannedDatetime.format(timeFormatter)
+                )
+            }
         }
 
         private fun setStatusIconColor(status: MedicationStatus) {

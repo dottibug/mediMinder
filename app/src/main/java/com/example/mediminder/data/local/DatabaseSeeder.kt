@@ -43,6 +43,10 @@ class DatabaseSeeder(
 ) {
 
     suspend fun seedDatabase() {
+
+        // NOTE: To clear database during development
+//        clearDatabase()
+
         try {
             Log.d("DatabaseSeeder testcat", "Starting database seeding")
 
@@ -55,6 +59,7 @@ class DatabaseSeeder(
                     notes = "Take with food. Monitor blood pressure.",
                     icon = MedicationIcon.TABLET,
                     reminderEnabled = true,
+                    asNeeded = false,
                 )
             )
 
@@ -66,6 +71,7 @@ class DatabaseSeeder(
                     notes = "Complete full course. Take with water.",
                     icon = MedicationIcon.CAPSULE,
                     reminderEnabled = true,
+                    asNeeded = false,
                 )
             )
 
@@ -77,6 +83,7 @@ class DatabaseSeeder(
                     notes = "Weekly supplement",
                     icon = MedicationIcon.CAPSULE,
                     reminderEnabled = true,
+                    asNeeded = false
                 )
             )
 
@@ -88,6 +95,7 @@ class DatabaseSeeder(
                     notes = "Take with food to prevent stomach upset",
                     icon = MedicationIcon.TABLET,
                     reminderEnabled = true,
+                    asNeeded = false
                 )
             )
 
@@ -100,6 +108,7 @@ class DatabaseSeeder(
                     notes = "For seasonal allergies",
                     icon = MedicationIcon.TABLET,
                     reminderEnabled = true,
+                    asNeeded = false
                 )
             )
 
@@ -362,7 +371,9 @@ class DatabaseSeeder(
                     scheduleId = scheduleId,
                     plannedDatetime = plannedDateTime,
                     takenDatetime = takenDateTime,
-                    status = status
+                    status = status,
+                    asNeededDosageAmount = null,
+                    asNeededDosageUnit = null
                 )
             )
         }
@@ -396,6 +407,8 @@ class DatabaseSeeder(
             medRemindersDao.resetSequence()
             scheduleDao.resetSequence()
             medicationLogDao.resetSequence()
+
+            return
         } catch (e: Exception) {
             Log.e("DatabaseSeeder testcat", "Error clearing database: ${e.message}", e)
             throw e

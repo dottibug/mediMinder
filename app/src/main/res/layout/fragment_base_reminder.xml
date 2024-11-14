@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutReminderSetup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -17,12 +18,26 @@
         android:text="@string/reminder_title"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switchReminder"
-        style="@style/text_style"
-        android:text="@string/switch_set_reminder"
-        app:trackTint="@color/cadetGrayLt"
-        app:thumbTint="@color/cadetGray"/>
+    <!-- Reminder Switch -->
+<!--    <androidx.appcompat.widget.SwitchCompat-->
+<!--        android:id="@+id/switchReminder"-->
+<!--        style="@style/text_style"-->
+<!--        android:text="@string/switch_set_reminder"-->
+<!--        app:trackTint="@color/cadetGrayLt"-->
+<!--        app:thumbTint="@color/cadetGray"/>-->
+
+    <!-- As-Needed Medication Message -->
+<!--    <TextView-->
+<!--        android:id="@+id/asNeededReminderMessage"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Reminders cannot be set for as-needed medications."-->
+<!--        style="@style/dialog_instructions"-->
+<!--        android:textColor="@color/cadetGray"-->
+<!--        android:textSize="18sp"-->
+<!--        android:textStyle="bold|italic"-->
+<!--        android:visibility="gone"-->
+<!--        tools:visibility="visible"/>-->
 
     <LinearLayout
         android:id="@+id/layoutReminderSettings"

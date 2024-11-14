@@ -3,6 +3,7 @@ package com.example.mediminder.activities
 import android.content.Intent
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.mediminder.MainActivity
@@ -14,6 +15,7 @@ import com.example.mediminder.fragments.EditDosageFragment
 import com.example.mediminder.fragments.EditMedicationInfoFragment
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
@@ -24,6 +26,8 @@ abstract class BaseActivity : AppCompatActivity() {
     protected val drawerLayout get() = baseBinding.drawerLayout
     protected val navView get() = baseBinding.navView
     protected val topAppBar get() = baseBinding.topAppBar
+    protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
+//    protected abstract var isAsNeeded: Boolean
 
     protected fun setupBaseLayout() {
         enableEdgeToEdge()
@@ -102,6 +106,9 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected fun getDosageData(action: MedicationAction): DosageData? {
+        // Skip dosage data for as-needed medications
+        if (medicationViewModel.asNeeded.value) return null
+
         val dosageFragment = when (action) {
             MedicationAction.ADD -> supportFragmentManager.findFragmentById(
                 R.id.fragmentAddMedDosage) as AddMedicationDosageFragment?
@@ -110,6 +117,8 @@ abstract class BaseActivity : AppCompatActivity() {
         }
         return dosageFragment?.getDosageData()
     }
+
+
 
     protected enum class MedicationAction {
         ADD,

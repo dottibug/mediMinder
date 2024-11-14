@@ -25,15 +25,15 @@ class InsertHelper (
 
     suspend fun addMedicationData(
         medicationData: MedicationData,
-        dosageData: DosageData,
-        reminderData: ReminderData,
-        scheduleData: ScheduleData
+        dosageData: DosageData?,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ): Long {
         try {
-            val medicationId = insertMedication(medicationData, reminderData)
-            insertDosage(medicationId, dosageData)
-            insertReminder(medicationId, reminderData)
-            insertSchedule(medicationId, scheduleData)
+            val medicationId = insertMedication(medicationData, reminderData, scheduleData)
+            if (dosageData != null) { insertDosage(medicationId, dosageData) }
+            if (reminderData != null) { insertReminder(medicationId, reminderData) }
+            if (scheduleData != null) { insertSchedule(medicationId, scheduleData) }
             return medicationId
         } catch (e: Exception) {
             throw Exception("Failed to add medication: ${e.message}", e)
@@ -41,16 +41,20 @@ class InsertHelper (
     }
 
     private suspend fun insertMedication(
-        medicationData: MedicationData, reminderData: ReminderData
+        medicationData: MedicationData,
+        reminderData: ReminderData?,
+        scheduleData: ScheduleData?
     ): Long {
         try {
+            val isScheduled = !medicationData.asNeeded
             val medicationId = medicationDao.insert(
                 Medication(
                     name = medicationData.name,
                     prescribingDoctor = medicationData.doctor,
                     notes = medicationData.notes,
                     icon = medicationData.icon ?: MedicationIcon.TABLET,
-                    reminderEnabled = reminderData.reminderEnabled
+                    reminderEnabled = isScheduled,  // Always true for scheduled meds
+                    asNeeded = medicationData.asNeeded
                 )
             )
             return medicationId
@@ -58,6 +62,28 @@ class InsertHelper (
             throw Exception("Failed to insert medication: ${e.message}", e)
         }
     }
+
+//    private suspend fun insertMedication(
+//        medicationData: MedicationData,
+//        reminderData: ReminderData?,
+//        scheduleData: ScheduleData?
+//    ): Long {
+//        try {
+//            val medicationId = medicationDao.insert(
+//                Medication(
+//                    name = medicationData.name,
+//                    prescribingDoctor = medicationData.doctor,
+//                    notes = medicationData.notes,
+//                    icon = medicationData.icon ?: MedicationIcon.TABLET,
+//                    reminderEnabled = reminderData?.reminderEnabled ?: false,
+//                    asNeeded = scheduleData?.isScheduled?.not() ?: true
+//                )
+//            )
+//            return medicationId
+//        } catch (e: Exception) {
+//            throw Exception("Failed to insert medication: ${e.message}", e)
+//        }
+//    }
 
     private suspend fun insertDosage(medicationId: Long, dosageData: DosageData) {
         try {
