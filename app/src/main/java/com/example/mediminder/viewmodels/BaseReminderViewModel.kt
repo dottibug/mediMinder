@@ -57,9 +57,13 @@ class BaseReminderViewModel: ViewModel() {
     // Remove a specific daily reminder time
     fun removeDailyReminderTime(index: Int) {
         val times = _dailyReminderTimes.value.toMutableList()
+
         if (index in times.indices) {
             times.removeAt(index)
             _dailyReminderTimes.value = times
+
+            // If there are zero times left, set the reminder frequency to "every x hours"
+            if (times.size == 0) { setReminderFrequency("every x hours") }
         }
     }
 

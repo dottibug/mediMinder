@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
+import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.databinding.ItemScheduledMedicationBinding
 import com.example.mediminder.models.MedicationItem
 import com.example.mediminder.models.MedicationStatus
@@ -18,8 +19,7 @@ import com.example.mediminder.utils.AppUtils.getStatusIcon
 class MainMedicationAdapter(
     private val onUpdateStatusClick: (Long) -> Unit,
     private val onDeleteAsNeededClick: (Long) -> Unit
-):
-    ListAdapter<MedicationItem, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
+): ListAdapter<MedicationItem, MainMedicationAdapter.MedicationViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
         val binding = ItemScheduledMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -36,30 +36,28 @@ class MainMedicationAdapter(
         private val onUpdateStatusClick: (Long) -> Unit,
         private val onDeleteAsNeededClick: (Long) -> Unit
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: MedicationItem) {
-            val formattedTime = formatLocalTimeTo12Hour(item.time)
-            binding.medicationName.text = item.medication.name
-            binding.medicationDosage.text = item.dosage?.let { "${it.amount} ${it.units}" } ?: "Dosage not set"
-            binding.medicationTime.text = formattedTime
-            binding.medicationStatusIcon.setImageResource(getStatusIcon(item.status))
-            binding.medicationStatusIcon.contentDescription = item.status.toString().lowercase()
-            setStatusIconColor(item)
+        private val statusIcon = binding.medicationStatusIcon
+        private val updateButton = binding.buttonUpdateStatus
+        private val deleteButton = binding.buttonDeleteAsNeeded
 
-            // Hide update button for as-needed medications (their status is always "taken")
-            if (item.medication.asNeeded) {
-                binding.buttonUpdateStatus.visibility = View.GONE
-                binding.buttonDeleteAsNeeded.visibility = View.VISIBLE
-                binding.buttonDeleteAsNeeded.setOnClickListener { onDeleteAsNeededClick(item.logId) }
-            } else {
-                binding.buttonUpdateStatus.visibility = View.VISIBLE
-                binding.buttonDeleteAsNeeded.visibility = View.GONE
-                binding.buttonUpdateStatus.setOnClickListener { onUpdateStatusClick(item.logId) }
+        fun bind(item: MedicationItem) {
+            with (binding) {
+                medicationName.text = item.medication.name
+                medicationDosage.text = getDosageString(item.dosage)
+                medicationTime.text = formatLocalTimeTo12Hour(item.time)
             }
+
+            with (statusIcon) {
+                setImageResource(getStatusIcon(item.status))
+                contentDescription = item.status.toString().lowercase()
+                imageTintList = context.getColorStateList(getStatusIconTintColor(item.status))
+            }
+
+            setupButtons(item)
         }
 
-        private fun setStatusIconColor(item: MedicationItem) {
-            val tintColor = getStatusIconTintColor(item.status)
-            binding.medicationStatusIcon.imageTintList = binding.root.context.getColorStateList(tintColor)
+        private fun getDosageString(dosage: Dosage?): String {
+            return dosage?.let { "${it.amount} ${it.units}" } ?: DOSAGE_NOT_SET
         }
 
         private fun getStatusIconTintColor(status: MedicationStatus): Int {
@@ -68,14 +66,37 @@ class MainMedicationAdapter(
                 else -> R.color.cadetGray
             }
         }
+
+        private fun setupButtons(item: MedicationItem) {
+            if (item.medication.asNeeded) { setupDeleteButton(item) }
+            else { setupUpdateButton(item) }
+        }
+
+        private fun setupDeleteButton(item: MedicationItem) {
+            updateButton.visibility = View.GONE
+            deleteButton.apply {
+                visibility = View.VISIBLE
+                setOnClickListener { onDeleteAsNeededClick(item.logId) }
+            }
+        }
+
+        private fun setupUpdateButton(item: MedicationItem) {
+            deleteButton.visibility = View.GONE
+            updateButton.apply {
+                visibility = View.VISIBLE
+                setOnClickListener { onUpdateStatusClick(item.logId) }
+            }
+        }
     }
 
     companion object {
+        private const val DOSAGE_NOT_SET = "Dosage not set"
+
         // DiffCallback for the medication adapter. Used to update the adapter when the data changes.
         // https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil.ItemCallback
-        private object DiffCallback : DiffUtil.ItemCallback<MedicationItem>() {
+        private object DiffCallback: DiffUtil.ItemCallback<MedicationItem>() {
             override fun areItemsTheSame(oldItem: MedicationItem, newItem: MedicationItem): Boolean {
-                return oldItem.medication.id == newItem.medication.id && oldItem.time == newItem.time
+                return oldItem.logId == newItem.logId
             }
 
            override fun areContentsTheSame(oldItem: MedicationItem, newItem: MedicationItem): Boolean {

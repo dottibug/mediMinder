@@ -6,17 +6,15 @@
         <item name="titleTextColor">@color/white</item>
     </style>
 
-    <style name="section_title">
+    <style name="section_title" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="subsection_title">
+    <style name="subsection_title" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleSmall</item>
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginTop">9dp</item>
     </style>
@@ -26,6 +24,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/jet</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
     <style name="activity_title">
@@ -54,6 +53,10 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:width">140dp</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textColor">@color/cadetGray</item>
+        <item name="strokeColor">@color/cadetGray</item>
         <item name="cornerRadius">4dp</item>
         <item name="android:layout_marginTop">4dp</item>
     </style>
@@ -89,6 +92,7 @@
         <item name="android:paddingRight">32dp</item>
         <item name="android:paddingBottom">12dp</item>
         <item name="android:textSize">20sp</item>
+        <item name="cornerRadius">4dp</item>
     </style>
 
     <style name="button_secondary">
@@ -96,6 +100,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:backgroundTint">@color/cadetGray</item>
         <item name="android:textSize">16sp</item>
+        <item name="cornerRadius">4dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.05</item>
     </style>
 
     <style name="button_text" parent="Widget.Material3.Button.TextButton">
@@ -158,6 +165,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">16dp</item>
         <item name="android:textSize">18sp</item>
+        <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
     <style name="Widget.App.NavigationView" parent="Widget.Material3.NavigationView">

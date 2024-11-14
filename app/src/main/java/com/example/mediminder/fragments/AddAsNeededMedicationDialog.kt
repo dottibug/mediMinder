@@ -10,8 +10,11 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.activities.AddMedicationActivity
+import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.FragmentAddAsNeededMedBinding
 import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
 import com.example.mediminder.utils.ValidationUtils.getValidatedAsNeededData
@@ -25,11 +28,15 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class AddAsNeededMedicationDialog: DialogFragment() {
-
     private lateinit var binding: FragmentAddAsNeededMedBinding
     private lateinit var adapter: ArrayAdapter<String>
     private val viewModel: MainViewModel by activityViewModels()
     private val asNeededMedIds = mutableListOf<Long?>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        adapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, mutableListOf<String>())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -42,59 +49,50 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
         super.onViewCreated(view, savedInstanceState)
         setupUI()
-        lifecycleScope.launch { fetchAsNeededMedications() }
     }
 
+    // Fetch medications on resume to update dropdown menu of as-needed medications
     override fun onResume() {
         super.onResume()
-        // Re-fetch as needed medications when the dialog is displayed
-        setupUI()
         lifecycleScope.launch { fetchAsNeededMedications() }
     }
 
     private fun fetchAsNeededMedications() {
         try {
             viewModel.fetchAsNeededMedications()
-            Log.d("HistoryViewModel testcat", "fetchAsNeededMedications called")
         } catch (e: Exception) {
             Log.e("HistoryViewModel testcat", "Error fetching as needed medications", e)
         }
     }
 
     private fun setupUI() {
-        setupAsNeededMedDropdown()
+        binding.asNeededMedDropdown.setAdapter(adapter)
         setupObservers()
         setupListeners()
-    }
-
-    private fun setupAsNeededMedDropdown() {
-        adapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, mutableListOf<String>())
-        binding.asNeededMedDropdown.setAdapter(adapter)
-
-        binding.asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
-        }
     }
 
     private fun setupObservers() {
         // Observe asNeededMedications to update dropdown menu
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.asNeededMedications.collect { medications ->
-                if (medications.isEmpty()) { hideAsNeededInputs() }
-
-                else {
-                    showAsNeededInputs()
-
-                    // Update adapter
-                    adapter.clear()
-                    adapter.addAll(medications.map { it.name })
-
-                    // Update Id list
-                    asNeededMedIds.clear()
-                    asNeededMedIds.addAll(medications.map { it.id })
+            // RepeatOnLifecycle only collects data when the fragment is in the STARTED state
+            // This prevents the UI from being updated when the fragment is not visible
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.asNeededMedications.collect { medications ->
+                    if (medications.isEmpty()) { hideAsNeededInputs() }
+                    else {
+                        showAsNeededInputs()
+                        updateAdapter(medications)
+                    }
                 }
             }
         }
+    }
+
+    private fun updateAdapter(medications: List<Medication>) {
+        adapter.clear()
+        adapter.addAll(medications.map { it.name })
+        asNeededMedIds.clear()
+        asNeededMedIds.addAll(medications.map { it.id })
     }
 
     private fun hideAsNeededInputs() {
@@ -116,6 +114,10 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     }
 
     private fun setupListeners() {
+        binding.asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
+            viewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
+        }
+
         binding.addNewButton.setOnClickListener { addNewAsNeededMed() }
         binding.buttonAsNeededDateTaken.setOnClickListener { showDatePicker() }
         binding.buttonAsNeededTimeTaken.setOnClickListener { showTimePicker() }

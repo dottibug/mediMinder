@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import com.example.mediminder.models.MedicationStatus
+import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.FragmentUpdateMedicationStatusDialogBinding
+import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.viewmodels.MainViewModel
+import kotlinx.coroutines.launch
 
 // Dialog fragment for updating the status of a medication
 // Note: This fragment should only be constructed using the newInstance method to ensure the
@@ -19,16 +21,27 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
     private var logId: Long = 0
     private var selectedStatus: MedicationStatus = MedicationStatus.TAKEN
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Set the initial medication status based on the selected logId
+        viewModel.setInitialMedStatus(logId)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentUpdateMedicationStatusDialogBinding.inflate(inflater, container, false)
+        setupObservers()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupListeners()
+    }
 
+    private fun setupListeners() {
+        // Radio group listener
         binding.radioGroupMedStatus.setOnCheckedChangeListener { _, checkedId ->
             selectedStatus = when (checkedId) {
                 binding.radioButtonTaken.id -> MedicationStatus.TAKEN
@@ -38,11 +51,31 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
             }
         }
 
+        // Cancel button listener
         binding.buttonCancelMedStatusDialog.setOnClickListener { dismiss() }
 
+        // Set button listener
         binding.buttonSetMedStatusDialog.setOnClickListener {
             viewModel.updateMedicationLogStatus(logId, selectedStatus)
             dismiss()
+        }
+    }
+
+    // Observe initial status and set radio button
+    private fun setupObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.initialMedStatus.collect { status ->
+                status?.let {
+                    val radioButtonId = when (it) {
+                        MedicationStatus.TAKEN -> binding.radioButtonTaken.id
+                        MedicationStatus.SKIPPED -> binding.radioButtonSkipped.id
+                        MedicationStatus.MISSED -> binding.radioButtonMissed.id
+                        else -> binding.radioButtonTaken.id  // Default to taken if no status is found
+                    }
+                    binding.radioGroupMedStatus.check(radioButtonId)
+                    selectedStatus = it
+                }
+            }
         }
     }
 

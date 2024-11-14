@@ -52,6 +52,9 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     private val _dateTaken = MutableStateFlow<LocalDate?>(LocalDate.now())
     val dateTaken: StateFlow<LocalDate?> = _dateTaken.asStateFlow()
 
+    private val _initialMedStatus = MutableStateFlow<MedicationStatus?>(null)
+    val initialMedStatus: StateFlow<MedicationStatus?> = _initialMedStatus.asStateFlow()
+
     fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
             try {
@@ -59,6 +62,18 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error fetching medications", e)
                 _errorState.value = "Failed to fetch medications: ${e.message}"
+            }
+        }
+    }
+
+    fun setInitialMedStatus(logId: Long) {
+        viewModelScope.launch {
+            try {
+                val status = repository.getMedicationLogStatus(logId)
+                _initialMedStatus.value = status
+            } catch (e: Exception) {
+                Log.e("MainViewModel testcat", "Error getting status", e)
+                _errorState.value = "Failed to get medication status: ${e.message}"
             }
         }
     }

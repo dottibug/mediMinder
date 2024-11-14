@@ -1,5 +1,38 @@
 <resources>
+    <!-- ACTIONS -->
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
 
+    <!-- MEDICATIONS -->
+    <string name="medication_name">Medication Name</string>
+    <string name="doctor">Doctor</string>
+    <string name="notes">Notes</string>
+    <string name="dosage">Dosage</string>
+    <string name="medication_icon">Medication Icon</string>
+    <string name="medication_status">Medication Status</string>
+    <string name="taken">Taken</string>
+    <string name="skipped">Skipped</string>
+    <string name="missed">Missed</string>
+
+    <!-- ADD MEDICATION ACTIVITY -->
+    <string name="switch_as_needed">Take as Needed</string>
+    <string name="msg_as_needed">This medication will be taken as needed. Toggle the switch to mark it as a scheduled medication.</string>"
+
+    <!-- REMINDER FRAGMENT -->
+    <string name="button_add_reminder_time">+ Add Reminder Time</string>
+
+
+    <!-- AS NEEDED MEDICATION DIALOG -->
+    <string name="title_dialog_as_needed_med">Add an As-Needed Medication</string>
+    <string name="info_dialog_as_needed_med">Add a medication that you take as needed instead of on a set schedule.</string>
+    <string name="subtitle_dialog_as_needed_dropdown">Select Medication</string>
+    <string name="button_add_new_as_needed">+ Add New</string>
+    <string name="msg_dialog_no_as_needed_meds">Click the button below to add a new as-needed medication.</string>
+
+    <!-- UPDATE MEDICATION STATUS DIALOG -->
+    <string name="info_dialog_update_med_status">Update the status of this medication.</string>
+
+<!--    /////////////////////////////////////////////////////////-->
     <!-- ALARM PERMISSION -->
     <string name="notification_permission_title">Enable Notifications</string>
     <string name="notification_permission_description">MediMinder needs notification permission to remind you when it\'s time to take your medications.</string>
@@ -83,7 +116,6 @@
     <string name="end_time_label">End time</string>
     <string name="button_delete_reminder">Delete Reminder</string>
     <string name="button_time_picker">Select Time</string>
-    <string name="button_add_reminder_time">Add Reminder Time</string>
 
     <!-- Reminder frequency options -->
     <array name="reminder_frequency_options">
@@ -150,13 +182,6 @@
     <string name="interval_dialog_title">Days Between Doses</string>
     <string name="interval_dialog_instructions">Select how often to take this medication.</string>
     <string name="interval_input_hint">Take every</string>
-
-    <!-- Medication Status Dialog -->
-    <string name="med_status_dialog_title">Medication Status</string>
-    <string name="med_status_dialog_instructions">Update the status of this medication.</string>
-    <string name="radio_taken">Taken</string>
-    <string name="radio_skipped">Skipped</string>
-    <string name="radio_missed">Missed</string>
 
     <!-- ALL MEDICATIONS LIST -->
     <string name="all_medications_title">Medications</string>
@@ -234,9 +259,7 @@
     <!-- Medication List Item -->
     <string name="medication_status_button">Update</string>
     <string name="pending">Pending</string>
-    <string name="taken">Taken</string>
-    <string name="skipped">Skipped</string>
-    <string name="missed">Missed</string>
+
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>

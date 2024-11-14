@@ -4,21 +4,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
+    android:gravity="center_vertical"
     android:orientation="horizontal">
 
     <Button
         android:id="@+id/buttonDeleteDailyTimeReminder"
         style="?attr/materialIconButtonFilledStyle"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:backgroundTint="@android:color/transparent"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="@color/cadetGray"
         android:contentDescription="@string/button_delete_reminder"
         android:gravity="center_horizontal|center_vertical"
         app:icon="@drawable/close"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
         app:iconSize="12dp"
-        app:iconTint="@color/jet" />
+        app:iconTint="@color/white" />
 
     <Button
         android:id="@+id/buttonDailyReminderTimePicker"

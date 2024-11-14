@@ -60,7 +60,7 @@ abstract class BaseReminderFragment : Fragment() {
     }
 
     // Reset hourly frequency buttons to default values
-    protected fun resetDailyFrequencyButtonText() {
+    private fun resetDailyFrequencyButtonText() {
         binding.buttonHourlyRemindEvery.text = resources.getString(R.string.hourly_30)
         binding.buttonReminderStartTime.text = resources.getString(R.string.button_time_picker)
         binding.buttonReminderEndTime.text = resources.getString(R.string.button_time_picker)
@@ -71,6 +71,7 @@ abstract class BaseReminderFragment : Fragment() {
         // Dynamically render the frequency options based on the selected frequency
         viewLifecycleOwner.lifecycleScope.launch {
             reminderViewModel.reminderFrequency.collect { frequency ->
+                binding.reminderFrequencyMenu.setText(frequency, false)
                 showFrequencyOptions(frequency ?: "")
                 medicationViewModel.updateReminderFrequency(frequency)
             }
@@ -130,6 +131,11 @@ abstract class BaseReminderFragment : Fragment() {
     protected fun showFrequencyOptions(frequency: String) {
         binding.hourlyReminderOptions.visibility = if (frequency == EVERY_X_HOURS) View.VISIBLE else View.GONE
         binding.dailyReminderOptions.visibility = if (frequency == DAILY) View.VISIBLE else View.GONE
+
+        if (frequency == DAILY) {
+            // Programmatically add a daily reminder time of 12:00 PM if there are no times
+            if (binding.dailyTimePickersContainer.childCount == 0) addDailyTimePicker()
+        }
     }
 
     // Show hourly reminder popup menu

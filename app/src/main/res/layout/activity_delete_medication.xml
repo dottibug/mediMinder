@@ -48,6 +48,7 @@
             style="@style/button_primary"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/cadetGray"
             android:text="@string/cancel"
             android:textSize="18sp" />
     </LinearLayout>
@@ -93,6 +94,7 @@
             style="@style/button_primary"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/cadetGray"
             android:text="@string/button_go_to_medications"
             android:textSize="18sp" />
     </LinearLayout>

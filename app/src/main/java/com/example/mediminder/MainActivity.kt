@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -18,8 +20,7 @@ import androidx.work.WorkManager
 import com.example.mediminder.activities.BaseActivity
 import com.example.mediminder.adapters.MainDateSelectorAdapter
 import com.example.mediminder.adapters.MainMedicationAdapter
-import com.example.mediminder.data.local.AppDatabase
-import com.example.mediminder.data.local.DatabaseSeeder
+import com.example.mediminder.data.InitializeDatabase
 import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
@@ -28,7 +29,6 @@ import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -83,7 +83,7 @@ class MainActivity : BaseActivity() {
     private suspend fun initializeDatabaseAndFetchData() {
         loadingSpinnerUtil.whileLoading {
             try {
-                setupDatabase()
+                InitializeDatabase(applicationContext).initDatabase()
                 forceFutureLogsWorker()
                 viewModel.fetchMedicationsForDate(LocalDate.now())
             } catch (e: Exception) {
@@ -109,61 +109,71 @@ class MainActivity : BaseActivity() {
         medicationAdapter = MainMedicationAdapter (
             // Update medication status callback
             onUpdateStatusClick = { logId ->
-                UpdateMedicationStatusDialogFragment.newInstance(logId)
+                UpdateMedicationStatusDialogFragment
+                    .newInstance(logId)
                     .show(supportFragmentManager, "update_status")
             },
             // Delete medication callback
-            onDeleteAsNeededClick = { logId ->
-                viewModel.deleteAsNeededMedication(logId)
-            }
+            onDeleteAsNeededClick = { logId -> viewModel.deleteAsNeededMedication(logId) }
         )
 
+        dateSelectorAdapter = MainDateSelectorAdapter { date -> viewModel.selectDate(date) }
 
-//        medicationAdapter = MainMedicationAdapter { logId ->
-//            UpdateMedicationStatusDialogFragment.newInstance(logId)
-//                .show(supportFragmentManager, "update_status")
-//        }
+        setupMedicationList()
+        setupDateSelector()
+    }
 
+    private fun setupMedicationList() {
         binding.medicationList.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = medicationAdapter
         }
+    }
 
-        dateSelectorAdapter = MainDateSelectorAdapter(emptyList()) { date ->
-            viewModel.selectDate(date)
-        }
-
+    private fun setupDateSelector() {
         binding.dateSelector.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(
+                this@MainActivity,
+                LinearLayoutManager.HORIZONTAL,
+                false)
             adapter = dateSelectorAdapter
         }
     }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            viewModel.medications.collectLatest { medications ->
-                medicationAdapter.submitList(medications)
+            // Only collect latest data flow when the activity is in the STARTED state
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectMedications() }         // Medication list
+                launch { collectSelectedDate() }        // Selected date text
+                launch { collectDateSelectorDates() }   // Date selector dates
+                launch { collectErrorState() }          // Error state
             }
         }
+    }
 
-        lifecycleScope.launch {
-            viewModel.selectedDate.collectLatest { date ->
-                val formattedDate = AppUtils.formatToLongDate(date)
-                binding.selectedDateText.text = formattedDate
-            }
+    private suspend fun collectMedications() {
+        viewModel.medications.collect { medications -> medicationAdapter.submitList(medications) }
+    }
+
+    private suspend fun collectSelectedDate() {
+        viewModel.selectedDate.collect { date ->
+            binding.selectedDateText.text = AppUtils.formatToLongDate(date)
         }
+    }
 
-        lifecycleScope.launch {
-            viewModel.dateSelectorDates.collectLatest { dates ->
-                dateSelectorAdapter.updateDates(dates)
-            }
+    private suspend fun collectDateSelectorDates() {
+        viewModel.dateSelectorDates.collect { dates ->
+            dateSelectorAdapter.submitList(dates)
+            dateSelectorAdapter.updateSelectedPosition()
+//            dateSelectorAdapter.updateDates(dates)
         }
+    }
 
-        lifecycleScope.launch {
-            viewModel.errorState.collectLatest { error ->
-                error?.let {
-                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
-                }
+    private suspend fun collectErrorState() {
+        viewModel.errorState.collect { error ->
+            error?.let {
+                Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -177,33 +187,6 @@ class MainActivity : BaseActivity() {
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private suspend fun setupDatabase() {
-        val database = AppDatabase.getDatabase(this)
-        val medicationDao = database.medicationDao()
-
-        // Check if database is empty
-        val medicationCount = medicationDao.getCount()
-
-        if (medicationCount == 0) {
-            val seeder = DatabaseSeeder(
-                applicationContext,
-                medicationDao,
-                database.dosageDao(),
-                database.remindersDao(),
-                database.scheduleDao(),
-                database.medicationLogDao()
-            )
-
-            try {
-                seeder.seedDatabase()
-            } catch (e: Exception) {
-                Log.e("MainActivity testcat", "Error in setupDatabase: ${e.message}", e)
-            }
-        } else {
-            Log.d("MainActivity testcat", "Database already contains data, skipping seed")
-        }
     }
 
     // NOTE: Development purposes only

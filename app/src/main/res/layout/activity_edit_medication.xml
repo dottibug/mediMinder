@@ -47,7 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/edit_medication_full"
-                android:textAlignment="center"
+                android:textAlignment="textStart"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
             <!-- Medication Info -->
@@ -86,7 +86,7 @@
             <Button
                 android:id="@+id/buttonUpdateMed"
                 style="@style/button_primary"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="match_parent"
                 android:layout_marginTop="24dp"
                 android:text="@string/button_update_med" />
 
@@ -94,9 +94,10 @@
                 android:id="@+id/buttonCancelUpdateMed"
                 style="@style/button_primary"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="match_parent"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/cadetGray"
                 android:text="@string/cancel" />
         </LinearLayout>
     </ScrollView>

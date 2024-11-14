@@ -18,31 +18,11 @@
         android:text="@string/reminder_title"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-    <!-- Reminder Switch -->
-<!--    <androidx.appcompat.widget.SwitchCompat-->
-<!--        android:id="@+id/switchReminder"-->
-<!--        style="@style/text_style"-->
-<!--        android:text="@string/switch_set_reminder"-->
-<!--        app:trackTint="@color/cadetGrayLt"-->
-<!--        app:thumbTint="@color/cadetGray"/>-->
-
-    <!-- As-Needed Medication Message -->
-<!--    <TextView-->
-<!--        android:id="@+id/asNeededReminderMessage"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Reminders cannot be set for as-needed medications."-->
-<!--        style="@style/dialog_instructions"-->
-<!--        android:textColor="@color/cadetGray"-->
-<!--        android:textSize="18sp"-->
-<!--        android:textStyle="bold|italic"-->
-<!--        android:visibility="gone"-->
-<!--        tools:visibility="visible"/>-->
-
     <LinearLayout
         android:id="@+id/layoutReminderSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
         <!-- Frequency -->
@@ -163,6 +143,7 @@
             android:id="@+id/dailyReminderOptions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -174,8 +155,12 @@
             <Button
                 android:id="@+id/buttonAddDailyTimeReminder"
                 android:text="@string/button_add_reminder_time"
-                app:icon="@drawable/ic_add"
-                style="@style/button_secondary" />
+                android:layout_marginTop="2dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:textColor="@color/cadetGray"
+                android:textSize="16sp"
+                style="@style/button_text" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

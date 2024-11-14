@@ -22,7 +22,6 @@
         android:paddingEnd="24dp"
         android:paddingBottom="16dp">
 
-        <!-- Status Icon -->
         <LinearLayout
             android:id="@+id/layoutMedInfo"
             android:layout_width="0dp"
@@ -30,39 +29,42 @@
             android:layout_weight="3"
             android:orientation="vertical">
 
+            <!-- Medication Name -->
             <TextView
                 android:id="@+id/medicationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_medication_name"
+                tools:text="Medication Name"
                 android:textColor="@color/jet"
                 android:textColorHint="@color/jet"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <!-- Medication Dosage -->
             <TextView
                 android:id="@+id/medicationDosage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/dosage_title"
+                tools:text="@string/dosage"
                 android:textColor="@color/jet"
                 android:textColorHint="@color/jet"
                 android:textSize="18sp" />
 
+            <!-- Medication Time -->
             <TextView
                 android:id="@+id/medicationTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/time_hint"
+                tools:text="@string/time_hint"
                 android:textColor="@color/cadetGray"
                 android:textColorHint="@color/cadetGray"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
+        <!-- Medication Status -->
         <LinearLayout
             android:id="@+id/layoutMedStatus"
             android:layout_width="wrap_content"
@@ -70,12 +72,13 @@
             android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
+            <!-- Medication Status Icon -->
             <ImageView
                 android:id="@+id/medicationStatusIcon"
                 android:layout_width="54dp"
                 android:layout_height="54dp"
                 android:layout_gravity="center_horizontal|center_vertical"
-                android:contentDescription="@string/pending"
+                android:contentDescription="@string/medication_status"
                 android:cropToPadding="false"
                 android:scaleType="fitCenter"
                 android:src="@drawable/alarm_clock"
@@ -87,7 +90,7 @@
                 style="@style/button_text"
                 android:layout_marginTop="-2dp"
                 android:letterSpacing="0.05"
-                android:text="@string/medication_status_button" />
+                android:text="@string/update" />
 
             <!-- Delete As-Needed Medication Button -->
             <com.google.android.material.button.MaterialButton
@@ -95,12 +98,9 @@
                 style="@style/button_text"
                 android:layout_marginTop="-2dp"
                 android:letterSpacing="0.05"
-                android:text="@string/delete_medication"
+                android:text="@string/delete"
                 android:visibility="gone"
                 tools:visibility="visible" />
-
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

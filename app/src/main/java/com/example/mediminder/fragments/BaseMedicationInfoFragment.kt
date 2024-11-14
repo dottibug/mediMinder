@@ -1,12 +1,12 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationIcon
@@ -45,7 +45,13 @@ abstract class BaseMedicationInfoFragment: Fragment() {
                 }
 
                 medicationViewModel.setAsNeeded(asNeeded)
-                Log.d("BaseMedicationInfoFragment testcat", "medication vm as needed: ${medicationViewModel.asNeeded.value}")
+
+                // Update appearance of the switch based on the switch state
+                binding.asNeededSwitch.thumbTintList = if (asNeeded) {
+                    resources.getColorStateList(R.color.indigoDye, null)
+                } else {
+                    resources.getColorStateList(R.color.cadetGray, null)
+                }
 
                 // Toggle the visibility of the message based on the switch state
                 binding.asNeededMessage.visibility = if (asNeeded) View.VISIBLE else View.GONE

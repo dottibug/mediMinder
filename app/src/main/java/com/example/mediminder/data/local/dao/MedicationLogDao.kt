@@ -27,6 +27,10 @@ interface MedicationLogDao {
         AND date(planned_datetime) >= date(:fromDate)""")
     suspend fun getFutureLogsCount(medicationId: Long, fromDate: LocalDate): Int
 
+    // Get medication log status
+    @Query("SELECT status FROM medication_logs WHERE id = :logId")
+    suspend fun getMedicationLogStatus(logId: Long): MedicationStatus
+
     // Get log by medication ID and scheduled time
     @Query("""SELECT * FROM medication_logs WHERE medication_id = :medicationId 
             AND planned_datetime = :plannedDateTime LIMIT 1""")

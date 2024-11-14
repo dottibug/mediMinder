@@ -65,6 +65,10 @@ class MedicationRepository(
         )
     }
 
+    suspend fun getMedicationLogStatus(logId: Long): MedicationStatus {
+        return medicationLogDao.getMedicationLogStatus(logId)
+    }
+
     suspend fun getAsNeededMedications(): List<Medication> {
         return medicationDao.getAsNeededMedications()
     }
