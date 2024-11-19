@@ -9,12 +9,13 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.models.MedicationStatus
 import java.time.LocalDateTime
 
-
 // https://developer.android.com/reference/androidx/work/Worker
-// Notes: Workers are used to run code in the background (modern implementation of deprecated asyncTask)
-// Workers were chosen instead of the asyncTask methods learned in the course, because I did not want
-// the creation of medication logs and notifications to be killed when the app is killed.
+// Notes: Workers are the modern implementation of deprecated asyncTask. An important distinction is
+// that asyncTask will stop when the app is killed, while workers will not.
 
+// This background worker checks for missed medications and marks them as missed. The worker runs at
+// set intervals, depending on the user's grace period setting. The worker will run in the background
+// even if the app is destroyed.
 class CheckMissedMedicationsWorker(
     context: Context,
     params: WorkerParameters
@@ -28,20 +29,18 @@ class CheckMissedMedicationsWorker(
         val gracePeriod = settingsPrefs.getString(GRACE_PERIOD_KEY, GRACE_PERIOD_DEFAULT)?.toDouble() ?: 1.0
 
         // NOTE: For development/testing purposes only, set grace period to 0.0
-//        val gracePeriod = 0.0
+        // val gracePeriod = 0.0
 
         return try {
-            // Calculate cutoff time (current time minus grace period in minutes)
-            val cutoffTime = LocalDateTime.now().minusMinutes((gracePeriod * 60).toLong())
+            val cutoffTime = getCutOffTime(gracePeriod)
 
-            // Get all logs that are still in pending status before the cutoff time
-            // These logs have not been marked as taken or skipped, so they are missed
+            // Get logs still in pending status before the cutoff time (they will be marked as missed)
             val pendingLogs = medicationLogDao.getPendingMedicationLogs(cutoffTime)
 
             pendingLogs.forEach { log ->
                 medicationLogDao.updateStatus(log.id, MedicationStatus.MISSED)
 
-                // Send broadcast for each missed medication to update UI
+                // Send broadcast to application to update the UI with the new missed status
                 val updateIntent = Intent(MED_STATUS_CHANGED).apply {
                     setPackage(applicationContext.packageName)
                     putExtra("logId", log.id)
@@ -49,12 +48,15 @@ class CheckMissedMedicationsWorker(
                 }
                 applicationContext.sendBroadcast(updateIntent)
             }
-
             Result.success()
-
         } catch (e: Exception) {
             Result.retry()
         }
+    }
+
+    // Calculate cutoff time (current time minus grace period in minutes)
+    private fun getCutOffTime(gracePeriod: Double): LocalDateTime {
+        return LocalDateTime.now().minusMinutes((gracePeriod * 60).toLong())
     }
 
     companion object {

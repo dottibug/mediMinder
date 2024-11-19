@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginStart="16dp"
-    android:layout_marginTop="8dp"
     android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
@@ -15,11 +15,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         android:paddingStart="24dp"
-        android:paddingTop="24dp"
         android:paddingEnd="24dp"
+        android:paddingTop="24dp"
         android:paddingBottom="16dp">
 
         <LinearLayout
@@ -34,11 +34,11 @@
                 android:id="@+id/medicationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Medication Name"
                 android:textColor="@color/jet"
                 android:textColorHint="@color/jet"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="Medication Name" />
 
             <!-- Medication Dosage -->
             <TextView
@@ -46,10 +46,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                tools:text="@string/dosage"
                 android:textColor="@color/jet"
                 android:textColorHint="@color/jet"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                tools:text="@string/dosage" />
 
             <!-- Medication Time -->
             <TextView
@@ -57,11 +57,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                tools:text="@string/time_hint"
                 android:textColor="@color/cadetGray"
                 android:textColorHint="@color/cadetGray"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="1:00 pm" />
         </LinearLayout>
 
         <!-- Medication Status -->

@@ -8,10 +8,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
+// ViewModel for the BaseScheduleFragment
 class BaseScheduleViewModel: ViewModel() {
-//    private val _isScheduleEnabled = MutableStateFlow(true)
-//    val isScheduleEnabled: StateFlow<Boolean> = _isScheduleEnabled.asStateFlow()
-
     private val _startDate = MutableStateFlow<LocalDate?>(LocalDate.now())
     val startDate: StateFlow<LocalDate?> = _startDate.asStateFlow()
 
@@ -24,14 +22,11 @@ class BaseScheduleViewModel: ViewModel() {
     private val _scheduleType = MutableStateFlow("daily") // "daily", "specificDays", "interval"
     val scheduleType: StateFlow<String> = _scheduleType.asStateFlow()
 
-    // "0,1,2" -> Sunday, Monday, Tuesday
-    private val _selectedDays = MutableStateFlow("")
+    private val _selectedDays = MutableStateFlow("")  // "0,1,2" -> Sunday, Monday, Tuesday
     val selectedDays: StateFlow<String> = _selectedDays.asStateFlow()
 
     private val _daysInterval = MutableStateFlow<Int?>(null)
     val daysInterval: StateFlow<Int?> = _daysInterval.asStateFlow()
-
-//    fun setScheduleEnabled(enabled: Boolean) { _isScheduleEnabled.value = enabled }
 
     fun setStartDate(date: Long?) {
         if (date == null) { _startDate.value = null }
@@ -49,13 +44,4 @@ class BaseScheduleViewModel: ViewModel() {
     fun setSelectedDays(selectedDays: String) { _selectedDays.value = selectedDays }
 
     fun setDaysInterval(daysInterval: String) { _daysInterval.value = daysInterval.toIntOrNull() }
-
-    fun clearScheduleSettings() {
-        _startDate.value = null
-        _durationType.value = "continuous"
-        _numDays.value = null
-        _scheduleType.value = "daily"
-        _selectedDays.value = ""
-        _daysInterval.value = null
-    }
 }

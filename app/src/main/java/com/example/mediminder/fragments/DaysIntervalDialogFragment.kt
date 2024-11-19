@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaysIntervalDialogBinding
 
+// Dialog fragment for setting the days interval of a medication schedule
 class DaysIntervalDialogFragment(
     private val parentFragment: BaseScheduleFragment,
     private val editingDaysInterval: Boolean
@@ -22,7 +23,10 @@ class DaysIntervalDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupListeners()
+    }
 
+    private fun setupListeners() {
         binding.buttonCancelDaysIntervalDialog.setOnClickListener {
             if (!editingDaysInterval) { parentFragment.setScheduleTypeToDaily() }
             dismiss()

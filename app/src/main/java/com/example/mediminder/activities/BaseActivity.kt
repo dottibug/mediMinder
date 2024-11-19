@@ -109,7 +109,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun getDosageData(action: MedicationAction): DosageData? {
         // Skip dosage data for as-needed medications
-        if (medicationViewModel.asNeeded.value) return null
+        if (!medicationViewModel.asScheduled.value) return null
 
         val dosageFragment = when (action) {
             MedicationAction.ADD -> supportFragmentManager.findFragmentById(

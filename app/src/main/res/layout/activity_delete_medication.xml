@@ -20,7 +20,7 @@
 
         <TextView
             style="@style/activity_title"
-            android:text="@string/delete_medication_title"
+            android:text="@string/delete_medication"
             android:textAlignment="center" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/delete_medication_instructions"
+            android:text="@string/msg_delete_medication"
             android:textAlignment="center" />
 
         <Button
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/red"
-            android:text="@string/button_confirm_delete_med"
+            android:text="@string/delete_medication"
             android:textSize="18sp" />
 
         <Button
@@ -67,7 +67,7 @@
 
         <TextView
             style="@style/activity_title"
-            android:text="@string/delete_medication_title"
+            android:text="@string/delete_medication"
             android:textAlignment="center" />
 
         <TextView
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="@string/delete_medication_success"
+            android:text="@string/msg_delete_success"
             android:textAlignment="center" />
 
         <Button
@@ -86,7 +86,7 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/button_go_to_main"
+            android:text="@string/today"
             android:textSize="18sp" />
 
         <Button
@@ -95,7 +95,7 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/cadetGray"
-            android:text="@string/button_go_to_medications"
+            android:text="@string/medications"
             android:textSize="18sp" />
     </LinearLayout>
 

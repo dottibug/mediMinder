@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.YearMonth
 
+// View model for the HistoryActivity
+// Tracks selected medication and month, and provides methods to fetch medication history
 class HistoryViewModel(private val repository: MedicationRepository): ViewModel() {
 
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
@@ -30,8 +32,10 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
     val selectedMonth: StateFlow<YearMonth> = _selectedMonth.asStateFlow()
 
     fun setSelectedMedication(medicationId: Long?) { _selectedMedicationId.value = medicationId }
+
     fun setSelectedMonth(yearMonth: YearMonth) { _selectedMonth.value = yearMonth }
 
+    // Move to the previous or next month
     fun moveMonth(forward: Boolean) {
         _selectedMonth.value = when {
             forward -> _selectedMonth.value.plusMonths(1)
@@ -39,6 +43,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
         }
     }
 
+    // Fetch medications
     suspend fun fetchMedications(): List<Medication> {
         try {
             val medications = repository.getAllMedicationsSimple()
@@ -50,6 +55,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
         }
     }
 
+    // Fetch medication history for a specific medication
     suspend fun fetchMedicationHistory(medicationId: Long?): List<DayLogs>? {
        try {
            val selectedMonth = selectedMonth.value
@@ -68,6 +74,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
         }
     }
 
+    // Get the logs for each day in the selected month
     private fun getDayLogs(
         currentMonth: YearMonth,
         selectedMonth: YearMonth,

@@ -43,10 +43,6 @@ class DatabaseSeeder(
 ) {
 
     suspend fun seedDatabase() {
-
-        // NOTE: To clear database during development
-//        clearDatabase()
-
         try {
             Log.d("DatabaseSeeder testcat", "Starting database seeding")
 

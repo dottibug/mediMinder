@@ -60,7 +60,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="@string/medication_icon">
+        android:hint="@string/medication_icon"
+        android:labelFor="@id/medicationIconDropdown">
 
         <AutoCompleteTextView
             android:id="@+id/medicationIconDropdown"
@@ -74,11 +75,11 @@
 
     <!-- As-Needed Switch -->
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/asNeededSwitch"
+        android:id="@+id/asScheduledSwitch"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:textAppearance="@style/section_title"
-        android:text="@string/switch_as_needed"
+        android:text="@string/switch_take_as_scheduled"
         app:trackTint="@color/cadetGrayLt"
         app:thumbTint="@color/cadetGray"
         android:layout_marginTop="16dp"/>
@@ -86,17 +87,17 @@
     <!-- As-Needed Switch Message -->
     <TextView
         android:id="@+id/asNeededMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="@string/as_needed_message"
         style="@style/dialog_instructions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:text="@string/msg_as_needed"
+        android:textAlignment="center"
         android:textColor="@color/cadetGray"
         android:textSize="18sp"
         android:textStyle="bold|italic"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
-        android:textAlignment="center"
         android:visibility="gone"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
 </LinearLayout>

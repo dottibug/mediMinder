@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
 import com.example.mediminder.activities.BaseActivity.Companion.CONTINUOUS
 import com.example.mediminder.activities.BaseActivity.Companion.DAILY
@@ -22,7 +24,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
-
+// Base fragment for adding or editing a medication's schedule
 abstract class BaseScheduleFragment : Fragment() {
     protected lateinit var binding: FragmentBaseScheduleBinding
     protected open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
@@ -46,105 +48,36 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Hide summary layouts
     private fun setupInitialVisibility() {
-        binding.layoutNumDaysSummary.visibility = View.GONE
-        binding.layoutDaySelectionSummary.visibility = View.GONE
-        binding.layoutDaysIntervalSummary.visibility = View.GONE
+        with (binding) {
+            setViewVisibility(layoutNumDaysSummary, false)
+            setViewVisibility(layoutDaySelectionSummary, false)
+            setViewVisibility(layoutDaysIntervalSummary, false)
+        }
     }
 
     // Listeners
     private fun setupListeners() {
-//        binding.switchSchedule.setOnCheckedChangeListener { _, isChecked ->
-//            scheduleViewModel.setScheduleEnabled(isChecked)
-//            updateSwitchThumbTint(isChecked)
-//        }
-
-        binding.buttonMedStartDate.setOnClickListener { showDatePickerDialog() }
-        binding.radioGroupAddMedDuration.setOnCheckedChangeListener { _, _ -> handleDurationSettings() }
-        binding.radioGroupAddMedSchedule.setOnCheckedChangeListener { _, _ -> handleScheduleSettings() }
+        with (binding) {
+            buttonMedStartDate.setOnClickListener { showDatePickerDialog() }
+            radioGroupAddMedDuration.setOnCheckedChangeListener { _, _ -> handleDurationSettings() }
+            radioGroupAddMedSchedule.setOnCheckedChangeListener { _, _ -> handleScheduleSettings() }
+        }
     }
 
-//    private fun updateSwitchThumbTint(isChecked: Boolean) {
-//        val thumbColor = if (isChecked) { requireContext().getColor(R.color.indigoDye) }
-//        else { requireContext().getColor(R.color.cadetGray) }
-//        binding.switchSchedule.thumbTintList = android.content.res.ColorStateList.valueOf(thumbColor)
-//    }
-
-    // Sets up observers for schedule data. Collects state flow in the scheduleViewModel and updates
-    // the corresponding data in the addMedViewModel.
+    // Collect state flow from schedule view model when the fragment is in the STARTED state
     private fun setupObservers() {
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            scheduleViewModel.isScheduleEnabled.collect { isEnabled ->
-//                if (binding.switchSchedule.isChecked != isEnabled) {
-//                    binding.switchSchedule.isChecked = isEnabled
-//                }
-//
-//                if (isEnabled) {
-//                    binding.layoutScheduleSettings.visibility = View.VISIBLE
-//                    binding.asNeededMessage.visibility = View.GONE
-//                } else {
-//                    // If the schedule is disabled, reminders must also be disabled; which means
-//                    // the medication will be an as-needed medication
-//                    medicationViewModel.setAsNeeded(true)
-//
-//
-////                    binding.layoutScheduleSettings.visibility = View.GONE
-////                    binding.asNeededMessage.visibility = View.VISIBLE
-//                    resetScheduleSettings()
-//                }
-//
-//                medicationViewModel.updateIsScheduledMedication(isEnabled)
-//            }
-//        }
-
-        // Start date observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.startDate.collect { date -> medicationViewModel.updateStartDate(date) }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                with (scheduleViewModel) {
+                    launch { startDate.collect { date -> medicationViewModel.updateStartDate(date) } }
+                    launch { durationType.collect { type -> medicationViewModel.updateDurationType(type) } }
+                    launch { scheduleType.collect { type -> medicationViewModel.updateScheduleType(type) } }
+                    launch { numDays.collect { numDays -> medicationViewModel.updateNumDays(numDays) } }
+                    launch { selectedDays.collect { days -> medicationViewModel.updateSelectedDays(days) } }
+                    launch { daysInterval.collect { interval -> medicationViewModel.updateDaysInterval(interval) } }
+                }
+            }
         }
-
-        // Duration type observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.durationType.collect { type -> medicationViewModel.updateDurationType(type) }
-        }
-
-        // Schedule type observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.scheduleType.collect { type -> medicationViewModel.updateScheduleType(type) }
-        }
-
-        // Num days observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.numDays.collect { numDays -> medicationViewModel.updateNumDays(numDays) }
-        }
-
-        // Selected days observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.selectedDays.collect { days -> medicationViewModel.updateSelectedDays(days) }
-        }
-
-        // Days interval observer
-        viewLifecycleOwner.lifecycleScope.launch {
-            scheduleViewModel.daysInterval.collect { interval -> medicationViewModel.updateDaysInterval(interval) }
-        }
-    }
-
-    private fun resetScheduleSettings() {
-        // Reset schedule switch (to default to enabled if user switches the as-needed toggle)
-//        scheduleViewModel.setScheduleEnabled(true)
-//        binding.switchSchedule.isChecked = true
-
-        // Reset start date
-        scheduleViewModel.setStartDate(null)
-        updateDateButtonText(binding.buttonMedStartDate)
-
-        // Reset duration type
-        scheduleViewModel.setDurationType(CONTINUOUS)
-        setDurationRadioToContinuous()
-        scheduleViewModel.setNumDays(null)
-
-        // Reset schedule type
-        setScheduleTypeToDaily()
-        scheduleViewModel.setSelectedDays("")
-        scheduleViewModel.setDaysInterval("")
     }
 
     // Date Picker Dialog (selects current date by default)
@@ -154,21 +87,19 @@ abstract class BaseScheduleFragment : Fragment() {
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
 
-        datePicker.show(parentFragmentManager, "tag")
-
         datePicker.addOnPositiveButtonClickListener { selection ->
             scheduleViewModel.setStartDate(selection)
             updateDateButtonText(binding.buttonMedStartDate)
         }
+
+        datePicker.show(parentFragmentManager, "tag")
     }
 
     // Update the button text with the selected date
     protected fun updateDateButtonText(button: Button) {
         val date = scheduleViewModel.startDate.value
-
-        if (date == null) {
-            button.text = getString(R.string.select_start_date)
-        } else {
+        if (date == null) { button.text = getString(R.string.select_start_date) }
+        else {
             val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
             button.text = date.format(formattedDate)
         }
@@ -177,9 +108,7 @@ abstract class BaseScheduleFragment : Fragment() {
     // Medication duration settings
     protected open fun handleDurationSettings() {
         val isContinuous = binding.radioDurationContinuous.isChecked
-
         if (!isContinuous) { showDurationInputDialog() }
-
         else {
             scheduleViewModel.setDurationType(CONTINUOUS)
             setDurationRadioToContinuous()
@@ -207,24 +136,21 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Update the duration radio button selection
     protected fun updateDurationRadioSelection(checked: String) {
-        if (checked == CONTINUOUS) {
-            binding.radioDurationContinuous.isChecked = true
-            binding.radioDurationNumDays.isChecked = false
-        } else {
-            binding.radioDurationContinuous.isChecked = false
-            binding.radioDurationNumDays.isChecked = true
-        }
+        binding.radioDurationContinuous.isChecked = checked == CONTINUOUS
+        binding.radioDurationNumDays.isChecked = checked == NUM_DAYS
     }
 
     // Show the number of days summary to the user
     protected fun showDurationNumDaysSummary(numDays: String) {
-        binding.layoutNumDaysSummary.visibility = View.VISIBLE
-        binding.textViewNumDaysSummaryValue.text = resources.getString(R.string.num_days_summary_value, numDays)
-        binding.buttonEditNumDays.setOnClickListener { showDurationInputDialog(true) }
+        with (binding) {
+            setViewVisibility(layoutNumDaysSummary, true)
+            textViewNumDaysSummaryValue.text = resources.getString(R.string.days_value, numDays)
+            buttonEditNumDays.setOnClickListener { showDurationInputDialog(true) }
+        }
     }
 
     protected fun hideDurationNumDaysSummary() {
-        binding.layoutNumDaysSummary.visibility = View.GONE
+        setViewVisibility(binding.layoutNumDaysSummary, false)
     }
 
     private fun updateDurationInScheduleViewModel(numDays: String) {
@@ -259,9 +185,11 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Programmatically set the schedule radio button to daily
     fun setScheduleTypeToDaily() {
-        binding.radioDaysEveryDay.isChecked = true
-        binding.radioDaysSpecificDays.isChecked = false
-        binding.radioDaysInterval.isChecked = false
+        with (binding) {
+            radioDaysEveryDay.isChecked = true
+            radioDaysSpecificDays.isChecked = false
+            radioDaysInterval.isChecked = false
+        }
         prevScheduleWasDaily = true
         hideScheduleSummaries()
         scheduleViewModel.setScheduleType(DAILY)
@@ -273,9 +201,7 @@ abstract class BaseScheduleFragment : Fragment() {
 
         val daySelectionDialog: DaySelectionDialogFragment = if (editingDaySelection) {
             DaySelectionDialogFragment(this, true, selectedDays)
-        } else {
-            DaySelectionDialogFragment(this, false)
-        }
+        } else { DaySelectionDialogFragment(this, false) }
 
         daySelectionDialog.show(parentFragmentManager, DaySelectionDialogFragment.TAG)
     }
@@ -295,9 +221,15 @@ abstract class BaseScheduleFragment : Fragment() {
     protected fun showDaySelectionSummary(selectedDaysInt: String) {
         val daysString = daysOfWeekString(selectedDaysInt)
         selectedDays = selectedDaysInt
-        binding.layoutDaySelectionSummary.visibility = View.VISIBLE
-        binding.textViewDaySelectionSummaryValue.text = daysString
-        binding.buttonEditDaySelection.setOnClickListener{ showDaySelectionDialog(true) }
+        with (binding) {
+            setViewVisibility(layoutDaySelectionSummary, true)
+            textViewDaySelectionSummaryValue.text = daysString
+            buttonEditDaySelection.setOnClickListener{ showDaySelectionDialog(true) }
+        }
+    }
+
+    private fun setViewVisibility(view: View, isVisible: Boolean) {
+        view.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     protected fun hideScheduleSummaries() {
@@ -306,12 +238,12 @@ abstract class BaseScheduleFragment : Fragment() {
     }
 
     private fun hideDaySelectionSummary() {
-        binding.layoutDaySelectionSummary.visibility = View.GONE
+        setViewVisibility(binding.layoutDaySelectionSummary, false)
         selectedDays = ""
     }
 
     private fun hideDaysIntervalSummary() {
-        binding.layoutDaysIntervalSummary.visibility = View.GONE
+        setViewVisibility(binding.layoutDaysIntervalSummary, false)
     }
 
     // Schedule interval settings
@@ -327,10 +259,13 @@ abstract class BaseScheduleFragment : Fragment() {
         showDaysIntervalSummary(daysInterval)
     }
 
+    // Show the days interval summary to the user
     protected fun showDaysIntervalSummary(daysInterval: String) {
         hideDaySelectionSummary()
-        binding.layoutDaysIntervalSummary.visibility = View.VISIBLE
-        binding.textViewDaysIntervalSummaryValue.text = resources.getString(R.string.days_interval_summary_value, daysInterval)
-        binding.buttonEditDaysInterval.setOnClickListener { showDaysIntervalDialog(true) }
+        with (binding) {
+            setViewVisibility(layoutDaysIntervalSummary, true)
+            textViewDaysIntervalSummaryValue.text = resources.getString(R.string.days_value, daysInterval)
+            buttonEditDaysInterval.setOnClickListener { showDaysIntervalDialog(true) }
+        }
     }
 }

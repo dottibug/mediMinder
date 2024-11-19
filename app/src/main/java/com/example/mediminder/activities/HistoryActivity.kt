@@ -22,6 +22,10 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+// This activity displays a list of medication history for a specific month.
+// Users can view all medications taken that month, or filter for a specific medication.
+// Users can also select which month to view history for, via the next/prev date controls or the
+// date picker dialog.
 class HistoryActivity : BaseActivity() {
     private val viewModel: HistoryViewModel by viewModels { HistoryViewModel.Factory }
     private lateinit var binding: ActivityHistoryBinding
@@ -33,10 +37,19 @@ class HistoryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
-        setupUI()
-        lifecycleScope.launch { fetchMedications() }
     }
 
+    override fun onStart() {
+        super.onStart()
+        setupUI()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchMedicationsList()
+    }
+
+    // Set up bindings for the base class, then inflate this view into the base layout.
     private fun setupBindings() {
         setupBaseLayout()
         binding = ActivityHistoryBinding.inflate(layoutInflater)
@@ -49,7 +62,7 @@ class HistoryActivity : BaseActivity() {
         setupMedicationDropdown()
         setupDateControls()
         setupRecyclerView()
-        observeViewModel()
+        setupObservers()
     }
 
     // Set up the medication dropdown, which allows users to view history of a specific medication or all medications
@@ -63,6 +76,7 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
+    // Set the default medication in the dropdown to "All Medications"
     private fun setDefaultMedicationDropdown() {
         if (medicationIds.isEmpty()) {
             binding.medicationDropdown.setText(getString(R.string.all_meds), false)
@@ -80,14 +94,12 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    // Observe changes in the ViewModel and update UI accordingly
-    private fun observeViewModel() {
-        // Observe medication dropdown list selection
+    // Update UI after medication or date selection
+    private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.selectedMedicationId.collect { refreshMedicationHistory(it) }
         }
 
-        // Refresh medication history when selected month changes
         lifecycleScope.launch {
             viewModel.selectedMonth.collect { month ->
                 refreshMedicationHistory(viewModel.selectedMedicationId.value)
@@ -114,17 +126,8 @@ class HistoryActivity : BaseActivity() {
     }
 
     private fun hideHistoryList() {
-        val selectedMonth = viewModel.selectedMonth.value
-        val currentMonth = YearMonth.now()
-
         binding.historyList.visibility = View.GONE
         binding.noDataMessage.visibility = View.VISIBLE
-
-        // Show "no medication" message based on whether selected month is in the future or past
-        binding.noDataMessage.text = when {
-            selectedMonth.isAfter(currentMonth) -> getString(R.string.no_logs_future_month)
-            else -> getString(R.string.no_logs_past_month)
-        }
     }
 
     private fun showHistoryList(dayLogs: List<DayLogs>) {
@@ -132,25 +135,31 @@ class HistoryActivity : BaseActivity() {
         binding.noDataMessage.visibility = if (dayLogs.all { it.logs.isEmpty() }) View.VISIBLE else View.GONE
     }
 
-    private suspend fun fetchMedications() {
-        loadingSpinnerUtil.whileLoading {
-            try {
-                val medications = viewModel.fetchMedications()
-                updateMedicationIds(medications)
-                createMedicationDropdown(medications)
-                viewModel.setSelectedMedication(null)
-            } catch (e: Exception) {
-                Log.e("HistoryActivity testcat", "Error in fetchMedications", e)
+    // Fetch list of medications for the dropdown menu
+    private fun fetchMedicationsList() {
+        lifecycleScope.launch {
+            loadingSpinnerUtil.whileLoading {
+                try {
+                    val medications = viewModel.fetchMedications()
+                    updateMedicationIds(medications)
+                    createMedicationDropdown(medications)
+                    viewModel.setSelectedMedication(null)
+                }
+                catch (e: Exception) {
+                    Log.e("HistoryActivity testcat", "Error in fetchMedicationsList", e)
+                }
             }
         }
     }
 
+    // Update the list of medication IDs used in the dropdown menu
     private fun updateMedicationIds(medications: List<Medication>) {
         medicationIds.clear()
         medicationIds.add(null)  // For "All Medications"
         medicationIds.addAll(medications.map { it.id })
     }
 
+    // Create the medication dropdown menu with the list of medications fetched
     private fun createMedicationDropdown(medications: List<Medication>) {
         val dropdownItems = mutableListOf("All Medications")
         dropdownItems.addAll(medications.map { it.name })
@@ -159,12 +168,14 @@ class HistoryActivity : BaseActivity() {
         medicationAdapter.notifyDataSetChanged()
     }
 
+    // Date control buttons to navigate through months
     private fun setupDateControls() {
         binding.buttonPreviousMonth.setOnClickListener { viewModel.moveMonth(forward = false) }
         binding.buttonNextMonth.setOnClickListener { viewModel.moveMonth(forward = true) }
         binding.buttonCalendar.setOnClickListener { showMonthYearPicker() }
     }
 
+    // Show a date picker to allow users to select a month
     private fun showMonthYearPicker() {
         val currentDate = viewModel.selectedMonth.value
 
@@ -189,6 +200,7 @@ class HistoryActivity : BaseActivity() {
             .show(supportFragmentManager, "MONTH_YEAR_PICKER")
     }
 
+    // Update the text displayed to show the user-selected month
     private fun updateMonthYearText(yearMonth: YearMonth) {
         val formatter = DateTimeFormatter.ofPattern("MMMM yyyy")
         binding.monthYearText.text = yearMonth.format(formatter)

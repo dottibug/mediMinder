@@ -13,6 +13,7 @@ import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MedicationsViewModel
 import kotlinx.coroutines.launch
 
+// This activity displays a list of medications. It uses the MedicationsViewModel to fetch the list.
 class MedicationsActivity : BaseActivity() {
     private val viewModel: MedicationsViewModel by viewModels { MedicationsViewModel.Factory }
     private lateinit var binding: ActivityMedicationsBinding
@@ -22,10 +23,21 @@ class MedicationsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
-        setupUI()
-        lifecycleScope.launch { fetchMedications() }
     }
 
+    // Set up recycler view and observers before data is fetched
+    override fun onStart() {
+        super.onStart()
+        setupUI()
+    }
+
+    // Fetch/refresh medication data (observers will update UI when data is available)
+    override fun onResume() {
+        super.onResume()
+        fetchMedications()
+    }
+
+    // Sets up bindings for the base class, then inflates this view into the base layout.
     private fun setupBindings() {
         setupBaseLayout()
         binding = ActivityMedicationsBinding.inflate(layoutInflater)
@@ -39,6 +51,7 @@ class MedicationsActivity : BaseActivity() {
         observeViewModel()
     }
 
+    // Sets up the recycler view to display fetched medications
     private fun setupRecyclerView() {
         adapter = MedicationsAdapter(
             onViewClick = { medicationId ->
@@ -62,6 +75,7 @@ class MedicationsActivity : BaseActivity() {
         binding.medicationsList.adapter = adapter
     }
 
+    // Updates the UI after medications are fetched
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.medications.collect { medications -> adapter.submitList(medications) }
@@ -69,12 +83,13 @@ class MedicationsActivity : BaseActivity() {
     }
 
 
-    private suspend fun fetchMedications() {
-        loadingSpinnerUtil.whileLoading {
-            try {
-                viewModel.fetchMedications()
-            } catch (e: Exception) {
-                Log.e("MedicationsActivity testcat", "Error fetching medications", e)
+    private fun fetchMedications() {
+        lifecycleScope.launch {
+            loadingSpinnerUtil.whileLoading {
+                try { viewModel.fetchMedications() }
+                catch (e: Exception) {
+                    Log.e("MedicationsActivity testcat", "Error fetching medications", e)
+                }
             }
         }
     }

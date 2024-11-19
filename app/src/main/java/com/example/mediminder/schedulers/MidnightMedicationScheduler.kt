@@ -5,18 +5,20 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import java.util.Calendar
 
+// https://developer.android.com/training/scheduling/alarms
+// This service class schedules medication notifications for the next day. It runs every day at midnight.
 class MidnightMedicationScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    // At midnight, create alarms for the following day
     fun scheduleMidnightAlarm() {
+        // Check if the app has permission to schedule exact alarms
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && !alarmManager.canScheduleExactAlarms()) { return }
 
+        // Create a pending intent to be run at the scheduled time
         val intent = Intent(context, MedicationSchedulerReceiver::class.java).apply {
             action = SCHEDULE_DAILY_MEDICATIONS
         }
@@ -28,7 +30,7 @@ class MidnightMedicationScheduler(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Set for next midnight
+        // Set the intent to run every day at midnight
         val calendar = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, 1)
             set(Calendar.HOUR_OF_DAY, 0)
@@ -44,13 +46,12 @@ class MidnightMedicationScheduler(private val context: Context) {
         )
 
         // NOTE: For development purposes only
-//        testMidnightAlarm(pendingIntent)
+        // testMidnightAlarm(pendingIntent)
     }
 
     // NOTE: For testing and development purposes only
     private fun testMidnightAlarm(pendingIntent: PendingIntent) {
         val calendar = Calendar.getInstance().apply { add(Calendar.MINUTE, 2) }
-        Log.d("MidnightMedicationScheduler testcat", "Scheduling midnight alarm for: ${calendar.time}")
 
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,

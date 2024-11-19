@@ -10,12 +10,13 @@
     android:paddingTop="16dp"
     android:paddingBottom="16dp">
 
+    <!-- Title -->
     <TextView
         android:id="@+id/headlineReminder"
         style="@style/section_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/reminder_title"
+        android:text="@string/reminder_options"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
     <LinearLayout
@@ -29,7 +30,7 @@
         <TextView
             android:id="@+id/headlineFrequency"
             style="@style/subsection_title"
-            android:text="@string/reminder_frequency_heading" />
+            android:text="@string/info_frequency" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputFrequencyType"
@@ -38,7 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp"
-            android:hint="@string/reminder_frequency_menu_hint">
+            android:hint="@string/hint_reminder_frequency"
+            android:labelFor="@id/reminderFrequencyMenu">
 
             <AutoCompleteTextView
                 android:id="@+id/reminderFrequencyMenu"
@@ -70,18 +72,16 @@
                     style="@style/subsection_title"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/reminder_interval_label" />
+                    android:text="@string/remind_every" />
 
                 <Button
                     android:id="@+id/buttonHourlyRemindEvery"
                     style="@style/med_settings_button"
-
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/reminder_interval_placeholder"
+                    android:text="@string/placeholder_hourly_reminders"
                     android:textSize="16sp"
                     app:cornerRadius="4dp" />
-
             </LinearLayout>
 
             <!-- Start Time -->
@@ -100,14 +100,14 @@
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/start_time_label" />
+                    android:text="@string/start_time" />
 
                 <Button
                     android:id="@+id/buttonReminderStartTime"
                     style="@style/med_settings_button"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/button_time_picker" />
+                    android:text="@string/select_time" />
             </LinearLayout>
 
             <!-- End Time -->
@@ -127,14 +127,14 @@
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/end_time_label" />
+                    android:text="@string/end_time" />
 
                 <Button
                     android:id="@+id/buttonReminderEndTime"
                     style="@style/med_settings_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/button_time_picker" />
+                    android:text="@string/select_time" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -154,7 +154,7 @@
 
             <Button
                 android:id="@+id/buttonAddDailyTimeReminder"
-                android:text="@string/button_add_reminder_time"
+                android:text="@string/button_add_time"
                 android:layout_marginTop="2dp"
                 android:paddingStart="0dp"
                 android:paddingEnd="0dp"

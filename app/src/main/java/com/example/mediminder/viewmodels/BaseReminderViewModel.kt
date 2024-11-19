@@ -1,14 +1,14 @@
 package com.example.mediminder.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
+import com.example.mediminder.activities.BaseActivity.Companion.X_TIMES_DAILY
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+// ViewModel for the BaseReminderFragment
 class BaseReminderViewModel: ViewModel() {
-    private val _isReminderEnabled = MutableStateFlow(false)
-    val isReminderEnabled: StateFlow<Boolean> = _isReminderEnabled.asStateFlow()
-
     private val _reminderFrequency = MutableStateFlow<String?>(null) // hourly or daily
     val reminderFrequency: StateFlow<String?> = _reminderFrequency.asStateFlow()
 
@@ -24,22 +24,18 @@ class BaseReminderViewModel: ViewModel() {
     private val _hourlyReminderEndTime = MutableStateFlow<Pair<Int, Int>?>(null) // (hour, minute)
     val hourlyReminderEndTime: StateFlow<Pair<Int, Int>?> = _hourlyReminderEndTime.asStateFlow()
 
-    fun setReminderEnabled(enabled: Boolean) { _isReminderEnabled.value = enabled }
-
     fun setReminderFrequency(freq: String) {
         _reminderFrequency.value = when (freq) {
-            "every x hours" -> {
+            EVERY_X_HOURS -> {
                 clearDailyReminderTimes()
-                "every x hours"
+                EVERY_X_HOURS
             }
             else -> {
                 clearHourlyReminderSettings()
-                "daily"
+                X_TIMES_DAILY
             }
         }
     }
-
-    private fun clearDailyReminderTimes() { _dailyReminderTimes.value = emptyList() }
 
     private fun clearHourlyReminderSettings() {
         _hourlyReminderInterval.value = null
@@ -62,7 +58,7 @@ class BaseReminderViewModel: ViewModel() {
             times.removeAt(index)
             _dailyReminderTimes.value = times
 
-            // If there are zero times left, set the reminder frequency to "every x hours"
+            // If there are no times left, set the reminder frequency to "every x hours"
             if (times.size == 0) { setReminderFrequency("every x hours") }
         }
     }
@@ -87,15 +83,13 @@ class BaseReminderViewModel: ViewModel() {
         _dailyReminderTimes.value = sortDailyReminderTimes(times)
     }
 
-    fun clearReminderSettings() {
-        _reminderFrequency.value = ""
+    private fun clearDailyReminderTimes() {
         _dailyReminderTimes.value = emptyList()
-        clearHourlyReminderSettings()
     }
 
+    // Sort daily reminder times by hour (ascending)
     private fun sortDailyReminderTimes(times: List<Pair<Int, Int>>): MutableList<Pair<Int, Int>> {
         val sortedTimes = times.sortedBy { it.first }
         return sortedTimes.toMutableList()
     }
-
 }

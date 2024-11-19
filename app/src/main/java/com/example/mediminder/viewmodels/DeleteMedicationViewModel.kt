@@ -14,12 +14,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+// ViewModel for the DeleteMedicationActivity
 class DeleteMedicationViewModel(
     private val repository: MedicationRepository,
 ) : ViewModel() {
 
     private val _currentMedication = MutableStateFlow<Medication?>(null)
-    val currentMedication: StateFlow<Medication?> = _currentMedication.asStateFlow()
+    private val currentMedication: StateFlow<Medication?> = _currentMedication.asStateFlow()
 
     private val _medicationName = MutableStateFlow("")
     val medicationName: StateFlow<String> = _medicationName.asStateFlow()

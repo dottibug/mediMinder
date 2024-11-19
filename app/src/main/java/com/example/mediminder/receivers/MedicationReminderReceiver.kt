@@ -12,32 +12,31 @@ import com.example.mediminder.R
 
 // https://developer.android.com/develop/ui/views/notifications
 // https://developer.android.com/develop/ui/views/notifications/build-notification
+
+// Broadcast receiver for medication reminders
 class MedicationReminderReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val logId = intent.getLongExtra(LOG_ID, NULL_INT)
-        val medicationId = intent.getLongExtra(MED_ID, NULL_INT)
         val medicationName = intent.getStringExtra(MED_NAME) ?: MED_NAME_DEFAULT
 
         // todo: do we want to include dosage in notification?
         val dosage = intent.getStringExtra(DOSAGE) ?: EMPTY_STRING
 
-        // Create notification channel
         createNotificationChannel(context)
 
-        // -- NOTIFICATION TAP ACTIONS --
         // Open main activity
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        // Pending intent must wrap the intent for notifications
+        // Notifications must be wrapped in pending intents
         val pendingIntent = PendingIntent.getActivity(
             context, 0, mainIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // User action is to take the medication
+        // User action: Take medication
         val takeIntent = Intent(context, MedicationActionReceiver::class.java).apply {
             action = TAKE_MEDICATION
             putExtra(LOG_ID, logId)
@@ -51,7 +50,7 @@ class MedicationReminderReceiver: BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        // User action is to skip the medication
+        // User action: Skip medication
         val skipIntent = Intent(context, MedicationActionReceiver::class.java).apply {
             action = SKIP_MEDICATION
             putExtra(LOG_ID, logId)
@@ -68,27 +67,28 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         val contentText = getMessage(context, medicationName)
 
         // Build notification
-        // todo settings option that allows users to show/hide name of medication in notifications
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.app_icon_small)
-            .setContentTitle(context.getString(R.string.notification_title))
+            .setContentTitle(context.getString(R.string.medication_reminder))
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setContentIntent(pendingIntent)
             .addAction(R.drawable.taken, context.getString(R.string.take), takePendingIntent)
             .addAction(R.drawable.skip, context.getString(R.string.skip), skipPendingIntent)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(medicationId.toInt(), notification)
+        notificationManager.notify(logId.toInt(), notification)
     }
 
+    // Get notification message based on user settings (show or hide medication name)
     private fun getMessage(context: Context, medicationName: String): String {
         return if (showMedicationName(context)) { context.getString(R.string.time_to_take, medicationName) }
         else { context.getString(R.string.time_to_take_private) }
     }
 
+    // Create notification channel
     private fun createNotificationChannel(context: Context) {
         val importance = NotificationManager.IMPORTANCE_HIGH // high importance allows peeking
         val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
@@ -105,7 +105,6 @@ class MedicationReminderReceiver: BroadcastReceiver() {
 
     companion object {
         private const val LOG_ID = "logId"
-        private const val MED_ID = "medicationId"
         private const val MED_NAME = "medicationName"
         private const val DOSAGE = "dosage"
         private const val NULL_INT = -1L

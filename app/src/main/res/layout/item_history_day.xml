@@ -14,6 +14,7 @@
         android:layout_height="2dp"
         android:background="@color/cadetGray" />
 
+    <!-- Date Header -->
     <TextView
         android:id="@+id/dateHeader"
         style="@style/subsection_title"
@@ -31,6 +32,7 @@
         android:layout_height="1dp"
         android:background="@color/cadetGray" />
 
+    <!-- No Medications Message -->
     <TextView
         android:id="@+id/noMedicationsText"
         style="@style/dialog_instructions"
@@ -38,11 +40,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
-        android:text="@string/no_medications_scheduled"
+        android:text="@string/msg_no_med_history"
         android:textSize="16sp"
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <!-- Medication History List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/logsList"
         android:layout_width="match_parent"

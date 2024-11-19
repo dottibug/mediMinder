@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 
+// Broadcast receiver for scheduling medication reminders
 class MedicationSchedulerReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -37,12 +38,14 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         }
     }
 
+    // Check if alarm permission is granted
     private fun hasAlarmPermission(alarmManager: AlarmManager): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && !alarmManager.canScheduleExactAlarms()) { return false }
         else { return true }
     }
 
+    // Process medications to schedule reminders
     private suspend fun processMedications(context: Context, alarmManager: AlarmManager) {
         val today = LocalDate.now()
         val database = AppDatabase.getDatabase(context)
@@ -51,12 +54,11 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         medications.forEach { medication ->
             val schedule = database.scheduleDao().getScheduleByMedicationId(medication.id)
             val isScheduledToday = isScheduledForDate(schedule, today)
-            if (isScheduledToday) {
-                createReminders(medication, database, today, context, alarmManager)
-            }
+            if (isScheduledToday) { createReminders(medication, database, today, context, alarmManager) }
         }
     }
 
+    // Create reminders for a medication
     private suspend fun createReminders(
         medication: Medication,
         database: AppDatabase,
@@ -67,48 +69,25 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         val reminder = database.remindersDao().getReminderByMedicationId(medication.id)
         val dosage = database.dosageDao().getDosageByMedicationId(medication.id)
         val dosageString = getDosageString(dosage)
-
         val reminderTimes = getReminderTimes(reminder)
+
         reminderTimes.forEach { time ->
             val medTime = LocalDateTime.of(today, time)
             val log = database.medicationLogDao().getLogByMedIdAndTime(medication.id, medTime)
 
-            scheduleReminder(
-                context,
-                medication.id,
-                medication.name,
-                dosageString,
-                log.id,
-                time,
-                alarmManager,
-            )
+            if (log != null) {
+                scheduleReminder(context, medication.id, medication.name, dosageString, log.id, time, alarmManager)
+            }
         }
-
-//        if (reminder != null) {
-//            val reminderTimes = getReminderTimes(reminder)
-//
-//            reminderTimes.forEach { time ->
-//                val medTime = LocalDateTime.of(today, time)
-//                val log = database.medicationLogDao().getLogByMedIdAndTime(medication.id, medTime)
-//
-//                scheduleReminder(
-//                    context,
-//                    medication.id,
-//                    medication.name,
-//                    dosageString,
-//                    log.id,
-//                    time,
-//                    alarmManager,
-//                )
-//            }
-//        }
     }
 
+    // Get dosage string
     private fun getDosageString(dosage: Dosage?): String {
         if (dosage == null) { return "" }
         else { return "${dosage.amount} ${dosage.units}" }
     }
 
+    // Get reminder times
     private fun getReminderTimes(reminder: MedReminders?): List<LocalTime> {
         if (reminder != null) {
             return when (reminder.reminderFrequency) {
@@ -123,7 +102,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         } else { return emptyList() }
     }
 
-
+    // Schedule a reminder
     private fun scheduleReminder(
         context: Context,
         medicationId: Long,
@@ -160,6 +139,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         )
     }
 
+    // Get trigger time for the alarm
     private fun getTriggerTime(time: LocalTime): Long? {
         val now = LocalDateTime.now()
         if (now.hour > time.hour || (now.hour == time.hour && now.minute >= time.minute)) { return null}

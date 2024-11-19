@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.example.mediminder.databinding.FragmentBaseDosageBinding
 import com.example.mediminder.models.DosageData
 
+// BaseDosageFragment is the base class for all dosage fragments
 abstract class BaseDosageFragment : Fragment() {
     protected lateinit var binding: FragmentBaseDosageBinding
 
@@ -19,6 +20,7 @@ abstract class BaseDosageFragment : Fragment() {
         return binding.root
     }
 
+    // Get dosage data from the UI
     fun getDosageData(): DosageData {
         return DosageData(
             dosageAmount = binding.inputDosage.text.toString(),

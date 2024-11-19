@@ -1,11 +1,14 @@
 package com.example.mediminder.fragments
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
 import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
 import com.example.mediminder.models.MedicationData
@@ -28,41 +31,70 @@ abstract class BaseMedicationInfoFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.asNeededSwitch.setOnCheckedChangeListener { _, isChecked ->
-            medicationViewModel.setAsNeeded(isChecked)
-        }
-
+        setupListener()
         setupObservers()
     }
 
+    private fun setupListener() {
+        binding.asScheduledSwitch.setOnCheckedChangeListener { _, isChecked ->
+            medicationViewModel.setAsScheduled(isChecked)
+        }
+    }
+
+    // Collect state flow from medication view model when the fragment is in the STARTED state
     private fun setupObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            medicationViewModel.asNeeded.collect { asNeeded ->
-                // Prevent infinite loop of setting the switch state
-                if (binding.asNeededSwitch.isChecked != asNeeded) {
-                    binding.asNeededSwitch.isChecked = asNeeded
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { medicationViewModel.asScheduled.collect { asScheduled ->
+                        setSwitchState(asScheduled)
+                        medicationViewModel.setAsScheduled(asScheduled)
+                        updateSwitchUI(asScheduled)
+                        toggleSwitchMessage(asScheduled)
+                    }
                 }
-
-                medicationViewModel.setAsNeeded(asNeeded)
-
-                // Update appearance of the switch based on the switch state
-                binding.asNeededSwitch.thumbTintList = if (asNeeded) {
-                    resources.getColorStateList(R.color.indigoDye, null)
-                } else {
-                    resources.getColorStateList(R.color.cadetGray, null)
-                }
-
-                // Toggle the visibility of the message based on the switch state
-                binding.asNeededMessage.visibility = if (asNeeded) View.VISIBLE else View.GONE
             }
         }
     }
 
-    private fun getIcon(iconName: String): MedicationIcon {
-        return MedicationIcon.valueOf(iconName.uppercase())
+    // Prevent infinite loop while setting the switch state
+    private fun setSwitchState(asScheduled: Boolean) {
+        if (binding.asScheduledSwitch.isChecked != asScheduled) {
+            binding.asScheduledSwitch.isChecked = asScheduled
+        }
     }
 
+    // Update appearance of the switch based on the switch state
+    private fun updateSwitchUI(asScheduled: Boolean) {
+        binding.asScheduledSwitch.apply {
+            text = getSwitchString(asScheduled)
+            thumbTintList = getSwitchTint(asScheduled)
+        }
+    }
+
+    // Helper function to get the switch text based on the switch state
+    private fun getSwitchString(asScheduled: Boolean): String {
+        return if (asScheduled) {
+            resources.getString(R.string.switch_take_as_scheduled)
+        } else {
+            resources.getString(R.string.switch_take_as_needed)
+        }
+    }
+
+    // Helper function to get the switch tint based on the switch state
+    private fun getSwitchTint(asScheduled: Boolean): ColorStateList {
+        return if (asScheduled) {
+            resources.getColorStateList(R.color.indigoDye, null)
+        } else {
+            resources.getColorStateList(R.color.cadetGray, null)
+        }
+    }
+
+    // Show or hide the message based on the switch state
+    private fun toggleSwitchMessage(asScheduled: Boolean) {
+        binding.asNeededMessage.visibility = if (asScheduled) View.GONE else View.VISIBLE
+    }
+
+    // Get medication data from the UI
     fun getMedicationData(): MedicationData {
         val iconName = binding.medicationIconDropdown.text.toString().uppercase()
         val icon = getIcon(iconName)
@@ -74,5 +106,10 @@ abstract class BaseMedicationInfoFragment: Fragment() {
             icon = icon,
             status = MedicationStatus.PENDING,
         )
+    }
+
+    // Helper function to get the medication icon from the dropdown
+    private fun getIcon(iconName: String): MedicationIcon {
+        return MedicationIcon.valueOf(iconName.uppercase())
     }
 }

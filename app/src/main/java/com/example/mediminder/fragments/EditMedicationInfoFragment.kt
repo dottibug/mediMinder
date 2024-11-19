@@ -4,39 +4,54 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.mediminder.R
+import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import kotlinx.coroutines.launch
 
+// Fragment for editing a medication's information. Pre-populates the medication fields with the
+// selected medication data
 class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
     override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupAsNeededUI()
+        setupObserver()
+    }
 
-        // Hide the as-needed switch (users cannot change as-needed medications to
-        // a scheduled medication and vice versa)
-        binding.asNeededSwitch.visibility = View.GONE
+    // Hide the switch (users cannot change an as-needed med to scheduled and vice versa)
+    // Show/hide the as-needed message based on the state of the switch
+    private fun setupAsNeededUI() {
+        val asScheduled = medicationViewModel.asScheduled.value
+        binding.asScheduledSwitch.visibility = View.GONE
 
-        val isAsNeeded = medicationViewModel.asNeeded.value
-
-        if (isAsNeeded) {
-            binding.asNeededMessage.visibility = View.VISIBLE
-            binding.asNeededMessage.text = "This medication is taken as needed."
-        } else {
-            binding.asNeededMessage.visibility = View.GONE
+        binding.asNeededMessage.apply {
+            visibility = if (asScheduled) View.GONE else View.VISIBLE
+            text = getString(R.string.msg_taken_as_needed)
         }
+    }
 
+    // Observe the current medication and update the UI with the medication data
+    private fun setupObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             medicationViewModel.currentMedication.collect { medication ->
-                medication?.let {
-                    binding.inputMedName.setText(it.medication.name)
-                    binding.inputDoctor.setText(it.medication.prescribingDoctor)
-                    binding.inputMedNotes.setText(it.medication.notes)
-
-                    val iconName = it.medication.icon.name.lowercase().replaceFirstChar { it.uppercase() }
-                    binding.medicationIconDropdown.setText(iconName, false)
-                }
+                medication?.let { updateUIWithMedicationData(it.medication) }
             }
+        }
+    }
+
+    // Update the UI with the medication data
+    private fun updateUIWithMedicationData(medication: Medication) {
+        with (binding) {
+            inputMedName.setText(medication.name)
+            inputDoctor.setText(medication.prescribingDoctor)
+            inputMedNotes.setText(medication.notes)
+
+            val iconName = medication.icon.name
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+            medicationIconDropdown.setText(iconName, false)
         }
     }
 }

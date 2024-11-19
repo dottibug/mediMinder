@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <!-- Screen Content -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dateSelector"
         android:layout_width="0dp"
@@ -24,7 +23,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="18dp"
         android:fontFamily="@font/roboto_medium"
-        android:text="@string/selected_date"
+        tools:text="Selected Date"
         android:textColor="@color/jet"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -36,8 +35,6 @@
         app:layout_constraintVertical_bias="0.5" />
 
     <!-- Add As-Needed Med Button -->
-    <!--    app:icon="@drawable/ic_add"-->
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonAddUnscheduled"
         style="@style/button_text"
@@ -73,23 +70,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectedDateText" />
-
-    <!-- Floating Action Button -->
-    <!-- style="?attr/floatingActionButtonLargeStyle" -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_medication"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:contentDescription="@string/add_medication"
-        android:src="@drawable/add_white"
-        android:visibility="gone"
-        app:backgroundTint="@color/indigoDye"
-        app:fabCustomSize="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/platinum" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

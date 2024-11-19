@@ -20,6 +20,11 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
+// This background worker creates medication logs for the next 7 days, allowing users to see their
+// upcoming scheduled medications. The worker runs once per day, and also when a medication is
+// added or updated. Duplicate logs are not created.
+// The worker runs in the background even if the app is destroyed, which is important for an app that
+// that is scheduling notifications.
 class CreateFutureMedicationLogsWorker(
     context: Context,
     params: WorkerParameters
@@ -27,35 +32,12 @@ class CreateFutureMedicationLogsWorker(
 
     override suspend fun doWork(): Result {
         val database = AppDatabase.getDatabase(applicationContext)
-        val medicationDao = database.medicationDao()
-        val scheduleDao = database.scheduleDao()
-        val reminderDao = database.remindersDao()
-        val medicationLogDao = database.medicationLogDao()
 
         return try {
             // Check if updating a single medication
             val medicationId = inputData.getLong("medicationId", -1)
-            Log.d("testcat", "CreateFutureMedicationLogsWorker - Processing medicationId: $medicationId")
-
-
-            if (medicationId != -1L) {
-                val medication = medicationDao.getMedicationById(medicationId)
-                Log.d("testcat", "Found medication: ${medication?.name}, asNeeded: ${medication?.asNeeded}")
-
-                if (medication != null && !medication.asNeeded) {
-                    val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
-                    val reminder = reminderDao.getReminderByMedicationId(medicationId)
-                    Log.d("testcat", "Schedule: ${schedule != null}, Reminder: ${reminder != null}")
-                    processMedication(medicationId, LocalDate.now(), scheduleDao, reminderDao, medicationLogDao)
-                }
-            } else {
-                // Process all medications (daily check)
-                val medications = medicationDao.getAllScheduledMedications()
-                val today = LocalDate.now()
-                medications.forEach { medication ->
-                    processMedication(medication.id, today, scheduleDao, reminderDao, medicationLogDao)
-                }
-            }
+            if (medicationId != -1L) { handleSingleMedication(medicationId, database) }
+            else { handleAllMedications(database) }
             Result.success()
         } catch (e: Exception) {
             Log.e("testcat", "Error in CreateFutureMedicationLogsWorker: ${e.message}")
@@ -63,6 +45,39 @@ class CreateFutureMedicationLogsWorker(
         }
     }
 
+    // Create logs for a single medication (used when updating a medication)
+    private suspend fun handleSingleMedication(medicationId: Long, database: AppDatabase) {
+        val medication = database.medicationDao().getMedicationById(medicationId)
+
+        if (!medication.asNeeded) {
+            processMedication(
+                medicationId = medicationId,
+                today = LocalDate.now(),
+                scheduleDao = database.scheduleDao(),
+                reminderDao = database.remindersDao(),
+                medicationLogDao = database.medicationLogDao()
+            )
+        }
+
+    }
+
+    // Create logs for all scheduled medications (used daily)
+    private suspend fun handleAllMedications(database: AppDatabase) {
+        val medications = database.medicationDao().getAllScheduledMedications()
+        val today = LocalDate.now()
+
+        medications.forEach { medication ->
+            processMedication(
+                medicationId = medication.id,
+                today = today,
+                scheduleDao = database.scheduleDao(),
+                reminderDao = database.remindersDao(),
+                medicationLogDao = database.medicationLogDao()
+            )
+        }
+    }
+
+    // Create logs for the given medication if it has less than 7 days of future logs
     private suspend fun processMedication(
         medicationId: Long,
         today: LocalDate,
@@ -72,52 +87,27 @@ class CreateFutureMedicationLogsWorker(
     ){
         val schedule = scheduleDao.getScheduleByMedicationId(medicationId)
         val reminder = reminderDao.getReminderByMedicationId(medicationId)
-        Log.d("testcat", "Processing medication $medicationId - Schedule: $schedule, Reminder: $reminder")
 
-
-        // Create logs for medication if it doesn't have enough future logs (otherwise, skip)
         if (schedule != null && reminder != null) {
             val futureLogs = medicationLogDao.getFutureLogsCount(medicationId, today)
-            Log.d("testcat", "Future logs count for medication $medicationId: $futureLogs")
-
 
             if (futureLogs < MIN_FUTURE_DAYS) {
-                createLogsForMedication(
-                    medicationId = medicationId,
-                    scheduleId = schedule.id,
-                    schedule = schedule,
-                    reminder = reminder,
-                    startDate = today.plusDays(futureLogs.toLong()),
-                    medicationLogDao = medicationLogDao
-                )
+                val startDate = today.plusDays(futureLogs.toLong())
+                val endDate = calculateEndDate(schedule, startDate)
+                var currentDate = startDate
+
+                while (!currentDate.isAfter(endDate)) {
+                    if (isScheduledForDate(schedule, currentDate)) {
+                        val reminderTimes = getReminderTimes(reminder)
+                        insertLogsForDate(medicationId, schedule.id, currentDate, reminderTimes, medicationLogDao)
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
             }
         }
     }
 
-    private suspend fun createLogsForMedication(
-        medicationId: Long,
-        scheduleId: Long,
-        schedule: Schedules,
-        reminder: MedReminders,
-        startDate: LocalDate,
-        medicationLogDao: MedicationLogDao
-    ) {
-        val endDate = calculateEndDate(schedule, startDate)
-        var currentDate = startDate
-        Log.d("testcat", "Creating logs from $startDate to $endDate for medication $medicationId")
-
-
-        while (!currentDate.isAfter(endDate)) {
-            if (isScheduledForDate(schedule, currentDate)) {
-                val reminderTimes = getReminderTimes(reminder)
-                Log.d("testcat", "Reminder times for $currentDate: $reminderTimes")
-
-                insertLogsForDate(medicationId, scheduleId, currentDate, reminderTimes, medicationLogDao)
-            }
-            currentDate = currentDate.plusDays(1)
-        }
-    }
-
+    // Calculate the end date based on the schedule's duration type
     private fun calculateEndDate(schedule: Schedules, startDate: LocalDate): LocalDate {
         return when (schedule.durationType) {
             "numDays" -> getEndDateForSetNumDays(schedule, startDate)
@@ -125,12 +115,15 @@ class CreateFutureMedicationLogsWorker(
         }
     }
 
+    // Calculate the end date based on the number of days in the schedule
     private fun getEndDateForSetNumDays(schedule: Schedules, startDate: LocalDate): LocalDate {
         val daysLeft = calculateDaysLeft(schedule, startDate)
         if (daysLeft <= 0) { return startDate.plusDays(DAYS_TO_CREATE.toLong()) }
         else { return startDate.plusDays(daysLeft.toLong()) }
     }
 
+
+    // Calculate the number of days left in the schedule
     private fun calculateDaysLeft(schedule: Schedules, startDate: LocalDate): Int {
         val daysLeft = schedule.numDays
             ?.minus(ChronoUnit.DAYS.between(schedule.startDate, startDate).toInt())
@@ -138,6 +131,7 @@ class CreateFutureMedicationLogsWorker(
         return daysLeft
     }
 
+    // Get the reminder times based on the reminder frequency
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
             "daily", "" -> reminder.dailyReminderTimes
@@ -150,6 +144,7 @@ class CreateFutureMedicationLogsWorker(
         }
     }
 
+    // Insert logs for the given date and reminder times
     @Transaction
     private suspend fun insertLogsForDate(
         medicationId: Long,

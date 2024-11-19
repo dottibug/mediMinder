@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 
+// Fragment for editing a medication's schedule. Pre-populates the schedule fields with the data for
+// the selected medication
 class EditScheduleFragment : BaseScheduleFragment() {
     override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
@@ -35,18 +37,11 @@ class EditScheduleFragment : BaseScheduleFragment() {
         }
     }
 
+    // Initialize schedule fields with medication details
     private fun initSchedule(medicationDetails: MedicationWithDetails) {
         isInitialSetup = true
 
-        medicationDetails.medication.let { med ->
-//            val isScheduled = !med.asNeeded
-//            scheduleViewModel.setScheduleEnabled(isScheduled)
-//
-//            // Clear all schedule settings if scheduled is disabled
-//            if (!isScheduled) { scheduleViewModel.clearScheduleSettings() }
-        }
-
-        // Set schedule details if enabled
+        // Set schedule details for scheduled medications (not needed for as-needed medications)
         if (!medicationDetails.medication.asNeeded) {
             medicationDetails.schedule?.let {
                 initStartDate(medicationDetails.schedule.startDate)
@@ -54,13 +49,17 @@ class EditScheduleFragment : BaseScheduleFragment() {
                 initScheduleDays(medicationDetails.schedule)
             }
         }
+
+        isInitialSetup = false
     }
 
+    // Set start date for scheduled medication
     private fun initStartDate(startDate: LocalDate) {
         scheduleViewModel.setStartDate(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
         updateDateButtonText(binding.buttonMedStartDate)
     }
 
+    // Set duration for scheduled medication
     private fun initDuration(numDays : Int) {
         val durationType = if (numDays != 0) NUM_DAYS else CONTINUOUS
         isInitialSetup = true
@@ -72,9 +71,9 @@ class EditScheduleFragment : BaseScheduleFragment() {
             scheduleViewModel.setNumDays(numDays)
             showDurationNumDaysSummary(numDays.toString())
         }
-        isInitialSetup = false
     }
 
+    // Set days for scheduled medication
     private fun initScheduleDays(schedule: Schedules) {
         val scheduleType = schedule.scheduleType
         isInitialSetup = true
@@ -92,9 +91,9 @@ class EditScheduleFragment : BaseScheduleFragment() {
             }
             else -> hideScheduleSummaries()
         }
-        isInitialSetup = false
     }
 
+    // Set radio button selection based on schedule type
     private fun setRadioButtons(scheduleType: String) {
         binding.radioDaysSpecificDays.isChecked = scheduleType == SPECIFIC_DAYS
         binding.radioDaysInterval.isChecked = scheduleType == INTERVAL

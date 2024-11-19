@@ -43,7 +43,7 @@
 
             <TextView
                 android:id="@+id/headlineAddMed"
-                android:text="@string/add_new_medication_title"
+                android:text="@string/add_new_medication"
                 style="@style/activity_title" />
 
             <!-- Medication Info -->
@@ -84,7 +84,7 @@
                 style="@style/button_primary"
                 android:layout_width="match_parent"
                 android:layout_marginTop="24dp"
-                android:text="@string/button_add_medication" />
+                android:text="@string/add_medication" />
 
             <Button
                 android:id="@+id/buttonCancelAddMed"

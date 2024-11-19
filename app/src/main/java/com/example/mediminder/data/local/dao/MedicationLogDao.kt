@@ -34,7 +34,7 @@ interface MedicationLogDao {
     // Get log by medication ID and scheduled time
     @Query("""SELECT * FROM medication_logs WHERE medication_id = :medicationId 
             AND planned_datetime = :plannedDateTime LIMIT 1""")
-    suspend fun getLogByMedIdAndTime(medicationId: Long, plannedDateTime: LocalDateTime): MedicationLogs
+    suspend fun getLogByMedIdAndTime(medicationId: Long, plannedDateTime: LocalDateTime): MedicationLogs?
 
     // Get pending medication logs
     @Query("SELECT * FROM medication_logs WHERE status = 'PENDING' AND planned_datetime <= :cutOffTime")

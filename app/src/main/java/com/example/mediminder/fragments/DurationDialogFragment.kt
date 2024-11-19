@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDurationDialogBinding
 
+
+// Dialog fragment for setting the duration of a medication schedule
 class DurationDialogFragment(
     private val parentFragment: BaseScheduleFragment,
     private val editingNumDays: Boolean
@@ -22,7 +24,10 @@ class DurationDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupListeners()
+    }
 
+    private fun setupListeners() {
         binding.buttonCancelDurationDialog.setOnClickListener {
             if (!editingNumDays) { parentFragment.setDurationRadioToContinuous() }
             dismiss()

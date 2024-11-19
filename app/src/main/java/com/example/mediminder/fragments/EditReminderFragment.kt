@@ -13,7 +13,8 @@ import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
-
+// Fragment for editing a medication's reminder settings. Pre-populates the reminder fields with the
+// selected medication data
 class EditReminderFragment : BaseReminderFragment() {
     override val reminderViewModel: BaseReminderViewModel by activityViewModels()
     override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
@@ -33,16 +34,9 @@ class EditReminderFragment : BaseReminderFragment() {
         }
     }
 
+    // Initialize reminder fields with medication details
     private fun initReminders(medicationDetails: MedicationWithDetails) {
         isInitialSetup = true
-
-        // Set reminder enabled
-        medicationDetails.medication.let { med ->
-            reminderViewModel.setReminderEnabled(med.reminderEnabled)
-
-            // Clear all reminder settings if reminders are disabled
-            if (!med.reminderEnabled) { reminderViewModel.clearReminderSettings() }
-        }
 
         // Set reminder details if enabled
         if (medicationDetails.medication.reminderEnabled) {
@@ -52,10 +46,11 @@ class EditReminderFragment : BaseReminderFragment() {
         isInitialSetup = false
     }
 
+    // Set reminder frequency and update the reminder frequency summary
     private fun initReminderSettings(reminders: MedReminders) {
         val reminderFrequency = reminders.reminderFrequency
+
         reminderViewModel.setReminderFrequency(reminderFrequency)
-        binding.reminderFrequencyMenu.setText(reminderFrequency)
 
         when (reminderFrequency) {
             EVERY_X_HOURS -> initHourlyReminderSettings(reminders)
@@ -63,6 +58,7 @@ class EditReminderFragment : BaseReminderFragment() {
         }
     }
 
+    // Set hourly reminder settings
     private fun initHourlyReminderSettings(reminders: MedReminders) {
         val interval = reminders.hourlyReminderInterval
         reminderViewModel.setHourlyReminderInterval(interval)
@@ -101,11 +97,10 @@ class EditReminderFragment : BaseReminderFragment() {
         }
     }
 
+    // Set daily reminder settings
     private fun initDailyReminderSettings(reminders: MedReminders) {
         // Convert LocalTime list to List<Pair<Int, Int>>
-        val reminderTimes = reminders.dailyReminderTimes.map { time ->
-            Pair(time.hour, time.minute)
-        }
+        val reminderTimes = reminders.dailyReminderTimes.map { time -> Pair(time.hour, time.minute) }
         reminderViewModel.setDailyReminderTimes(reminderTimes)
     }
 }

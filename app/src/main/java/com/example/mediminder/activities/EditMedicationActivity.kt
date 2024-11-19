@@ -42,25 +42,19 @@ class EditMedicationActivity : BaseActivity() {
         loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
     }
 
-    // BUG The initial visibility isn't working because asNeeded is false on all meds it seems.
-    //  How do we figure out if it's asNeeded or not? ... the base view model should be setting it
-    //  for us after we fetch the medication. Add a bunch of loggin.
     private fun setupInitialVisibility() {
-        Log.d("EditMedicationActivity testcat", "setupInitialVisibility called")
+        val isAsScheduled = medicationViewModel.asScheduled.value
 
-        val isAsNeeded = medicationViewModel.asNeeded.value
-        Log.d("EditMedicationActivity testcat", "isAsNeeded: $isAsNeeded")
-
-        if (medicationViewModel.asNeeded.value) {
-            // Hide dosage fragment, reminder fragment, and schedule fragment
-            binding.fragmentEditMedDosage.visibility = View.GONE
-            binding.fragmentEditMedReminder.visibility = View.GONE
-            binding.fragmentEditMedSchedule.visibility = View.GONE
-        } else {
+        if (isAsScheduled) {
             // Show dosage fragment, reminder fragment, and schedule fragment
             binding.fragmentEditMedDosage.visibility = View.VISIBLE
             binding.fragmentEditMedReminder.visibility = View.VISIBLE
             binding.fragmentEditMedSchedule.visibility = View.VISIBLE
+        } else {
+            // Hide dosage fragment, reminder fragment, and schedule fragment
+            binding.fragmentEditMedDosage.visibility = View.GONE
+            binding.fragmentEditMedReminder.visibility = View.GONE
+            binding.fragmentEditMedSchedule.visibility = View.GONE
         }
     }
 
@@ -84,36 +78,37 @@ class EditMedicationActivity : BaseActivity() {
 
     private fun setupObservers() {
         lifecycleScope.launch {
-            medicationViewModel.asNeeded.collect { isAsNeeded ->
-                Log.d("EditMedicationActivity testcat", "asNeeded: $isAsNeeded")
-                updateFragmentVisibility(isAsNeeded)
+            medicationViewModel.asScheduled.collect { asScheduled ->
+                updateFragmentVisibility(asScheduled)
             }
         }
     }
 
-    private fun updateFragmentVisibility(isAsNeeded: Boolean) {
-        Log.d("EditMedicationActivity", "Updating fragments visibility. isAsNeeded: $isAsNeeded")
-
-        binding.fragmentEditMedDosage.visibility = if (isAsNeeded) View.GONE else View.VISIBLE
-        binding.fragmentEditMedReminder.visibility = if (isAsNeeded) View.GONE else View.VISIBLE
-        binding.fragmentEditMedSchedule.visibility = if (isAsNeeded) View.GONE else View.VISIBLE
+    private fun updateFragmentVisibility(asScheduled: Boolean) {
+        with (binding) {
+            fragmentEditMedDosage.visibility = if (asScheduled) View.VISIBLE else View.GONE
+            fragmentEditMedReminder.visibility = if (asScheduled) View.VISIBLE else View.GONE
+            fragmentEditMedSchedule.visibility = if (asScheduled) View.VISIBLE else View.GONE
+        }
     }
 
     private fun handleUpdateMedication(medicationId: Long) {
         lifecycleScope.launch {
             val medData = getMedicationData(MedicationAction.EDIT)
-            val isAsNeeded = medicationViewModel.asNeeded.value
+            val asScheduled = medicationViewModel.asScheduled.value
 
             // Get dosage data if not as-needed medication
-            val dosageData = if (!isAsNeeded) getDosageData(MedicationAction.EDIT) else null
+            val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
 
             // Get reminder data if not as-needed medication
-            val reminderData = if (!isAsNeeded) medicationViewModel.getReminderData() else null
+            val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
 
             // Get schedule data if not as-needed medication
-            val scheduleData = if (!isAsNeeded) medicationViewModel.getScheduleData() else null
+            val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
 
-            if (medData != null && (dosageData != null || isAsNeeded)) {
+            // Update medication if med data is not null
+            // Dosage data can be null only if medication is as-needed
+            if (medData != null && (dosageData != null || !asScheduled)) {
                 medicationViewModel.updateMedication(
                     medicationId,
                     medData,

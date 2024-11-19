@@ -37,9 +37,6 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     private val _dateSelectorDates = MutableStateFlow(createDateList())
     val dateSelectorDates: StateFlow<List<LocalDate>> = _dateSelectorDates.asStateFlow()
 
-    private val _errorState = MutableStateFlow<String?>(null)
-    val errorState: StateFlow<String?> = _errorState.asStateFlow()
-
     private val _selectedAsNeededMedId = MutableStateFlow<Long?>(null)
     val selectedAsNeededMedId: StateFlow<Long?> = _selectedAsNeededMedId.asStateFlow()
 
@@ -55,6 +52,10 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     private val _initialMedStatus = MutableStateFlow<MedicationStatus?>(null)
     val initialMedStatus: StateFlow<MedicationStatus?> = _initialMedStatus.asStateFlow()
 
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+
+    // Fetch medications for the selected date
     fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
             try {
@@ -66,6 +67,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
+    // Set the initial medication status for the given log ID
     fun setInitialMedStatus(logId: Long) {
         viewModelScope.launch {
             try {
@@ -78,7 +80,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
-    // Coroutine off the main thread to avoid blocking the UI
+    // Update medication status for a given log id
     fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
         viewModelScope.launch {
             try {
@@ -91,18 +93,22 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
+    // Set the selected date
     fun selectDate(date: LocalDate) {
         _selectedDate.value = date
         fetchMedicationsForDate(date)
     }
 
+    // Create the list of quick dates a user can select (3 days before today to 7 days after today)
     private fun createDateList(): List<LocalDate> {
         val today = LocalDate.now()
-        return (-3..3).map { today.plusDays(it.toLong()) }
+        return (-3..7).map { today.plusDays(it.toLong()) }
     }
 
+    // Set as-needed medication selected by user
     fun setSelectedAsNeededMedication(asNeededMedId: Long?) { _selectedAsNeededMedId.value = asNeededMedId }
 
+    // Fetch all as-needed medications from the database
     fun fetchAsNeededMedications() {
         viewModelScope.launch {
             try {
@@ -117,10 +123,13 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
+    // Set time user took as-needed medication
     fun setTimeTaken(hour: Int, minute: Int) { _timeTaken.value = Pair(hour, minute) }
 
+    // Set date user took as-needed medication
     fun setDateTaken(date: Long) { _dateTaken.value = Instant.ofEpochMilli(date).atZone(ZoneId.of("UTC")).toLocalDate() }
 
+    // Add as-needed medication log to the database
     fun addAsNeededLog(validatedData: ValidatedAsNeededData) {
         viewModelScope.launch {
             try {
@@ -134,6 +143,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         }
     }
 
+    // Delete as-needed medication log from the database
     fun deleteAsNeededMedication(logId: Long) {
         viewModelScope.launch {
             try {

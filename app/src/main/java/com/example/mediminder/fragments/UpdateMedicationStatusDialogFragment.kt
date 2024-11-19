@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 // Dialog fragment for updating the status of a medication
 // Note: This fragment should only be constructed using the newInstance method to ensure the
-//  correct medicationId is passed to the fragment from the clicked recycler view item
+//  correct medicationId is passed to the fragment from the clicked medication in the recycler view
 class UpdateMedicationStatusDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentUpdateMedicationStatusDialogBinding
     private val viewModel: MainViewModel by activityViewModels { MainViewModel.Factory }
@@ -23,7 +23,6 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Set the initial medication status based on the selected logId
         viewModel.setInitialMedStatus(logId)
     }
 

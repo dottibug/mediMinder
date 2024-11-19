@@ -26,7 +26,9 @@
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/historyTitle">
+        app:layout_constraintTop_toBottomOf="@id/historyTitle"
+        android:hint="@string/filter_medication"
+        android:labelFor="@id/medicationDropdown">
 
         <AutoCompleteTextView
             android:id="@+id/medicationDropdown"
@@ -63,7 +65,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/button_calendar"
+            android:contentDescription="@string/select_date"
             android:padding="8dp"
             android:scaleType="fitCenter"
             android:src="@drawable/calendar"
@@ -102,13 +104,13 @@
         android:textColor="@color/cadetGray"
         android:textSize="18sp"
         android:textStyle="bold|italic"
+        android:text="@string/msg_no_logs"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/monthYearSelector"
         app:layout_constraintVertical_bias="0.0"
-        tools:text="No data available"
         tools:visibility="gone" />
 
     <!-- Loading Spinner -->

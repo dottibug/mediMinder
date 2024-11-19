@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// This view model holds state for the view medication activity. It handles fetching medication
+// details from the MedicationRepository to display in the UI.
 class ViewMedicationViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _medication = MutableStateFlow<MedicationWithDetails?>(null)
@@ -23,9 +25,8 @@ class ViewMedicationViewModel(private val repository: MedicationRepository) : Vi
 
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
-            try {
-                _medication.value = repository.getMedicationDetailsById(medicationId)
-            } catch (e: Exception) {
+            try { _medication.value = repository.getMedicationDetailsById(medicationId) }
+            catch (e: Exception) {
                 Log.e("ViewMedicationViewModel testcat", "Error loading medication", e)
             }
         }

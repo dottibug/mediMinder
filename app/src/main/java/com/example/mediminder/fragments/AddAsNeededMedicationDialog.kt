@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+// Dialog fragment for adding an as-needed medication
 class AddAsNeededMedicationDialog: DialogFragment() {
     private lateinit var binding: FragmentAddAsNeededMedBinding
     private lateinit var adapter: ArrayAdapter<String>
@@ -57,6 +58,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         lifecycleScope.launch { fetchAsNeededMedications() }
     }
 
+    // Fetch as-needed medications for the dropdown menu
     private fun fetchAsNeededMedications() {
         try {
             viewModel.fetchAsNeededMedications()
@@ -65,17 +67,18 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
+    // Setup UI elements
     private fun setupUI() {
         binding.asNeededMedDropdown.setAdapter(adapter)
         setupObservers()
         setupListeners()
     }
 
+    // Observe asNeededMedications to update dropdown menu
+    // RepeatOnLifecycle only collects data when the fragment is in the STARTED state to prevent
+    // UI updates when the fragment is not visible
     private fun setupObservers() {
-        // Observe asNeededMedications to update dropdown menu
         viewLifecycleOwner.lifecycleScope.launch {
-            // RepeatOnLifecycle only collects data when the fragment is in the STARTED state
-            // This prevents the UI from being updated when the fragment is not visible
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.asNeededMedications.collect { medications ->
                     if (medications.isEmpty()) { hideAsNeededInputs() }
@@ -88,6 +91,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
+    // Update the dropdown menu adapter
     private fun updateAdapter(medications: List<Medication>) {
         adapter.clear()
         adapter.addAll(medications.map { it.name })
@@ -95,40 +99,50 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         asNeededMedIds.addAll(medications.map { it.id })
     }
 
+    // Hide the as-needed medication inputs
     private fun hideAsNeededInputs() {
-        binding.layoutAddAsNeededMed.visibility = View.VISIBLE
-        binding.noAsNeededMedsMessage.visibility = View.VISIBLE
-        binding.addNewButton.visibility = View.VISIBLE
-        binding.asNeededMedDropdownWrapper.visibility = View.GONE
-        binding.layoutDosage.visibility = View.GONE
-        binding.layoutAsNeededDateTime.visibility = View.GONE
+        with (binding) {
+            layoutAddAsNeededMed.visibility = View.GONE
+            noAsNeededMedsMessage.visibility = View.GONE
+            addNewButton.visibility = View.GONE
+            asNeededMedDropdownWrapper.visibility = View.GONE
+            layoutDosage.visibility = View.GONE
+            layoutAsNeededDateTime.visibility = View.GONE
+        }
     }
 
+    // Show the as-needed medication inputs
     private fun showAsNeededInputs() {
-        binding.layoutAddAsNeededMed.visibility = View.VISIBLE
-        binding.noAsNeededMedsMessage.visibility = View.GONE
-        binding.addNewButton.visibility = View.VISIBLE
-        binding.asNeededMedDropdownWrapper.visibility = View.VISIBLE
-        binding.layoutDosage.visibility = View.VISIBLE
-        binding.layoutAsNeededDateTime.visibility = View.VISIBLE
+        with (binding) {
+            layoutAddAsNeededMed.visibility = View.VISIBLE
+            noAsNeededMedsMessage.visibility = View.GONE
+            addNewButton.visibility = View.VISIBLE
+            asNeededMedDropdownWrapper.visibility = View.VISIBLE
+            layoutDosage.visibility = View.VISIBLE
+            layoutAsNeededDateTime.visibility = View.VISIBLE
+        }
     }
 
+    // Setup listeners for the UI elements
     private fun setupListeners() {
-        binding.asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
-            viewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
-        }
+        with (binding) {
+            asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
+                viewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
+            }
 
-        binding.addNewButton.setOnClickListener { addNewAsNeededMed() }
-        binding.buttonAsNeededDateTaken.setOnClickListener { showDatePicker() }
-        binding.buttonAsNeededTimeTaken.setOnClickListener { showTimePicker() }
-        binding.buttonCancelAddAsNeededMed.setOnClickListener { dismiss() }
+            addNewButton.setOnClickListener { addNewAsNeededMed() }
+            buttonAsNeededDateTaken.setOnClickListener { showDatePicker() }
+            buttonAsNeededTimeTaken.setOnClickListener { showTimePicker() }
+            buttonCancelAddAsNeededMed.setOnClickListener { dismiss() }
 
-        binding.buttonSetAddAsNeededMed.setOnClickListener {
-            addAsNeededMedication()
-            dismiss()
+            buttonSetAddAsNeededMed.setOnClickListener {
+                addAsNeededMedication()
+                dismiss()
+            }
         }
     }
 
+    // Add as-needed medication to the database
     private fun addAsNeededMedication() {
         val selectedMedId = viewModel.selectedAsNeededMedId.value
         val dosageAmount = binding.asNeededDosageAmount.text.toString()
@@ -142,8 +156,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         lifecycleScope.launch {
             try {
                 viewModel.addAsNeededLog(validatedData)
-
-                // Refresh medications for the current date before dismissing
+                // Refresh medications for the current date
                 viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
                 dismiss()
             } catch (e: Exception) {
@@ -152,22 +165,22 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
+    // Start AddMedicationActivity to add a new as-needed medication
     private fun addNewAsNeededMed() {
         val intent = Intent(requireContext(), AddMedicationActivity::class.java)
         intent.putExtra("ADD_AS_NEEDED", true)
         startActivity(intent)
     }
 
+    // Show time picker dialog
     private fun showTimePicker() {
         val timePicker = MaterialTimePicker.Builder()
             .setInputMode(INPUT_MODE_CLOCK)
             .setTimeFormat(TimeFormat.CLOCK_12H)
             .setHour(12)
             .setMinute(0)
-            .setTitleText("Select Time Medication Was Taken")
+            .setTitleText(SELECT_TIME_TAKEN)
             .build()
-
-        timePicker.show(parentFragmentManager, "tag")
 
         timePicker.addOnPositiveButtonClickListener {
             val hour = timePicker.hour
@@ -176,6 +189,8 @@ class AddAsNeededMedicationDialog: DialogFragment() {
             viewModel.setTimeTaken(hour, minute)
             updateTimePickerButtonText()
         }
+
+        timePicker.show(parentFragmentManager, "tag")
     }
 
     // Update the time picker button text
@@ -191,23 +206,30 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
+    // Show date picker dialog
     private fun showDatePicker() {
         val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText("Select Date Medication Was Taken")
+            .setTitleText(SELECT_DATE_TAKEN)
             .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
             .build()
-
-        datePicker.show(parentFragmentManager, "tag")
 
         datePicker.addOnPositiveButtonClickListener { selection ->
             viewModel.setDateTaken(selection)
             updateDateButtonText()
         }
+
+        datePicker.show(parentFragmentManager, "tag")
     }
 
+    // Update the date picker button text
     private fun updateDateButtonText() {
         val date = viewModel.dateTaken.value
         val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
         binding.buttonAsNeededDateTaken.text = date?.format(formattedDate)
+    }
+
+    companion object {
+        private const val SELECT_TIME_TAKEN = "Select time medication was taken"
+        private const val SELECT_DATE_TAKEN = "Select date medication was taken"
     }
 }

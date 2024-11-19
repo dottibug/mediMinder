@@ -46,7 +46,7 @@
                 style="@style/activity_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_medication_full"
+                android:text="@string/edit_medication"
                 android:textAlignment="textStart"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
@@ -88,7 +88,7 @@
                 style="@style/button_primary"
                 android:layout_width="match_parent"
                 android:layout_marginTop="24dp"
-                android:text="@string/button_update_med" />
+                android:text="@string/update_medication" />
 
             <Button
                 android:id="@+id/buttonCancelUpdateMed"

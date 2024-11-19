@@ -16,8 +16,10 @@ import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
+// Various utility functions used throughout the app
 object AppUtils {
 
+    // Create LocalTime from a pair of Ints
     fun getLocalTimeFromPair(pair: Pair<Int, Int>?): LocalTime? {
         return pair?.let { LocalTime.of(it.first, it.second) }
     }
@@ -121,9 +123,14 @@ object AppUtils {
         }
     }
 
+    // Checks if the medication is scheduled for the given date based on the schedule type
     fun isScheduledForDate(schedule: Schedules?, date: LocalDate): Boolean {
-        if (schedule == null) { return false }
-        if (!dateWithinMedicationDuration(date, schedule)) { return false }
+        if (schedule == null) {
+            return false
+        }
+        if (!dateWithinMedicationDuration(date, schedule)) {
+            return false
+        }
 
         return when (schedule.scheduleType) {
             "daily" -> true
@@ -133,6 +140,7 @@ object AppUtils {
         }
     }
 
+    // Checks if the medication is scheduled for a certain day of the week
     private fun isScheduledForDayOfWeek(schedule: Schedules, date: LocalDate): Boolean {
         return schedule.selectedDays
             .split(",")
@@ -152,6 +160,7 @@ object AppUtils {
         return daysSinceStart % (schedule.daysInterval ?: 1) == 0
     }
 
+    // Set up window insets
     fun setupWindowInsets(rootView: View) {
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

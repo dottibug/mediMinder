@@ -18,6 +18,7 @@ enum class MedicationStatus {
     UNSCHEDULED     // Unscheduled (as needed) medications
 }
 
+// Icons used for medication cards
 enum class MedicationIcon {
     CAPSULE,
     DROP,
@@ -27,6 +28,7 @@ enum class MedicationIcon {
     TABLET,
 }
 
+// Medication data
 data class MedicationData(
     val name: String,
     val doctor: String,
@@ -36,11 +38,13 @@ data class MedicationData(
     val asNeeded: Boolean = false
 )
 
+// Dosage data
 data class DosageData(
     val dosageAmount: String?,
     val dosageUnits: String?
 )
 
+// Reminder data
 data class ReminderData(
     val reminderEnabled: Boolean,
     val reminderFrequency: String,
@@ -50,6 +54,7 @@ data class ReminderData(
     val dailyReminderTimes: List<Pair<Int, Int>>,
 )
 
+// Schedule data
 data class ScheduleData(
     val isScheduled: Boolean,
     val startDate: LocalDate?,
@@ -60,6 +65,7 @@ data class ScheduleData(
     val daysInterval: Int?
 )
 
+// Medication item: Medication, dosage, time, status, and log id
 data class MedicationItem(
     val medication: Medication,
     val dosage: Dosage?,
@@ -68,6 +74,7 @@ data class MedicationItem(
     val logId: Long
 )
 
+// Medication with details: Medication, dosage, reminders, and schedule
 data class MedicationWithDetails(
     val medication: Medication,
     val dosage: Dosage?,
@@ -75,10 +82,12 @@ data class MedicationWithDetails(
     val schedule: Schedules?
 )
 
+// Medication history: List of medication logs
 data class MedicationHistory(
     val logs: List<MedicationLogWithDetails>
 )
 
+// Medication log with details: Medication name, dosage, and log
 data class MedicationLogWithDetails(
     val id: Long,
     val name: String,
@@ -87,11 +96,13 @@ data class MedicationLogWithDetails(
     val log: MedicationLogs
 )
 
+// Day logs: Date and list of medication logs
 data class DayLogs(
     val date: LocalDate,
     val logs: List<MedicationLogWithDetails>
 )
 
+// Reminder state holds values for the data flow of the BaseReminderFragment
 data class ReminderState(
     val reminderEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false),
     val reminderFrequency: MutableStateFlow<String> = MutableStateFlow(""),
@@ -101,6 +112,7 @@ data class ReminderState(
     val dailyReminderTimes: MutableStateFlow<List<Pair<Int, Int>>> = MutableStateFlow(emptyList())
 )
 
+// Schedule state holds values for the data flow of the BaseScheduleFragment
 data class ScheduleState(
     val isScheduledMedication: MutableStateFlow<Boolean> = MutableStateFlow(true),
     val startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(null),
@@ -111,6 +123,7 @@ data class ScheduleState(
     val daysInterval: MutableStateFlow<Int?> = MutableStateFlow(0)
 )
 
+// Validated medication, dosage, reminder, and schedule data
 data class ValidatedData(
     val medicationData: MedicationData,
     val dosageData: DosageData?,
@@ -118,6 +131,7 @@ data class ValidatedData(
     val scheduleData: ScheduleData?
 )
 
+// Validated as-needed medication data
 data class ValidatedAsNeededData(
     val medicationId: Long,
     val scheduleId: Long?,

@@ -6,14 +6,14 @@
         android:icon="@drawable/calendar"
         android:checkable="true"
         app:itemTextColor="@color/jet"
-        android:title="@string/home" />
+        android:title="@string/today" />
     <item
         android:id="@+id/nav_medications"
         android:icon="@drawable/meds"
         android:checkable="true"
         app:itemTextColor="@color/jet"
         app:itemIconTint="@color/jet"
-        android:title="@string/medications" />
+        android:title="@string/my_medications" />
     <item
         android:id="@+id/nav_history"
         android:icon="@drawable/history"

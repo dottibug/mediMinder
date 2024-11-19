@@ -29,14 +29,14 @@
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             android:src="@drawable/alarm"
-            android:contentDescription="@string/permission_icon_description" />
+            android:contentDescription="@string/permission_icon" />
 
             <TextView
                 android:id="@+id/permissionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="@string/alarm_permission_title"
+                android:text="@string/enable_alarms"
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:text="@string/alarm_permission_description"
+                android:text="@string/msg_enable_alarms"
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceBodyMedium" />
 
@@ -54,10 +54,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/button_grant_alarm_permission" />
-
+            android:text="@string/enable_alarms" />
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

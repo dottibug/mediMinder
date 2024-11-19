@@ -14,7 +14,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/view_medication_title"
+        android:text="@string/medication_details"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,9 +52,6 @@
             android:orientation="vertical">
 
             <!-- Medication name -->
-
-            <!-- Dosage -->
-
             <LinearLayout
                 android:id="@+id/medName"
                 android:layout_width="wrap_content"
@@ -67,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_name_heading"
+                    android:text="@string/medication_name"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -76,15 +73,16 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_name_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
+            <!-- Dosage -->
             <LinearLayout
                 android:id="@+id/medDosage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -93,7 +91,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_dosage_heading"
+                    android:text="@string/dosage"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -102,7 +100,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_dosage_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -111,7 +109,7 @@
                 android:id="@+id/medDoctor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -122,7 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_doctor_heading"
+                    android:text="@string/prescribed_by"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -131,7 +129,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_doctor_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -140,7 +138,7 @@
                 android:id="@+id/medNotes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -151,7 +149,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_notes_heading"
+                    android:text="@string/notes"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -160,7 +158,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_notes_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -169,7 +167,7 @@
                 android:id="@+id/medReminder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -180,7 +178,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_reminder_heading"
+                    android:text="@string/reminders"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -189,7 +187,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_reminder_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -198,7 +196,7 @@
                 android:id="@+id/medSchedule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -207,7 +205,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_schedule_heading"
+                    android:text="@string/schedule"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -216,7 +214,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_schedule_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -225,7 +223,7 @@
                 android:id="@+id/medStartDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -234,7 +232,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_start_date_heading"
+                    android:text="@string/start_date"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -243,7 +241,7 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_start_date_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
 
@@ -252,7 +250,7 @@
                 android:id="@+id/medEndDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -263,7 +261,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="0dp"
-                    android:text="@string/view_med_end_date_heading"
+                    android:text="@string/end_date"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -272,11 +270,9 @@
                     style="@style/text_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/view_med_end_date_content"
+                    android:text="@string/dynamic_text"
                     android:textSize="18sp" />
             </LinearLayout>
-
-
         </LinearLayout>
 
         <ImageView
@@ -286,6 +282,7 @@
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:contentDescription="@string/medication_icon"
             android:src="@drawable/tablet"
             app:tint="@color/jet" />
     </LinearLayout>
@@ -295,7 +292,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -304,52 +302,26 @@
         <Button
             android:id="@+id/buttonEditMed"
             style="@style/button_primary"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="9dp"
-            android:layout_weight="1"
             android:backgroundTint="@color/white"
-            android:paddingLeft="18dp"
-            android:paddingTop="9dp"
-            android:paddingRight="18dp"
-            android:paddingBottom="9dp"
-            android:text="@string/edit_medication"
+            android:text="@string/edit"
             android:textColor="@color/cadetGray"
-            app:cornerRadius="4dp"
             app:strokeColor="@color/cadetGray"
-            app:strokeWidth="3dp" />
+            app:strokeWidth="2dp"
+            app:cornerRadius="4dp" />
 
         <Button
             android:id="@+id/buttonDeleteMed"
             style="@style/button_primary"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="9dp"
-            android:layout_weight="1"
             android:backgroundTint="@color/white"
-            android:paddingLeft="18dp"
-            android:paddingTop="9dp"
-            android:paddingRight="18dp"
-            android:paddingBottom="9dp"
-            android:text="@string/delete_medication"
+            android:text="@string/delete"
             android:textColor="@color/red"
-            app:cornerRadius="4dp"
             app:strokeColor="@color/red"
-            app:strokeWidth="3dp" />
+            app:strokeWidth="2dp"
+            app:cornerRadius="4dp" />
     </LinearLayout>
-
-    <!--
-      Medication name
-      Dosage
-      Doctor
-      Notes
-      Reminder settings
-      Schedule settings
-      History
-
-      buttons for editing and deleting medication
-      -->
-
-    <!-- TODO - History -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

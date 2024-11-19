@@ -12,15 +12,13 @@ import kotlinx.coroutines.launch
 class AddMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityAddMedicationBinding
     private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
-//    override var isAsNeeded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // If activity started with ADD_AS_NEEDED flag, hide dosage fragment
         if (intent.getBooleanExtra("ADD_AS_NEEDED", false)) {
-            medicationViewModel.setAsNeeded(true)
-//            isAsNeeded = true
+            medicationViewModel.setAsScheduled(false)
         }
 
         setupBindings()
@@ -30,16 +28,16 @@ class AddMedicationActivity : BaseActivity() {
     }
 
     private fun setupInitialVisibility() {
-        if (medicationViewModel.asNeeded.value) {
-            // Hide dosage fragment, reminder fragment, and schedule fragment
-            binding.fragmentAddMedDosage.visibility = View.GONE
-            binding.fragmentAddMedReminder.visibility = View.GONE
-            binding.fragmentAddMedSchedule.visibility = View.GONE
-        } else {
+        if (medicationViewModel.asScheduled.value) {
             // Show dosage fragment, reminder fragment, and schedule fragment
             binding.fragmentAddMedDosage.visibility = View.VISIBLE
             binding.fragmentAddMedReminder.visibility = View.VISIBLE
             binding.fragmentAddMedSchedule.visibility = View.VISIBLE
+        } else {
+            // Hide dosage fragment, reminder fragment, and schedule fragment
+            binding.fragmentAddMedDosage.visibility = View.GONE
+            binding.fragmentAddMedReminder.visibility = View.GONE
+            binding.fragmentAddMedSchedule.visibility = View.GONE
         }
     }
 
@@ -62,8 +60,7 @@ class AddMedicationActivity : BaseActivity() {
 
     private fun setupObservers() {
         lifecycleScope.launch {
-            medicationViewModel.asNeeded.collect { asNeeded ->
-//                isAsNeeded = asNeeded
+            medicationViewModel.asScheduled.collect { asScheduled ->
                 setupInitialVisibility()
             }
         }
@@ -76,22 +73,27 @@ class AddMedicationActivity : BaseActivity() {
                     Log.d("AddMedicationActivity testcat", "handleAddMedication called")
                     val medData = getMedicationData(MedicationAction.ADD)
                     Log.d("AddMedicationActivity testcat", "Medication data: $medData")
-                    val isAsNeeded = medicationViewModel.asNeeded.value
-                    Log.d("AddMedicationActivity testcat", "As-needed flag: $isAsNeeded")
+
+                    val isAsScheduled = medicationViewModel.asScheduled.value
+
+//                    val isAsNeeded = medicationViewModel.asNeeded.value
+//                    Log.d("AddMedicationActivity testcat", "As-needed flag: $isAsNeeded")
 
                     // Get dosage data if not as-needed medication
-                    val dosageData = if (!isAsNeeded) getDosageData(MedicationAction.ADD) else null
+                    val dosageData = if (isAsScheduled) getDosageData(MedicationAction.ADD) else null
                     Log.d("AddMedicationActivity testcat", "Dosage data: $dosageData")
 
                     // Get reminder data if not as-needed medication
-                    val reminderData = if (!isAsNeeded) medicationViewModel.getReminderData() else null
+                    val reminderData = if (isAsScheduled) medicationViewModel.getReminderData() else null
                     Log.d("AddMedicationActivity testcat", "Reminder data: $reminderData")
 
                     // Get schedule data if not as-needed medication
-                    val scheduleData = if (!isAsNeeded) medicationViewModel.getScheduleData() else null
+                    val scheduleData = if (isAsScheduled) medicationViewModel.getScheduleData() else null
                     Log.d("AddMedicationActivity testcat", "Schedule data: $scheduleData")
 
-                    if (medData != null && (dosageData != null || isAsNeeded)) {
+                    // Add medication if med data is not null
+                    // Dosage data can be null only if medication is as-needed
+                    if (medData != null && (dosageData != null || !isAsScheduled)) {
                         medicationViewModel.addMedication(medData, dosageData, reminderData, scheduleData)
                         setResult(RESULT_OK)
                         finish()
