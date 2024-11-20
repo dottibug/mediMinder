@@ -17,6 +17,15 @@ import com.example.mediminder.utils.AppUtils.daysOfWeekString
 import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.formatToLongDate
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
+import com.example.mediminder.utils.Constants.TIME_PATTERN
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.ViewMedicationViewModel
 import kotlinx.coroutines.launch
@@ -32,13 +41,13 @@ class ViewMedicationActivity(): BaseActivity() {
     private val viewModel: ViewMedicationViewModel by viewModels { ViewMedicationViewModel.Factory }
     private lateinit var binding: ActivityViewMedicationBinding
     private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
-    private var medicationId: Long = NULL_INT
+    private var medicationId: Long = -1L
 
     // Initialize variables and setup bindings
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        medicationId = intent.getLongExtra(MED_ID, NULL_INT)
-        if (medicationId == NULL_INT) { finish() }
+        medicationId = intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) { finish() }
         setupBindings()
     }
 
@@ -188,7 +197,7 @@ class ViewMedicationActivity(): BaseActivity() {
 
     // Helper function to format daily reminders into a string
     private fun getDailyReminderString(remindersList: List<LocalTime>): String {
-        val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern(TIME_PATTERN, Locale.ENGLISH)
         val times = remindersList.map { it.format(formatter).lowercase() }
 
         val timeString = when (times.size) {
@@ -228,7 +237,7 @@ class ViewMedicationActivity(): BaseActivity() {
     }
 
     private fun setEndDate(schedule: Schedules?) {
-        if (schedule?.durationType == "continuous") {
+        if (schedule?.durationType == CONTINUOUS) {
             binding.medEndDate.visibility = View.GONE
         } else {
             binding.medEndDate.visibility = View.VISIBLE
@@ -269,7 +278,7 @@ class ViewMedicationActivity(): BaseActivity() {
     private fun getDurationString(schedule: Schedules): String {
         return when (schedule.durationType) {
             NUM_DAYS -> "for ${schedule.numDays.toString()} days"
-            else -> ""
+            else -> EMPTY_STRING
         }
     }
 }

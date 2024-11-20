@@ -102,7 +102,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     // Create the list of quick dates a user can select (3 days before today to 7 days after today)
     private fun createDateList(): List<LocalDate> {
         val today = LocalDate.now()
-        return (-3..7).map { today.plusDays(it.toLong()) }
+        return (DAYS_AGO..DAYS_AHEAD).map { today.plusDays(it.toLong()) }
     }
 
     // Set as-needed medication selected by user
@@ -113,7 +113,6 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
         viewModelScope.launch {
             try {
                 val testResult = repository.getAsNeededMedications()
-                Log.d("MainViewModel testcat", "testResult: $testResult")
                 _asNeededMedications.value = testResult
 
             } catch (e: Exception) {
@@ -157,6 +156,9 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     }
 
     companion object {
+        private const val DAYS_AGO = -3
+        private const val DAYS_AHEAD = 7
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[APPLICATION_KEY] as Application

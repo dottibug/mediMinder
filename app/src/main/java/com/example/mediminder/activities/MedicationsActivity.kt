@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MedicationsViewModel
 import kotlinx.coroutines.launch

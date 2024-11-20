@@ -13,7 +13,6 @@ import com.example.mediminder.AlarmPermissionManager
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityPermissionBinding
-import com.example.mediminder.receivers.MedicationReminderReceiver
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 
 class PermissionActivity : AppCompatActivity() {
@@ -72,7 +71,7 @@ class PermissionActivity : AppCompatActivity() {
         binding.permissionButton.setOnClickListener {
             val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                putExtra(Settings.EXTRA_CHANNEL_ID, MedicationReminderReceiver.CHANNEL_ID)
+//                putExtra(Settings.EXTRA_CHANNEL_ID, MedicationReminderReceiver.MED_REMINDER_CHANNEL_ID)
             }
             notificationPermissionLauncher.launch(intent)
         }

@@ -18,11 +18,13 @@ import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.models.ValidatedAsNeededData
+import com.example.mediminder.utils.Constants.EMPTY_STRING
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
 
+// This repository interacts with the database access objects to perform CRUD operations
 class MedicationRepository(
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -198,7 +200,7 @@ class MedicationRepository(
             return Dosage(
                 medicationId = log.medicationId,
                 amount = log.asNeededDosageAmount,
-                units = log.asNeededDosageUnit ?: ""
+                units = log.asNeededDosageUnit ?: EMPTY_STRING
             )
         } else {
             // Retrieve Dosage object from the database
@@ -209,23 +211,22 @@ class MedicationRepository(
     // Add an as-needed (unscheduled) medication log
     suspend fun addAsNeededLog(validatedData: ValidatedAsNeededData) {
         try {
-            val log = MedicationLogs(
-                medicationId = validatedData.medicationId,
-                scheduleId = null, // No schedule for as-needed medications
-                plannedDatetime = validatedData.plannedDatetime,
-                takenDatetime = validatedData.takenDatetime,
-                status = validatedData.status,  // As-needed medications can not be "missed" or "skipped"
-                asNeededDosageAmount = validatedData.asNeededDosageAmount,
-                asNeededDosageUnit = validatedData.asNeededDosageUnit
+            medicationLogDao.insert(
+                MedicationLogs(
+                    medicationId = validatedData.medicationId,
+                    scheduleId = null, // No schedule for as-needed medications
+                    plannedDatetime = validatedData.plannedDatetime,
+                    takenDatetime = validatedData.takenDatetime,
+                    status = validatedData.status,  // As-needed medications can not be "missed" or "skipped"
+                    asNeededDosageAmount = validatedData.asNeededDosageAmount,
+                    asNeededDosageUnit = validatedData.asNeededDosageUnit
+                )
             )
-            val insertedId = medicationLogDao.insert(log)
-            Log.d("MedicationRepository testcat", "Inserted as-needed log with ID: $insertedId")
         } catch (e: Exception) {
             Log.e("MedicationRepository testcat ", "Error adding as-needed log", e)
         }
     }
 
-    suspend fun deleteAsNeededMedication(logId: Long) {
-        medicationLogDao.deleteById(logId)
-    }
+    // Delete an as-needed medication log
+    suspend fun deleteAsNeededMedication(logId: Long) { medicationLogDao.deleteById(logId) }
 }

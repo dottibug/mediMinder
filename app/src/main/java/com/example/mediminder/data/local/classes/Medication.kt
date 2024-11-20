@@ -10,7 +10,7 @@ import com.example.mediminder.models.MedicationIcon
 @Entity(tableName = "medications")
 data class Medication (
     @PrimaryKey (autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "name") val name: String, // not null
+    @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name= "prescribing_doctor") val prescribingDoctor: String?,
     @ColumnInfo(name = "notes") val notes: String?,
     @ColumnInfo(name = "icon") val icon : MedicationIcon,

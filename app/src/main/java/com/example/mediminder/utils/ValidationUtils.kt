@@ -7,6 +7,13 @@ import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.models.ValidatedAsNeededData
 import com.example.mediminder.models.ValidatedData
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -18,19 +25,12 @@ object ValidationUtils {
     private const val DOSE_AMT_REQ = "Dosage amount is required"
     private const val DOSE_UNIT_DEFAULT = "units"
     private const val REM_FREQ_REQ = "Reminder frequency is required when reminders are enabled"
-    private const val EMPTY_STRING = ""
-    private const val EVERY_X_HOURS = "every x hours"
     private const val HOURLY_INTERVAL_REQ = "An interval is required for hourly reminders"
     private const val START_TIME_REQ = "A start time is required for hourly reminders"
     private const val END_TIME_REQ = "An end time is required for hourly reminders"
-    private const val DAILY = "daily"
     private const val REM_TIME_REQ = "At least one reminder time is required for daily reminders"
-    private const val DURATION_DEFAULT = "continuous"
-    private const val NUM_DAYS = "numDays"
     private const val NUM_DAYS_REQ = "Number of days must be greater than 0"
-    private const val SPECIFIC_DAYS = "specificDays"
     private const val SPECIFIC_DAYS_REQ = "Specific days of the week must be selected"
-    private const val INTERVAL = "interval"
     private const val DAYS_INTERVAL_REQ = "Days interval must be greater than 0"
 
     // Validate data for a scheduled medication
@@ -187,7 +187,7 @@ object ValidationUtils {
 
     // Helper function to validate duration type
     private fun getDurationType(scheduleData: ScheduleData): String {
-        if (scheduleData.durationType.isEmpty()) { return DURATION_DEFAULT }
+        if (scheduleData.durationType.isEmpty()) { return CONTINUOUS }
         else { return scheduleData.durationType }
     }
 

@@ -7,6 +7,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.Constants.LOG_ID
+import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
+import com.example.mediminder.utils.Constants.NEW_STATUS
 import java.time.LocalDateTime
 
 // https://developer.android.com/reference/androidx/work/Worker
@@ -43,8 +46,8 @@ class CheckMissedMedicationsWorker(
                 // Send broadcast to application to update the UI with the new missed status
                 val updateIntent = Intent(MED_STATUS_CHANGED).apply {
                     setPackage(applicationContext.packageName)
-                    putExtra("logId", log.id)
-                    putExtra("newStatus", MedicationStatus.MISSED.toString())
+                    putExtra(LOG_ID, log.id)
+                    putExtra(NEW_STATUS, MedicationStatus.MISSED.toString())
                 }
                 applicationContext.sendBroadcast(updateIntent)
             }
@@ -60,7 +63,6 @@ class CheckMissedMedicationsWorker(
     }
 
     companion object {
-        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
         private const val GRACE_PERIOD_KEY = "grace_period"
         private const val GRACE_PERIOD_DEFAULT = "1"
     }

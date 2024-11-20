@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaySelectionDialogBinding
 import com.example.mediminder.utils.AppUtils.getDayNames
+import com.example.mediminder.utils.Constants.EMPTY_STRING
 import java.time.DayOfWeek
 
 // Dialog fragment for selecting the days of the week for a medication schedule
 class DaySelectionDialogFragment(
     private val parentFragment: BaseScheduleFragment,
     private val editingDaySelection: Boolean,
-    private val selectedDays: String = ""
+    private val selectedDays: String = EMPTY_STRING
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaySelectionDialogBinding
 

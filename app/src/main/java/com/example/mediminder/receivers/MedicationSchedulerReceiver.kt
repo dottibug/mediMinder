@@ -13,6 +13,16 @@ import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.AppUtils.isScheduledForDate
+import com.example.mediminder.utils.Constants.ALARM_PERMISSION_DENIED
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.DOSAGE
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.LOG_ID
+import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.MED_NAME
+import com.example.mediminder.utils.Constants.SCHEDULE_DAILY_MEDICATIONS
+import com.example.mediminder.utils.Constants.SCHEDULE_NEW_MEDICATION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +35,7 @@ import java.time.ZoneId
 class MedicationSchedulerReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == SCHEDULE_DAILY_MEDS || intent.action == SCHEDULE_NEW_MED) {
+        if (intent.action == SCHEDULE_DAILY_MEDICATIONS || intent.action == SCHEDULE_NEW_MEDICATION) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -83,7 +93,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
 
     // Get dosage string
     private fun getDosageString(dosage: Dosage?): String {
-        if (dosage == null) { return "" }
+        if (dosage == null) { return EMPTY_STRING }
         else { return "${dosage.amount} ${dosage.units}" }
     }
 
@@ -91,8 +101,8 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
     private fun getReminderTimes(reminder: MedReminders?): List<LocalTime> {
         if (reminder != null) {
             return when (reminder.reminderFrequency) {
-                "daily" -> reminder.dailyReminderTimes
-                "every x hours" -> getHourlyReminderTimes(
+                DAILY -> reminder.dailyReminderTimes
+                EVERY_X_HOURS -> getHourlyReminderTimes(
                     reminder.hourlyReminderInterval,
                     reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                     reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }
@@ -116,10 +126,10 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
         if (!hasAlarmPermission(alarmManager)) { throw SecurityException(ALARM_PERMISSION_DENIED) }
 
         val intent = Intent(context, MedicationReminderReceiver::class.java).apply {
-            putExtra("medicationId", medicationId)
-            putExtra("medicationName", medicationName)
-            putExtra("dosage", dosage)
-            putExtra("logId", logId)
+            putExtra(MED_ID, medicationId)
+            putExtra(MED_NAME, medicationName)
+            putExtra(DOSAGE, dosage)
+            putExtra(LOG_ID, logId)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -150,11 +160,5 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
             .atZone(ZoneId.systemDefault())
             .toInstant()
             .toEpochMilli()
-    }
-
-    companion object {
-        private const val SCHEDULE_DAILY_MEDS = "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS"
-        private const val SCHEDULE_NEW_MED = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
-        private const val ALARM_PERMISSION_DENIED = "Permission to schedule exact alarms not granted"
     }
 }

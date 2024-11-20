@@ -1,8 +1,8 @@
 package com.example.mediminder.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
-import com.example.mediminder.activities.BaseActivity.Companion.X_TIMES_DAILY
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.X_TIMES_DAILY
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,7 +59,7 @@ class BaseReminderViewModel: ViewModel() {
             _dailyReminderTimes.value = times
 
             // If there are no times left, set the reminder frequency to "every x hours"
-            if (times.size == 0) { setReminderFrequency("every x hours") }
+            if (times.size == 0) { setReminderFrequency(EVERY_X_HOURS) }
         }
     }
 

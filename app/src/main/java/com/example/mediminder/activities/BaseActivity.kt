@@ -27,7 +27,6 @@ abstract class BaseActivity : AppCompatActivity() {
     protected val navView get() = baseBinding.navView
     protected val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
-//    protected abstract var isAsNeeded: Boolean
 
     protected fun setupBaseLayout() {
         enableEdgeToEdge()
@@ -41,6 +40,7 @@ abstract class BaseActivity : AppCompatActivity() {
         setupNavigationView(drawer, navView)
     }
 
+    // Set up the top app bar
     private fun setupAppBar(drawer: DrawerLayout, topAppBar: MaterialToolbar) {
         topAppBar.setNavigationOnClickListener { drawer.open() }
 
@@ -57,6 +57,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    // Set up the navigation drawer
     private fun setupNavigationView(drawer: DrawerLayout, navView: NavigationView) {
         navView.setNavigationItemSelectedListener { menuItem ->
             handleNavigationItemSelected(menuItem)
@@ -66,6 +67,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    // Handle navigation item selection
     private fun handleNavigationItemSelected(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.nav_home -> {
@@ -97,6 +99,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    // Get medication data based on the action (add or edit)
     protected fun getMedicationData(action: MedicationAction): MedicationData? {
        val medFragment = when (action) {
            MedicationAction.ADD -> supportFragmentManager.findFragmentById(
@@ -107,6 +110,7 @@ abstract class BaseActivity : AppCompatActivity() {
         return medFragment?.getMedicationData()
     }
 
+    // Get dosage data based on the action (add or edit)
     protected fun getDosageData(action: MedicationAction): DosageData? {
         // Skip dosage data for as-needed medications
         if (!medicationViewModel.asScheduled.value) return null
@@ -120,22 +124,9 @@ abstract class BaseActivity : AppCompatActivity() {
         return dosageFragment?.getDosageData()
     }
 
-
-
+    // Medication action enum
     protected enum class MedicationAction {
         ADD,
         EDIT
-    }
-
-    companion object {
-        const val EVERY_X_HOURS = "every x hours"
-        const val X_TIMES_DAILY = "x times daily"
-        const val NUM_DAYS = "numDays"
-        const val CONTINUOUS = "continuous"
-        const val SPECIFIC_DAYS = "specificDays"
-        const val INTERVAL = "interval"
-        const val DAILY = "daily"
-        const val MED_ID = "medicationId"
-        const val NULL_INT = -1L
     }
 }

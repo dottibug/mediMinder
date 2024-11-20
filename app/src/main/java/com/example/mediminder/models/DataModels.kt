@@ -5,10 +5,15 @@ import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.data.local.classes.MedicationLogs
 import com.example.mediminder.data.local.classes.Schedules
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+
+// DataModels contains data classes and enum classes used throughout the app
 
 enum class MedicationStatus {
     PENDING,        // Initial state when created
@@ -105,7 +110,7 @@ data class DayLogs(
 // Reminder state holds values for the data flow of the BaseReminderFragment
 data class ReminderState(
     val reminderEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false),
-    val reminderFrequency: MutableStateFlow<String> = MutableStateFlow(""),
+    val reminderFrequency: MutableStateFlow<String> = MutableStateFlow(EMPTY_STRING),
     val hourlyReminderInterval: MutableStateFlow<String?> = MutableStateFlow(null),
     val hourlyReminderStartTime: MutableStateFlow<Pair<Int, Int>?> = MutableStateFlow(null),
     val hourlyReminderEndTime: MutableStateFlow<Pair<Int, Int>?> = MutableStateFlow(null),
@@ -116,10 +121,10 @@ data class ReminderState(
 data class ScheduleState(
     val isScheduledMedication: MutableStateFlow<Boolean> = MutableStateFlow(true),
     val startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(null),
-    val durationType: MutableStateFlow<String> = MutableStateFlow("continuous"),
+    val durationType: MutableStateFlow<String> = MutableStateFlow(CONTINUOUS),
     val numDays: MutableStateFlow<Int?> = MutableStateFlow(0),
-    val scheduleType: MutableStateFlow<String> = MutableStateFlow("daily"),
-    val selectedDays: MutableStateFlow<String> = MutableStateFlow(""),
+    val scheduleType: MutableStateFlow<String> = MutableStateFlow(DAILY),
+    val selectedDays: MutableStateFlow<String> = MutableStateFlow(EMPTY_STRING),
     val daysInterval: MutableStateFlow<Int?> = MutableStateFlow(0)
 )
 

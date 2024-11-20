@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.databinding.ItemHistoryDayBinding
 import com.example.mediminder.models.DayLogs
+import com.example.mediminder.utils.Constants.DATE_PATTERN_DAY
 import java.time.format.DateTimeFormatter
 
+// Adapter for the medication log list RecyclerView in the HistoryActivity.
 class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
@@ -23,7 +25,7 @@ class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCa
     }
 
     class DayViewHolder(private val binding: ItemHistoryDayBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d") // Mon, Jan 1
+        private val dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN_DAY) // Mon, Jan 1
         private val logsAdapter = LogsAdapter()
 
         init {

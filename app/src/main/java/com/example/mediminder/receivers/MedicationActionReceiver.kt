@@ -9,6 +9,12 @@ import android.widget.Toast
 import com.example.mediminder.R
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.LOG_ID
+import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
+import com.example.mediminder.utils.Constants.NEW_STATUS
+import com.example.mediminder.utils.Constants.SKIP_MEDICATION
+import com.example.mediminder.utils.Constants.TAKE_MEDICATION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,8 +25,8 @@ import kotlinx.coroutines.withContext
 // Cancels the notification after an action is taken or the notification is dismissed by the user.
 class MedicationActionReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val logId = intent.getLongExtra(LOG_ID, NULL_INT)
-        if (logId == NULL_INT) { return }
+        val logId = intent.getLongExtra(LOG_ID, -1L)
+        if (logId == -1L) { return }
 
         val action = intent.action
 
@@ -74,7 +80,7 @@ class MedicationActionReceiver: BroadcastReceiver() {
         return when (action) {
             TAKE_MEDICATION -> context.getString(R.string.take_action_response)
             SKIP_MEDICATION -> context.getString(R.string.skip_action_response)
-            else -> ""
+            else -> EMPTY_STRING
         }
     }
 
@@ -82,14 +88,5 @@ class MedicationActionReceiver: BroadcastReceiver() {
     private fun cancelNotification(context: Context, logId: Long) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(logId.toInt())
-    }
-
-    companion object {
-        private const val LOG_ID = "logId"
-        private const val NULL_INT = -1L
-        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
-        private const val NEW_STATUS = "newStatus"
-        private const val TAKE_MEDICATION = "take_medication"
-        private const val SKIP_MEDICATION = "skip_medication"
     }
 }

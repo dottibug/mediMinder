@@ -4,25 +4,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
-import com.example.mediminder.activities.BaseActivity.Companion.CONTINUOUS
-import com.example.mediminder.activities.BaseActivity.Companion.DAILY
-import com.example.mediminder.activities.BaseActivity.Companion.INTERVAL
-import com.example.mediminder.activities.BaseActivity.Companion.NUM_DAYS
-import com.example.mediminder.activities.BaseActivity.Companion.SPECIFIC_DAYS
 import com.example.mediminder.databinding.FragmentBaseScheduleBinding
+import com.example.mediminder.utils.AppUtils.createDatePicker
 import com.example.mediminder.utils.AppUtils.daysOfWeekString
+import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
-import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
 // Base fragment for adding or editing a medication's schedule
 abstract class BaseScheduleFragment : Fragment() {
@@ -82,27 +83,14 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Date Picker Dialog (selects current date by default)
     private fun showDatePickerDialog() {
-        val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText(getString(R.string.select_start_date))
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-            .build()
+        val datePicker = createDatePicker(getString(R.string.select_start_date))
 
         datePicker.addOnPositiveButtonClickListener { selection ->
             scheduleViewModel.setStartDate(selection)
-            updateDateButtonText(binding.buttonMedStartDate)
+            updateDatePickerButtonText(scheduleViewModel.startDate.value, binding.buttonMedStartDate)
         }
 
-        datePicker.show(parentFragmentManager, "tag")
-    }
-
-    // Update the button text with the selected date
-    protected fun updateDateButtonText(button: Button) {
-        val date = scheduleViewModel.startDate.value
-        if (date == null) { button.text = getString(R.string.select_start_date) }
-        else {
-            val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
-            button.text = date.format(formattedDate)
-        }
+        datePicker.show(parentFragmentManager, DATE_PICKER_TAG)
     }
 
     // Medication duration settings
@@ -160,27 +148,34 @@ abstract class BaseScheduleFragment : Fragment() {
 
     // Medication schedule settings
     protected open fun handleScheduleSettings() {
-        val isEveryDay = binding.radioDaysEveryDay.isChecked
-        val isSpecificDays = binding.radioDaysSpecificDays.isChecked
-        val isInterval = binding.radioDaysInterval.isChecked
-
-        if (isEveryDay) {
-            prevScheduleWasDaily = true
-            hideScheduleSummaries()
-            scheduleViewModel.setScheduleType(DAILY)
+        with (binding) {
+            when {
+                radioDaysEveryDay.isChecked -> setupEveryDaySchedule()
+                radioDaysSpecificDays.isChecked -> setupSpecificDaysSchedule()
+                radioDaysInterval.isChecked -> setupIntervalSchedule()
+            }
         }
+    }
 
-        else if (isSpecificDays) {
-            if (!prevScheduleWasDaily) { hideDaysIntervalSummary() }
-            showDaySelectionDialog()
-            scheduleViewModel.setScheduleType(SPECIFIC_DAYS)
-        }
+    // Helper function to setup every day schedule UI
+    private fun setupEveryDaySchedule() {
+        prevScheduleWasDaily = true
+        hideScheduleSummaries()
+        scheduleViewModel.setScheduleType(DAILY)
+    }
 
-        else if (isInterval) {
-            if (!prevScheduleWasDaily) { hideDaySelectionSummary() }
-            showDaysIntervalDialog()
-            scheduleViewModel.setScheduleType(INTERVAL)
-        }
+    // Helper function to setup specific days schedule UI
+    private fun setupSpecificDaysSchedule() {
+        if (!prevScheduleWasDaily) { hideDaysIntervalSummary() }
+        showDaySelectionDialog()
+        scheduleViewModel.setScheduleType(SPECIFIC_DAYS)
+    }
+
+    // Helper function to setup interval schedule UI
+    private fun setupIntervalSchedule() {
+        if (!prevScheduleWasDaily) { hideDaySelectionSummary() }
+        showDaysIntervalDialog()
+        scheduleViewModel.setScheduleType(INTERVAL)
     }
 
     // Programmatically set the schedule radio button to daily
@@ -239,7 +234,7 @@ abstract class BaseScheduleFragment : Fragment() {
 
     private fun hideDaySelectionSummary() {
         setViewVisibility(binding.layoutDaySelectionSummary, false)
-        selectedDays = ""
+        selectedDays = EMPTY_STRING
     }
 
     private fun hideDaysIntervalSummary() {

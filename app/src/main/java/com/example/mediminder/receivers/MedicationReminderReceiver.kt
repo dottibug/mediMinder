@@ -9,6 +9,17 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
+import com.example.mediminder.utils.Constants.DOSAGE
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.LOG_ID
+import com.example.mediminder.utils.Constants.MED_NAME
+import com.example.mediminder.utils.Constants.MED_NAME_DEFAULT
+import com.example.mediminder.utils.Constants.MED_PRIVACY
+import com.example.mediminder.utils.Constants.MED_REMINDER_CHANNEL_DESC
+import com.example.mediminder.utils.Constants.MED_REMINDER_CHANNEL_ID
+import com.example.mediminder.utils.Constants.MED_REMINDER_CHANNEL_NAME
+import com.example.mediminder.utils.Constants.SKIP_MEDICATION
+import com.example.mediminder.utils.Constants.TAKE_MEDICATION
 
 // https://developer.android.com/develop/ui/views/notifications
 // https://developer.android.com/develop/ui/views/notifications/build-notification
@@ -17,7 +28,7 @@ import com.example.mediminder.R
 class MedicationReminderReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val logId = intent.getLongExtra(LOG_ID, NULL_INT)
+        val logId = intent.getLongExtra(LOG_ID, -1L)
         val medicationName = intent.getStringExtra(MED_NAME) ?: MED_NAME_DEFAULT
 
         // todo: do we want to include dosage in notification?
@@ -67,7 +78,7 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         val contentText = getMessage(context, medicationName)
 
         // Build notification
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, MED_REMINDER_CHANNEL_ID)
             .setSmallIcon(R.drawable.app_icon_small)
             .setContentTitle(context.getString(R.string.medication_reminder))
             .setContentText(contentText)
@@ -91,8 +102,8 @@ class MedicationReminderReceiver: BroadcastReceiver() {
     // Create notification channel
     private fun createNotificationChannel(context: Context) {
         val importance = NotificationManager.IMPORTANCE_HIGH // high importance allows peeking
-        val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-            description = CHANNEL_DESCRIPTION
+        val channel = NotificationChannel(MED_REMINDER_CHANNEL_ID, MED_REMINDER_CHANNEL_NAME, importance).apply {
+            description = MED_REMINDER_CHANNEL_DESC
         }
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
@@ -100,22 +111,10 @@ class MedicationReminderReceiver: BroadcastReceiver() {
 
     private fun showMedicationName(context: Context): Boolean {
         val settingsPrefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
-        return settingsPrefs.getBoolean(MED_PRIVACY_KEY, true) // default to true
+        return settingsPrefs.getBoolean(MED_PRIVACY, true) // default to true
     }
 
     companion object {
-        private const val LOG_ID = "logId"
-        private const val MED_NAME = "medicationName"
-        private const val DOSAGE = "dosage"
-        private const val NULL_INT = -1L
-        private const val MED_NAME_DEFAULT = "Medication"
-        private const val EMPTY_STRING = ""
         private const val SKIP_OFFSET = 1000
-        const val CHANNEL_ID = "medication_reminders"
-        private const val CHANNEL_NAME = "Medication Reminders"
-        private const val CHANNEL_DESCRIPTION = "Channel for medication reminders"
-        private const val TAKE_MEDICATION = "take_medication"
-        private const val SKIP_MEDICATION = "skip_medication"
-        private const val MED_PRIVACY_KEY = "show_medication_name"
     }
 }

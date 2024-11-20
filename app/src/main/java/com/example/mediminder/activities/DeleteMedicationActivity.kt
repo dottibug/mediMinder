@@ -11,6 +11,7 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
@@ -20,13 +21,13 @@ class DeleteMedicationActivity : BaseActivity() {
     private val viewModel: DeleteMedicationViewModel by viewModels { DeleteMedicationViewModel.Factory }
     private lateinit var binding: ActivityDeleteMedicationBinding
     private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
-    private var medicationId: Long = NULL_INT
+    private var medicationId: Long = -1L
     private var medicationDeleted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        medicationId = intent.getLongExtra(MED_ID, NULL_INT)
-        if (medicationId == NULL_INT) { finish() }
+        medicationId = intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) { finish() }
         setupBindings()
 
         // Handle back press
@@ -38,6 +39,7 @@ class DeleteMedicationActivity : BaseActivity() {
         })
     }
 
+    // Set up listeners and observers before data is fetched
     override fun onStart() {
         super.onStart()
         setupUI()
@@ -45,9 +47,10 @@ class DeleteMedicationActivity : BaseActivity() {
         setupObservers()
     }
 
+    // Fetch medication data when the activity is resumed
     override fun onResume() {
         super.onResume()
-        fetchMedicationData(medicationId)
+        fetchMedicationData()
     }
 
     // Set up bindings for the base class, then inflate this view into the base layout
@@ -64,18 +67,20 @@ class DeleteMedicationActivity : BaseActivity() {
         binding.deleteMedicationMessage.text = resources.getString(R.string.msg_delete_medication, medicationName)
     }
 
+    // Click listeners
     private fun setupListeners() {
-        binding.buttonCancelDeleteMed.setOnClickListener {
-            setResult(RESULT_CANCELED)
-            finish()
+        with (binding) {
+            buttonConfirmDeleteMed.setOnClickListener { deleteMedication() }
+            buttonCancelDeleteMed.setOnClickListener { cancelActivity() }
+            buttonGoToMain.setOnClickListener { navigateToMain() }
+            buttonGoToMedications.setOnClickListener { navigateToMedications() }
         }
+    }
 
-        binding.buttonConfirmDeleteMed.setOnClickListener {
-            lifecycleScope.launch { deleteMedication() }
-        }
-
-        binding.buttonGoToMain.setOnClickListener { navigateToMain() }
-        binding.buttonGoToMedications.setOnClickListener { navigateToMedications() }
+    // Cancel the activity
+    private fun cancelActivity() {
+        setResult(RESULT_CANCELED)
+        finish()
     }
 
     // Update the UI when medication name is fetched
@@ -89,7 +94,7 @@ class DeleteMedicationActivity : BaseActivity() {
     }
 
     // Fetch medication details from the database
-    private fun fetchMedicationData(medicationId: Long) {
+    private fun fetchMedicationData() {
         lifecycleScope.launch {
             loadingSpinnerUtil.whileLoading {
                 try { viewModel.fetchMedication(medicationId) }
@@ -121,14 +126,16 @@ class DeleteMedicationActivity : BaseActivity() {
     }
 
     // Delete medication from the database (cascades to all related entities)
-    private suspend fun deleteMedication() {
-        loadingSpinnerUtil.whileLoading {
-            try {
-                viewModel.deleteMedication()
-                medicationDeleted = true
-                showSuccessMessage()
-            } catch (e: Exception) {
-                Log.e("DeleteMedicationActivity", "Error deleting medication", e)
+    private fun deleteMedication() {
+        lifecycleScope.launch {
+            loadingSpinnerUtil.whileLoading {
+                try {
+                    viewModel.deleteMedication()
+                    medicationDeleted = true
+                    showSuccessMessage()
+                } catch (e: Exception) {
+                    Log.e("DeleteMedicationActivity", "Error deleting medication", e)
+                }
             }
         }
     }

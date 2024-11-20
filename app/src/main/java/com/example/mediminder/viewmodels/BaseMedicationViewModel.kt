@@ -16,7 +16,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.DosageData
@@ -29,6 +28,12 @@ import com.example.mediminder.models.ScheduleState
 import com.example.mediminder.models.ValidatedData
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
+import com.example.mediminder.utils.Constants.SCHEDULE_NEW_MEDICATION
 import com.example.mediminder.utils.ValidationUtils.getValidatedData
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
@@ -50,26 +55,14 @@ class BaseMedicationViewModel(
     private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
     val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
 
-//    private val _asNeeded = MutableStateFlow(false)
-//    val asNeeded: StateFlow<Boolean> = _asNeeded.asStateFlow()
-
     private val _asScheduled = MutableStateFlow(true)
     val asScheduled: StateFlow<Boolean> = _asScheduled.asStateFlow()
 
     private val reminderState = ReminderState()
     private val scheduleState = ScheduleState()
 
-//    fun setAsNeeded(enabled: Boolean) { _asNeeded.value = !enabled }
-    fun setAsScheduled(enabled: Boolean) { _asScheduled.value = enabled }
-
-    // Reminder state update functions
-    fun updateReminderFrequency(frequency: String?) { reminderState.reminderFrequency.value = frequency ?: "" }
-    fun updateHourlyReminderInterval(interval: String?) { reminderState.hourlyReminderInterval.value = interval }
-    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { reminderState.hourlyReminderStartTime.value = startTime }
-    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { reminderState.hourlyReminderEndTime.value = endTime }
-    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { reminderState.dailyReminderTimes.value = times }
-
     // Schedule state update functions
+    fun setAsScheduled(enabled: Boolean) { _asScheduled.value = enabled }
     fun updateStartDate(date: LocalDate?) { scheduleState.startDate.value = date }
     fun updateDurationType(type: String) { scheduleState.durationType.value = type }
     fun updateNumDays(days: Int?) { scheduleState.numDays.value = days }
@@ -82,8 +75,15 @@ class BaseMedicationViewModel(
 
     fun updateDaysInterval(interval: Int?) {
         scheduleState.daysInterval.value = interval
-        scheduleState.selectedDays.value = ""
+        scheduleState.selectedDays.value = EMPTY_STRING
     }
+
+    // Reminder state update functions
+    fun updateReminderFrequency(frequency: String?) { reminderState.reminderFrequency.value = frequency ?: EMPTY_STRING }
+    fun updateHourlyReminderInterval(interval: String?) { reminderState.hourlyReminderInterval.value = interval }
+    fun updateHourlyReminderStartTime(startTime: Pair<Int, Int>?) { reminderState.hourlyReminderStartTime.value = startTime }
+    fun updateHourlyReminderEndTime(endTime: Pair<Int, Int>?) { reminderState.hourlyReminderEndTime.value = endTime }
+    fun updateDailyReminderTimes(times: List<Pair<Int, Int>>) { reminderState.dailyReminderTimes.value = times }
 
     // -----------------------------------------------------------------------------------------
     // GETTER FUNCTIONS
@@ -104,7 +104,7 @@ class BaseMedicationViewModel(
     private fun getReminderFrequency(): String {
         when (reminderState.reminderFrequency.value) {
             EVERY_X_HOURS -> return EVERY_X_HOURS
-            else -> return "daily"
+            else -> return DAILY
         }
     }
 
@@ -168,7 +168,7 @@ class BaseMedicationViewModel(
                     validatedData.reminderData,
                     validatedData.scheduleData
                 )
-                createWorkers("create_logs", medicationId)
+                createWorkers(CREATE_LOGS, medicationId)
             } catch (e: Exception) {
                 Log.e("testcat", "Error saving medication: ${e.message}")
                 throw e
@@ -209,7 +209,7 @@ class BaseMedicationViewModel(
                     validatedData.reminderData,
                     validatedData.scheduleData
                 )
-                createWorkers("update_logs", medicationId)
+                createWorkers(UPDATE_LOGS, medicationId)
             } catch (e: Exception) {
                 Log.e("testcat", "Error updating medication: ${e.message}")
                 throw e
@@ -239,7 +239,7 @@ class BaseMedicationViewModel(
     // Build work requests for creating future medication logs and checking for missed medications
     private fun createWorkRequests(medId: Long): Pair<OneTimeWorkRequest, OneTimeWorkRequest> {
         val createFutureLogsRequest = OneTimeWorkRequestBuilder<CreateFutureMedicationLogsWorker>()
-            .setInputData(workDataOf("medicationId" to medId))
+            .setInputData(workDataOf(MED_ID to medId))
             .build()
 
         val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
@@ -269,8 +269,8 @@ class BaseMedicationViewModel(
     }
 
     companion object {
-        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
-        private const val SCHEDULE_NEW_MEDICATION = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+        private const val CREATE_LOGS = "create_logs"
+        private const val UPDATE_LOGS = "update_logs"
 
         // Factory to create BaseMedicationViewModel (allows dependency injection)
         val Factory: ViewModelProvider.Factory = viewModelFactory {

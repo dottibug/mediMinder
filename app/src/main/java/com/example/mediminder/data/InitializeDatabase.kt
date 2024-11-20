@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
 
+// Initialize the database if it is empty
 class InitializeDatabase(private val context: Context) {
     suspend fun initDatabase() {
         val database = AppDatabase.getDatabase(context)

@@ -14,8 +14,7 @@ import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.getStatusIcon
 
-// Medication adapter for the main activity. Displays a list of medications to be taken for a
-// given date.
+// Medication adapter for MainActivity. Displays a list of medications to be taken for a given date.
 class MainMedicationAdapter(
     private val onUpdateStatusClick: (Long) -> Unit,
     private val onDeleteAsNeededClick: (Long) -> Unit

@@ -10,8 +10,10 @@ import com.example.mediminder.databinding.ItemHistoryLogBinding
 import com.example.mediminder.models.MedicationLogWithDetails
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.getStatusIcon
+import com.example.mediminder.utils.Constants.TIME_PATTERN
 import java.time.format.DateTimeFormatter
 
+// Adapter for the medication log list RecyclerView in the HistoryActivity.
 class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
@@ -24,7 +26,7 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
     }
 
     class LogViewHolder(private val binding: ItemHistoryLogBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+        private val timeFormatter = DateTimeFormatter.ofPattern(TIME_PATTERN)
 
         fun bind(medLog: MedicationLogWithDetails) {
             binding.statusIcon.setImageResource(getStatusIcon(medLog.log.status))
@@ -32,7 +34,6 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
             binding.medicationName.text = medLog.name
 
             if (medLog.dosageUnits == null || medLog.dosageAmount == null) {
-                // TODO get the units and amount fro the log
                 val dosageAmount = medLog.log.asNeededDosageAmount
                 val dosageUnits = medLog.log.asNeededDosageUnit
                 binding.dosageAndTime.text = itemView.context.getString(

@@ -52,8 +52,8 @@ class MediminderApplication: Application() {
         val settingsPrefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val gracePeriod = settingsPrefs.getString(GRACE_PERIOD_KEY, GRACE_PERIOD_DEFAULT)
         return when (gracePeriod) {
-            "0.5" -> 30L
-            "1" -> 60L
+            HALF_HOUR -> 30L
+            ONE_HOUR -> 60L
             else -> 120L // Default to 2 hours if period is longer than 1 hour
         }
     }
@@ -81,5 +81,7 @@ class MediminderApplication: Application() {
         private const val FUTURE_MED_WORKER_NAME = "create_future_medication_logs"
         private const val GRACE_PERIOD_KEY = "grace_period"
         private const val GRACE_PERIOD_DEFAULT = "1"
+        private const val HALF_HOUR = "0.5"
+        private const val ONE_HOUR = "1"
     }
 }

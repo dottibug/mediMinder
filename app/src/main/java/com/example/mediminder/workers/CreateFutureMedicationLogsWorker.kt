@@ -15,6 +15,11 @@ import com.example.mediminder.data.local.dao.ScheduleDao
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.AppUtils.isScheduledForDate
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.NUM_DAYS
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -35,7 +40,7 @@ class CreateFutureMedicationLogsWorker(
 
         return try {
             // Check if updating a single medication
-            val medicationId = inputData.getLong("medicationId", -1)
+            val medicationId = inputData.getLong(MED_ID, -1L)
             if (medicationId != -1L) { handleSingleMedication(medicationId, database) }
             else { handleAllMedications(database) }
             Result.success()
@@ -110,7 +115,7 @@ class CreateFutureMedicationLogsWorker(
     // Calculate the end date based on the schedule's duration type
     private fun calculateEndDate(schedule: Schedules, startDate: LocalDate): LocalDate {
         return when (schedule.durationType) {
-            "numDays" -> getEndDateForSetNumDays(schedule, startDate)
+            NUM_DAYS -> getEndDateForSetNumDays(schedule, startDate)
             else -> startDate.plusDays(DAYS_TO_CREATE.toLong())
         }
     }
@@ -134,8 +139,8 @@ class CreateFutureMedicationLogsWorker(
     // Get the reminder times based on the reminder frequency
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
-            "daily", "" -> reminder.dailyReminderTimes
-            "every x hours" -> getHourlyReminderTimes(
+            DAILY, EMPTY_STRING -> reminder.dailyReminderTimes
+            EVERY_X_HOURS -> getHourlyReminderTimes(
                 reminder.hourlyReminderInterval,
                 reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                 reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }

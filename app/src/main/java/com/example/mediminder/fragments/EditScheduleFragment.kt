@@ -4,13 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.mediminder.activities.BaseActivity.Companion.CONTINUOUS
-import com.example.mediminder.activities.BaseActivity.Companion.DAILY
-import com.example.mediminder.activities.BaseActivity.Companion.INTERVAL
-import com.example.mediminder.activities.BaseActivity.Companion.NUM_DAYS
-import com.example.mediminder.activities.BaseActivity.Companion.SPECIFIC_DAYS
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.models.MedicationWithDetails
+import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
@@ -55,8 +56,9 @@ class EditScheduleFragment : BaseScheduleFragment() {
 
     // Set start date for scheduled medication
     private fun initStartDate(startDate: LocalDate) {
-        scheduleViewModel.setStartDate(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
-        updateDateButtonText(binding.buttonMedStartDate)
+        val initialStartDate = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        scheduleViewModel.setStartDate(initialStartDate)
+        updateDatePickerButtonText(startDate, binding.buttonMedStartDate)
     }
 
     // Set duration for scheduled medication

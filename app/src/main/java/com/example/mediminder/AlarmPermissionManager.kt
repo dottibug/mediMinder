@@ -10,6 +10,7 @@ class AlarmPermissionManager(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             return alarmManager.canScheduleExactAlarms()
-        } else { return true }
+        }
+        else { return true }
     }
 }

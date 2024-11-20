@@ -11,6 +11,7 @@ import com.google.android.material.card.MaterialCardView
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+// Adapter for the date selector RecyclerView in the MainActivity.
 class MainDateSelectorAdapter(
     private val onDateSelected: (LocalDate) -> Unit
 ): ListAdapter<LocalDate, MainDateSelectorAdapter.DateViewHolder>(DiffCallback) {

@@ -6,10 +6,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mediminder.R
-import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.databinding.ItemMedicationBinding
+import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationWithDetails
 
+// Adapter for the medication list RecyclerView in the MedicationsActivity
 class MedicationsAdapter(
     private val onViewClick: (Long) -> Unit,
     private val onEditClick: (Long) -> Unit,

@@ -1,6 +1,9 @@
 package com.example.mediminder.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,16 +16,16 @@ class BaseScheduleViewModel: ViewModel() {
     private val _startDate = MutableStateFlow<LocalDate?>(LocalDate.now())
     val startDate: StateFlow<LocalDate?> = _startDate.asStateFlow()
 
-    private val _durationType = MutableStateFlow("continuous") // "continuous" or "numDays"
+    private val _durationType = MutableStateFlow(CONTINUOUS) // "continuous" or "numDays"
     val durationType: StateFlow<String> = _durationType.asStateFlow()
 
     private val _numDays = MutableStateFlow<Int?>(null)
     val numDays: StateFlow<Int?> = _numDays.asStateFlow()
 
-    private val _scheduleType = MutableStateFlow("daily") // "daily", "specificDays", "interval"
+    private val _scheduleType = MutableStateFlow(DAILY) // "daily", "specificDays", "interval"
     val scheduleType: StateFlow<String> = _scheduleType.asStateFlow()
 
-    private val _selectedDays = MutableStateFlow("")  // "0,1,2" -> Sunday, Monday, Tuesday
+    private val _selectedDays = MutableStateFlow(EMPTY_STRING)  // "0,1,2" -> Sunday, Monday, Tuesday
     val selectedDays: StateFlow<String> = _selectedDays.asStateFlow()
 
     private val _daysInterval = MutableStateFlow<Int?>(null)
@@ -36,12 +39,8 @@ class BaseScheduleViewModel: ViewModel() {
     }
 
     fun setDurationType(durationType: String) { _durationType.value = durationType }
-
     fun setNumDays(numDays: Int?) { _numDays.value = numDays }
-
     fun setScheduleType(scheduleType: String) { _scheduleType.value = scheduleType }
-
     fun setSelectedDays(selectedDays: String) { _selectedDays.value = selectedDays }
-
     fun setDaysInterval(daysInterval: String) { _daysInterval.value = daysInterval.toIntOrNull() }
 }

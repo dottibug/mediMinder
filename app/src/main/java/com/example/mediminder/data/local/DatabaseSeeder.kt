@@ -22,6 +22,14 @@ import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.schedulers.MidnightMedicationScheduler
 import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SCHEDULE_NEW_MEDICATION
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.time.LocalDate
@@ -30,9 +38,8 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
-// This class is for "seeding" the database with initial test data.
-//  It is for development/testing and demo purposes.
-
+// This class is for "seeding" the database with initial data for testing,
+// development, and demo purposes
 class DatabaseSeeder(
     private val applicationContext: Context,
     private val medicationDao: MedicationDao,
@@ -44,8 +51,6 @@ class DatabaseSeeder(
 
     suspend fun seedDatabase() {
         try {
-            Log.d("DatabaseSeeder testcat", "Starting database seeding")
-
             // Blood Pressure Med: Started 3 months ago, continuous daily schedule with
             // morning and evening reminders
             val bloodPressureMed = medicationDao.insert(
@@ -126,10 +131,10 @@ class DatabaseSeeder(
                 Schedules(
                     medicationId = bloodPressureMed,
                     startDate = threeMonthsAgo,
-                    durationType = "continuous",
+                    durationType = CONTINUOUS,
                     numDays = 0,
-                    scheduleType = "daily",
-                    selectedDays = "",
+                    scheduleType = DAILY,
+                    selectedDays = EMPTY_STRING,
                     daysInterval = 0
                 )
             )
@@ -138,10 +143,10 @@ class DatabaseSeeder(
                 Schedules(
                     medicationId = antibioticMed,
                     startDate = fiveDaysAgo,
-                    durationType = "numDays",
+                    durationType = NUM_DAYS,
                     numDays = 10,
-                    scheduleType = "daily",
-                    selectedDays = "",
+                    scheduleType = DAILY,
+                    selectedDays = EMPTY_STRING,
                     daysInterval = 0
                 )
             )
@@ -150,9 +155,9 @@ class DatabaseSeeder(
                 Schedules(
                     medicationId = vitaminB12,
                     startDate = twoMonthsAgo,
-                    durationType = "continuous",
+                    durationType = CONTINUOUS,
                     numDays = 0,
-                    scheduleType = "specificDays",
+                    scheduleType = SPECIFIC_DAYS,
                     selectedDays = "7",  // Sun
                     daysInterval = 0
                 )
@@ -162,10 +167,10 @@ class DatabaseSeeder(
                 Schedules(
                     medicationId = antiInflammatoryMed,
                     startDate = oneMonthAgo,
-                    durationType = "continuous",
+                    durationType = CONTINUOUS,
                     numDays = 0,
-                    scheduleType = "interval",
-                    selectedDays = "",
+                    scheduleType = INTERVAL,
+                    selectedDays = EMPTY_STRING,
                     daysInterval = 2
                 )
             )
@@ -174,9 +179,9 @@ class DatabaseSeeder(
                 Schedules(
                     medicationId = allergyMed,
                     startDate = sixWeeksAgo,
-                    durationType = "continuous",
+                    durationType = CONTINUOUS,
                     numDays = 0,
-                    scheduleType = "specificDays",
+                    scheduleType = SPECIFIC_DAYS,
                     selectedDays = "1,3,5",     // Mon, Wed, Fri
                     daysInterval = 0
                     )
@@ -186,8 +191,8 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = bloodPressureMed,
-                    reminderFrequency = "daily",
-                    hourlyReminderInterval = "",
+                    reminderFrequency = DAILY,
+                    hourlyReminderInterval = EMPTY_STRING,
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
                     dailyReminderTimes = listOf(
@@ -200,8 +205,8 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = antibioticMed,
-                    reminderFrequency = "daily",
-                    hourlyReminderInterval = "",
+                    reminderFrequency = DAILY,
+                    hourlyReminderInterval = EMPTY_STRING,
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
                     dailyReminderTimes = listOf(
@@ -215,8 +220,8 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = vitaminB12,
-                    reminderFrequency = "daily",
-                    hourlyReminderInterval = "",
+                    reminderFrequency = DAILY,
+                    hourlyReminderInterval = EMPTY_STRING,
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
                     dailyReminderTimes = listOf(LocalTime.of(9, 0))
@@ -226,8 +231,8 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = antiInflammatoryMed,
-                    reminderFrequency = "daily",
-                    hourlyReminderInterval = "",
+                    reminderFrequency = DAILY,
+                    hourlyReminderInterval = EMPTY_STRING,
                     hourlyReminderStartTime = null,
                     hourlyReminderEndTime = null,
                     dailyReminderTimes = listOf(LocalTime.of(12, 0))
@@ -237,15 +242,13 @@ class DatabaseSeeder(
             medRemindersDao.insert(
                 MedReminders(
                     medicationId = allergyMed,
-                    reminderFrequency = "every x hours",
+                    reminderFrequency = EVERY_X_HOURS,
                     hourlyReminderInterval = "6",
                     hourlyReminderStartTime = LocalTime.of(8, 0),
                     hourlyReminderEndTime = LocalTime.of(20, 0),
                     dailyReminderTimes = emptyList()
                 )
             )
-
-            Log.d("DatabaseSeeder testcat", "Database seeded")
 
             // Create past logs
             createPastLogs(
@@ -277,14 +280,12 @@ class DatabaseSeeder(
                 .observeForever { workInfo ->
                     if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                         val schedulerIntent = Intent(applicationContext, MedicationSchedulerReceiver::class.java).apply {
-                            action = "com.example.mediminder.SCHEDULE_NEW_MEDICATION"
+                            action = SCHEDULE_NEW_MEDICATION
                         }
                         applicationContext.sendBroadcast(schedulerIntent)
                         MidnightMedicationScheduler(applicationContext).scheduleMidnightAlarm()
                     }
                 }
-
-            Log.d("DatabaseSeeder testcat", "Triggered CreateFutureMedicationLogsWorker")
         } catch (e: Exception) {
             Log.e("DatabaseSeeder testcat", "Error seeding database: ${e.message}", e)
             throw e
@@ -325,12 +326,12 @@ class DatabaseSeeder(
 
     private fun isMedScheduledForDate(schedule: Schedules, date: LocalDate): Boolean {
         return when (schedule.scheduleType) {
-            "daily" -> true
-            "specificDays" -> {
+            DAILY -> true
+            SPECIFIC_DAYS -> {
                 val dayOfWeek = date.dayOfWeek.value
                 schedule.selectedDays.split(",").map { it.toInt() }.contains(dayOfWeek)
             }
-            "interval" -> {
+            INTERVAL -> {
                 val daysBetween = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
                 daysBetween % (schedule.daysInterval ?: 1) == 0
             }
@@ -340,8 +341,8 @@ class DatabaseSeeder(
 
     private fun getReminderTimes(reminder: MedReminders): List<LocalTime> {
         return when (reminder.reminderFrequency) {
-            "daily" -> reminder.dailyReminderTimes
-            "every x hours" -> getHourlyReminderTimes(
+            DAILY -> reminder.dailyReminderTimes
+            EVERY_X_HOURS -> getHourlyReminderTimes(
                 reminder.hourlyReminderInterval,
                 reminder.hourlyReminderStartTime?.let { Pair(it.hour, it.minute) },
                 reminder.hourlyReminderEndTime?.let { Pair(it.hour, it.minute) }

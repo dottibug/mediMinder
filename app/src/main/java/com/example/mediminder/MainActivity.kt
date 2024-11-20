@@ -23,6 +23,7 @@ import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
@@ -108,7 +109,7 @@ class MainActivity : BaseActivity() {
     // Setup listeners for UI elements
     private fun setupListeners() {
         binding.buttonAddUnscheduled.setOnClickListener {
-            AddAsNeededMedicationDialog().show(supportFragmentManager, "add_as_needed_med")
+            AddAsNeededMedicationDialog().show(supportFragmentManager, TAG_ADD_AS_NEEDED_MED)
         }
     }
 
@@ -119,7 +120,7 @@ class MainActivity : BaseActivity() {
             onUpdateStatusClick = { logId ->
                 UpdateMedicationStatusDialogFragment
                     .newInstance(logId)
-                    .show(supportFragmentManager, "update_status")
+                    .show(supportFragmentManager, TAG_UPDATE_STATUS)
             },
             // Delete medication callback
             onDeleteAsNeededClick = { logId -> viewModel.deleteAsNeededMedication(logId) }
@@ -206,7 +207,8 @@ class MainActivity : BaseActivity() {
     }
 
     companion object {
-        private const val MED_STATUS_CHANGED = "com.example.mediminder.MEDICATION_STATUS_CHANGED"
+        private const val TAG_ADD_AS_NEEDED_MED = "add_as_needed_med"
+        private const val TAG_UPDATE_STATUS = "update_status"
         private const val MED_REMINDERS_CHANNEL_ID = "medication_reminders"
         private const val MED_REMINDERS_CHANNEL_NAME = "Medication Reminders"
         private const val MED_REMINDERS_CHANNEL_DESCRIPTION = "Channel for medication reminders"

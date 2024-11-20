@@ -1,6 +1,7 @@
 package com.example.mediminder.utils
 
 import android.view.View
+import android.widget.Button
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mediminder.R
@@ -8,6 +9,20 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.Constants.AM
+import com.example.mediminder.utils.Constants.CONTINUOUS
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.DATE_PATTERN
+import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.PM
+import com.example.mediminder.utils.Constants.SPACE
+import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
+import com.example.mediminder.utils.Constants.TIME_PATTERN
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
+import com.google.android.material.timepicker.TimeFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -25,7 +40,7 @@ object AppUtils {
     }
 
     // Convert 24-hour digit to 12-hour digit (ex. 13 -> 1)
-    fun convert24HourTo12Hour(hour: Int): Int {
+    private fun convert24HourTo12Hour(hour: Int): Int {
         if (hour == 0) return 12
         else if (hour > 12) return hour - 12
         else return hour
@@ -33,13 +48,13 @@ object AppUtils {
 
     // Format LocalTime as 1:00 pm
     fun formatLocalTimeTo12Hour(localTime: LocalTime): String {
-        val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern(TIME_PATTERN, Locale.ENGLISH)
         return localTime.format(formatter).lowercase()
     }
 
     // Format LocalDate as Jan 1, 2025
     fun formatToLongDate(localDate: LocalDate): String {
-        val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern(DATE_PATTERN, Locale.ENGLISH)
         return localDate.format(formatter)
     }
 
@@ -81,7 +96,7 @@ object AppUtils {
         if (interval == null || startTime == null || endTime == null) return emptyList()
 
         // Parse interval to hours (extract first number from string like "2 hours")
-        val intervalHours = interval.split(" ")[0].toIntOrNull()?.toLong() ?: return emptyList()
+        val intervalHours = interval.split(SPACE)[0].toIntOrNull()?.toLong() ?: return emptyList()
         val startLocalTime = LocalTime.of(startTime.first, startTime.second)
         val endLocalTime = LocalTime.of(endTime.first, endTime.second)
         val times = mutableListOf<LocalTime>()
@@ -117,8 +132,8 @@ object AppUtils {
         if (date < schedule.startDate) return false
 
         return when (schedule.durationType) {
-            "continuous" -> true
-            "numDays" -> date <= schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
+            CONTINUOUS -> true
+            NUM_DAYS -> date <= schedule.startDate.plusDays(schedule.numDays?.toLong() ?: 0)
             else -> false
         }
     }
@@ -133,9 +148,9 @@ object AppUtils {
         }
 
         return when (schedule.scheduleType) {
-            "daily" -> true
-            "specificDays" -> isScheduledForDayOfWeek(schedule, date)
-            "interval" -> isScheduledForInterval(schedule, date)
+            DAILY -> true
+            SPECIFIC_DAYS -> isScheduledForDayOfWeek(schedule, date)
+            INTERVAL -> isScheduledForInterval(schedule, date)
             else -> false
         }
     }
@@ -167,5 +182,42 @@ object AppUtils {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    // Create time picker
+    fun createTimePicker(title: String): MaterialTimePicker {
+        val timePicker = MaterialTimePicker.Builder()
+            .setInputMode(INPUT_MODE_CLOCK)
+            .setTimeFormat(TimeFormat.CLOCK_12H)
+            .setHour(12)
+            .setMinute(0)
+            .setTitleText(title)
+            .build()
+
+        return timePicker
+    }
+
+    // Update text of button that triggered time picker dialog
+    fun updateTimePickerButtonText(hour: Int, minute: Int, button: Button) {
+        val convertedHour = convert24HourTo12Hour(hour)
+        val amPm = if (hour < 12) AM else PM
+        val formattedTime = String.format(Locale.CANADA, "%1d:%02d %s", convertedHour, minute, amPm)
+        button.text = formattedTime
+    }
+
+    // Create date picker
+    fun createDatePicker(title: String): MaterialDatePicker<Long> {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(title)
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .build()
+
+        return datePicker
+    }
+
+    // Update text of button that triggered date picker dialog
+    fun updateDatePickerButtonText(date: LocalDate?, button: Button) {
+        val formattedDate = DateTimeFormatter.ofPattern(DATE_PATTERN)
+        button.text = date?.format(formattedDate)
     }
 }

@@ -12,19 +12,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
-import com.example.mediminder.activities.BaseActivity.Companion.DAILY
-import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
-import com.example.mediminder.activities.BaseActivity.Companion.X_TIMES_DAILY
 import com.example.mediminder.databinding.FragmentBaseReminderBinding
-import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
+import com.example.mediminder.utils.AppUtils.createTimePicker
+import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
+import com.example.mediminder.utils.Constants.DAILY
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
+import com.example.mediminder.utils.Constants.X_TIMES_DAILY
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
-import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 // Base fragment for adding or editing a medication's reminder settings
 abstract class BaseReminderFragment : Fragment() {
@@ -189,46 +187,41 @@ abstract class BaseReminderFragment : Fragment() {
     // If the reminderType is "daily" and the index is -1, then a new time picker button will be
     // added. If the index is >= 0, then the time picker button at that index will be updated
     private fun showTimePickerDialog(reminderType: String, index: Int = -1, isEndTime: Boolean = false) {
-        // Build the time picker dialog
-        val titleText = if (isEndTime) "Select End Time" else "Select Start Time"
-
-        val timePicker = MaterialTimePicker.Builder()
-            .setInputMode(INPUT_MODE_CLOCK)
-            .setTimeFormat(TimeFormat.CLOCK_12H)
-            .setHour(12)
-            .setMinute(0)
-            .setTitleText(titleText)
-            .build()
-
-        timePicker.show(parentFragmentManager, "tag")
+        val titleText = if (isEndTime) SELECT_END_TIME else SELECT_START_TIME
+        val timePicker = createTimePicker(titleText)
 
         timePicker.addOnPositiveButtonClickListener {
             val hour = timePicker.hour
             val minute = timePicker.minute
 
             when (reminderType) {
-                EVERY_X_HOURS -> {
-                    if (isEndTime) {
-                        updateTimePickerButtonText(hour, minute, binding.buttonReminderEndTime)
-                        reminderViewModel.setHourlyReminderEndTime(hour, minute)
-                    } else {
-                        updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
-                        reminderViewModel.setHourlyReminderStartTime(hour, minute)
-                    }
-                }
-                DAILY -> {
-                    if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
-                    else { reminderViewModel.addDailyReminderTime(hour, minute) }
-                }
+                EVERY_X_HOURS -> setReminderTimes(isEndTime, hour, minute)
+                DAILY -> setDailyReminderTimes(index, hour, minute)
             }
+        }
+
+        timePicker.show(parentFragmentManager, TIME_PICKER_TAG)
+    }
+
+    // Update the reminder times in the view model based on the selected time
+    private fun setReminderTimes(isEndTime: Boolean, hour: Int, minute: Int) {
+        if (isEndTime) {
+            updateTimePickerButtonText(hour, minute, binding.buttonReminderEndTime)
+            reminderViewModel.setHourlyReminderEndTime(hour, minute)
+        } else {
+            updateTimePickerButtonText(hour, minute, binding.buttonReminderStartTime)
+            reminderViewModel.setHourlyReminderStartTime(hour, minute)
         }
     }
 
-    // Update the time picker button text
-    protected fun updateTimePickerButtonText(hour: Int, minute: Int, button: Button) {
-        val convertedHour = convert24HourTo12Hour(hour)
-        val amPm = if (hour < 12) "AM" else "PM"
-        val formattedTime = String.format(Locale.CANADA, "%1d:%02d %s", convertedHour, minute, amPm)
-        button.text = formattedTime
+    // Update the daily reminder times in the view model based on the selected time
+    private fun setDailyReminderTimes(index: Int, hour: Int, minute: Int) {
+        if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
+        else { reminderViewModel.addDailyReminderTime(hour, minute) }
+    }
+
+    companion object {
+        private const val SELECT_END_TIME = "Select end time"
+        private const val SELECT_START_TIME  = "Select start time"
     }
 }

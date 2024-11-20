@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
+import com.example.mediminder.utils.Constants.MIDNIGHT_SCHEDULER
+import com.example.mediminder.utils.Constants.SCHEDULE_DAILY_MEDICATIONS
 import java.util.Calendar
 
 // https://developer.android.com/training/scheduling/alarms
@@ -59,10 +61,5 @@ class MidnightMedicationScheduler(private val context: Context) {
             1000 * 60 * 5, // Repeat every 5 minutes instead of daily
             pendingIntent
         )
-    }
-
-    companion object {
-        private const val SCHEDULE_DAILY_MEDICATIONS = "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS"
-        private const val MIDNIGHT_SCHEDULER = "midnight_scheduler"
     }
 }

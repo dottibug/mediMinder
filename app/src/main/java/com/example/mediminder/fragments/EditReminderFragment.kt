@@ -5,9 +5,10 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
-import com.example.mediminder.activities.BaseActivity.Companion.EVERY_X_HOURS
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.models.MedicationWithDetails
+import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
+import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel

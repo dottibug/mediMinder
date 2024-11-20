@@ -16,6 +16,7 @@ import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.utils.AppUtils.getLocalTimeFromPair
 import java.time.LocalDate
 
+// Methods to insert medications into the database
 class InsertHelper (
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -30,7 +31,7 @@ class InsertHelper (
         scheduleData: ScheduleData?
     ): Long {
         try {
-            val medicationId = insertMedication(medicationData, reminderData, scheduleData)
+            val medicationId = insertMedication(medicationData)
             if (dosageData != null) { insertDosage(medicationId, dosageData) }
             if (reminderData != null) { insertReminder(medicationId, reminderData) }
             if (scheduleData != null) { insertSchedule(medicationId, scheduleData) }
@@ -42,8 +43,6 @@ class InsertHelper (
 
     private suspend fun insertMedication(
         medicationData: MedicationData,
-        reminderData: ReminderData?,
-        scheduleData: ScheduleData?
     ): Long {
         try {
             val isScheduled = !medicationData.asNeeded
@@ -62,28 +61,6 @@ class InsertHelper (
             throw Exception("Failed to insert medication: ${e.message}", e)
         }
     }
-
-//    private suspend fun insertMedication(
-//        medicationData: MedicationData,
-//        reminderData: ReminderData?,
-//        scheduleData: ScheduleData?
-//    ): Long {
-//        try {
-//            val medicationId = medicationDao.insert(
-//                Medication(
-//                    name = medicationData.name,
-//                    prescribingDoctor = medicationData.doctor,
-//                    notes = medicationData.notes,
-//                    icon = medicationData.icon ?: MedicationIcon.TABLET,
-//                    reminderEnabled = reminderData?.reminderEnabled ?: false,
-//                    asNeeded = scheduleData?.isScheduled?.not() ?: true
-//                )
-//            )
-//            return medicationId
-//        } catch (e: Exception) {
-//            throw Exception("Failed to insert medication: ${e.message}", e)
-//        }
-//    }
 
     private suspend fun insertDosage(medicationId: Long, dosageData: DosageData) {
         try {

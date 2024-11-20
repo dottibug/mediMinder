@@ -16,16 +16,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.activities.AddMedicationActivity
 import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.FragmentAddAsNeededMedBinding
-import com.example.mediminder.utils.AppUtils.convert24HourTo12Hour
+import com.example.mediminder.utils.AppUtils.createDatePicker
+import com.example.mediminder.utils.AppUtils.createTimePicker
+import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
+import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
+import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
+import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.ValidationUtils.getValidatedAsNeededData
 import com.example.mediminder.viewmodels.MainViewModel
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.MaterialTimePicker.INPUT_MODE_CLOCK
-import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 // Dialog fragment for adding an as-needed medication
 class AddAsNeededMedicationDialog: DialogFragment() {
@@ -168,67 +167,38 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     // Start AddMedicationActivity to add a new as-needed medication
     private fun addNewAsNeededMed() {
         val intent = Intent(requireContext(), AddMedicationActivity::class.java)
-        intent.putExtra("ADD_AS_NEEDED", true)
+        intent.putExtra(ADD_AS_NEEDED, true)
         startActivity(intent)
     }
 
     // Show time picker dialog
     private fun showTimePicker() {
-        val timePicker = MaterialTimePicker.Builder()
-            .setInputMode(INPUT_MODE_CLOCK)
-            .setTimeFormat(TimeFormat.CLOCK_12H)
-            .setHour(12)
-            .setMinute(0)
-            .setTitleText(SELECT_TIME_TAKEN)
-            .build()
+        val timePicker = createTimePicker(SELECT_TIME_TAKEN)
 
         timePicker.addOnPositiveButtonClickListener {
             val hour = timePicker.hour
             val minute = timePicker.minute
-
             viewModel.setTimeTaken(hour, minute)
-            updateTimePickerButtonText()
+            updateTimePickerButtonText(hour, minute, binding.buttonAsNeededTimeTaken)
         }
 
-        timePicker.show(parentFragmentManager, "tag")
-    }
-
-    // Update the time picker button text
-    private fun updateTimePickerButtonText() {
-        val hour = viewModel.timeTaken.value?.first
-        val minute = viewModel.timeTaken.value?.second
-
-        if (hour != null && minute != null) {
-            val convertedHour = convert24HourTo12Hour(hour)
-            val amPm = if (hour < 12) "AM" else "PM"
-            val formattedTime = String.format(Locale.CANADA, "%1d:%02d %s", convertedHour, minute, amPm)
-            binding.buttonAsNeededTimeTaken.text = formattedTime
-        }
+        timePicker.show(parentFragmentManager, TIME_PICKER_TAG)
     }
 
     // Show date picker dialog
     private fun showDatePicker() {
-        val datePicker = MaterialDatePicker.Builder.datePicker()
-            .setTitleText(SELECT_DATE_TAKEN)
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-            .build()
+        val datePicker = createDatePicker(SELECT_DATE_TAKEN)
 
         datePicker.addOnPositiveButtonClickListener { selection ->
             viewModel.setDateTaken(selection)
-            updateDateButtonText()
+            updateDatePickerButtonText(viewModel.dateTaken.value, binding.buttonAsNeededDateTaken)
         }
 
-        datePicker.show(parentFragmentManager, "tag")
-    }
-
-    // Update the date picker button text
-    private fun updateDateButtonText() {
-        val date = viewModel.dateTaken.value
-        val formattedDate = DateTimeFormatter.ofPattern("MMM d, yyyy")
-        binding.buttonAsNeededDateTaken.text = date?.format(formattedDate)
+        datePicker.show(parentFragmentManager, DATE_PICKER_TAG)
     }
 
     companion object {
+        private const val ADD_AS_NEEDED = "ADD_AS_NEEDED"
         private const val SELECT_TIME_TAKEN = "Select time medication was taken"
         private const val SELECT_DATE_TAKEN = "Select date medication was taken"
     }

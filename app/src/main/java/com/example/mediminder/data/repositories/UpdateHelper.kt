@@ -17,6 +17,7 @@ import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.utils.AppUtils.getLocalTimeFromPair
 import java.time.LocalDate
 
+// Methods to update medications in the database
 class UpdateHelper (
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -33,7 +34,7 @@ class UpdateHelper (
         scheduleData: ScheduleData?
     ) {
         try {
-            updateMedicationDetails(medicationId, medicationData, reminderData, scheduleData)
+            updateMedicationDetails(medicationId, medicationData)
             if (dosageData != null) { updateDosage(medicationId, dosageData) }
             if (reminderData != null) { updateReminder(medicationId, reminderData) }
             if (scheduleData != null) { updateSchedule(medicationId, scheduleData) }
@@ -45,8 +46,6 @@ class UpdateHelper (
     private suspend fun updateMedicationDetails(
         medicationId: Long,
         medicationData: MedicationData,
-        reminderData: ReminderData?,
-        scheduleData: ScheduleData?
     ) {
         try {
             val isScheduled = !medicationData.asNeeded
@@ -65,30 +64,6 @@ class UpdateHelper (
             throw Exception("Failed to update medication details: ${e.message}", e)
         }
     }
-
-//    private suspend fun updateMedicationDetails(
-//        medicationId: Long,
-//        medicationData: MedicationData,
-//        reminderData: ReminderData?,
-//        scheduleData: ScheduleData?
-//    ) {
-//        try {
-//            medicationDao.update(
-//                Medication(
-//                    id = medicationId,
-//                    name = medicationData.name,
-//                    prescribingDoctor = medicationData.doctor,
-//                    notes = medicationData.notes,
-//                    icon = medicationData.icon ?: MedicationIcon.TABLET,
-//                    reminderEnabled = reminderData?.reminderEnabled ?: false,
-//                    asNeeded = scheduleData?.isScheduled?.not() ?: true
-//                )
-//            )
-//        } catch (e: Exception) {
-//            throw Exception("Failed to update medication details: ${e.message}", e)
-//        }
-//    }
-
 
     private suspend fun updateDosage(medicationId: Long, dosageData: DosageData) {
         try {
@@ -113,14 +88,6 @@ class UpdateHelper (
                     )
                 )
             }
-//            dosageDao.update(
-//                Dosage(
-//                    id = currentDosage?.id ?: throw(Exception("Error updating dosage: Dosage not found for medication with id $medicationId")),
-//                    medicationId = medicationId,
-//                    amount = dosageData.dosageAmount,
-//                    units = dosageData.dosageUnits
-//                )
-//            )
         } catch (e: Exception) {
             throw Exception("Failed to update dosage: ${e.message}", e)
         }
