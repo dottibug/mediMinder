@@ -111,6 +111,8 @@ class MedicationReminderReceiver: BroadcastReceiver() {
 
     private fun showMedicationName(context: Context): Boolean {
         val settingsPrefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+       // FIX THIS LOGIC BUG TO SHOW MED NAME CORRECTLY
+
         return settingsPrefs.getBoolean(MED_PRIVACY, true) // default to true
     }
 

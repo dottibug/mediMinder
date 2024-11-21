@@ -19,9 +19,9 @@
 
     <!-- SETTINGS -->
     <string name="reminder_settings">Reminder Settings</string>
-    <string name="show_medication_name">Show medication name</string>
-    <string name="show_med_name_summary_off">Show medication name in reminders</string>
-    <string name="show_med_name_summary_on">Hide medication name in reminders</string>
+    <string name="show_medication_name">Show or hide medication name</string>
+    <string name="show_med_name_summary_off">Hide medication name in reminders</string>
+    <string name="show_med_name_summary_on">Show medication name in reminders</string>
     <string name="grace_period_title">Mark medication as missed</string>
     <string name="grace_period_dialog_title">Select Time to Mark As Missed</string>
 

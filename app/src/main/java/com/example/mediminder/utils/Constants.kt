@@ -8,6 +8,7 @@ object Constants {
     const val MED_NAME = "medicationName"
     const val MED_NAME_DEFAULT = "Medication"
     const val DOSAGE = "dosage"
+    const val DOSAGE_DEFAULT_UNIT = "units"
 
     // Schedule duration
     const val CONTINUOUS = "continuous"
@@ -53,7 +54,7 @@ object Constants {
     const val MED_REMINDER_CHANNEL_DESC = "Channel for medication reminders"
 
     // Preferences
-    const val MED_PRIVACY = "show_medication_name"
+    const val MED_PRIVACY = "medication_privacy"
 
     // Error messages
     const val ERR_FETCHING_MED = "Error fetching medication."

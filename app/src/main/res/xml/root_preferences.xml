@@ -4,8 +4,9 @@
 
         <!-- Show medication name -->
         <SwitchPreferenceCompat
-            app:key="show_medication_name"
+            app:key="medication_privacy"
             app:title="@string/show_medication_name"
+            app:defaultValue="true"
             app:summaryOff="@string/show_med_name_summary_off"
             app:summaryOn="@string/show_med_name_summary_on" />
 

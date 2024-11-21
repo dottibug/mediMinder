@@ -13,6 +13,7 @@ import com.example.mediminder.models.MedicationItem
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.getStatusIcon
+import com.example.mediminder.utils.Constants.DOSAGE_DEFAULT_UNIT
 
 // Medication adapter for MainActivity. Displays a list of medications to be taken for a given date.
 class MainMedicationAdapter(
@@ -56,7 +57,11 @@ class MainMedicationAdapter(
         }
 
         private fun getDosageString(dosage: Dosage?): String {
-            return dosage?.let { "${it.amount} ${it.units}" } ?: DOSAGE_NOT_SET
+            if (dosage == null) return DOSAGE_NOT_SET
+            if (dosage.amount === null) return DOSAGE_NOT_SET
+            val amount = dosage.amount
+            val units = dosage.units ?: DOSAGE_DEFAULT_UNIT
+            return "$amount $units"
         }
 
         private fun getStatusIconTintColor(status: MedicationStatus): Int {
