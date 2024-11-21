@@ -96,8 +96,48 @@ object ValidationUtils {
     private fun validateScheduleData(data: ScheduleData?): ScheduleData {
         requireNotNull(data) { SCHEDULE_REQUIRED }
         val validDurationData = validateDuration(data)
+
+        // Check for logical flaws when medication is scheduled for a number of days
+        if (validDurationData.durationType == NUM_DAYS) {
+            when (validDurationData.scheduleType) {
+                SPECIFIC_DAYS -> validateSpecificDaysWithDuration(validDurationData)
+                INTERVAL -> validateDaysIntervalWithDuration(validDurationData)
+            }
+        }
+
         val validData = validateScheduleType(validDurationData)
         return validData
+    }
+
+    // Helper function to ensure the specific days selected are valid when the medication is taken
+    // over a specified number of days
+    private fun validateSpecificDaysWithDuration(data: ScheduleData) {
+        requireNotNull(data.numDays) { NUM_DAYS_REQUIRED }
+
+        val startDate = data.startDate ?: LocalDate.now()
+        val endDate = startDate.plusDays(data.numDays.toLong() - 1)
+        val selectedDaysInt = data.selectedDays.split(",").map { it.toInt() }
+
+        var currentDate = startDate
+        var hasValidDay = false
+
+        while (!currentDate.isAfter(endDate)) {
+            if (selectedDaysInt.contains(currentDate.dayOfWeek.value)) {
+                hasValidDay = true
+                break
+            }
+            currentDate = currentDate.plusDays(1)
+        }
+
+        if (!hasValidDay) { throw IllegalArgumentException(NO_SELECTED_DAYS_IN_DURATION) }
+    }
+
+    // Helper function to ensure the interval selected is valid when the medication is taken for a
+    // specified number of days
+    private fun validateDaysIntervalWithDuration(data: ScheduleData) {
+        requireNotNull(data.numDays) { NUM_DAYS_REQUIRED }
+        requireNotNull(data.daysInterval) { DAY_INTERVAL_REQ }
+        if (data.daysInterval >= data.numDays) { throw IllegalArgumentException(INTERVAL_EXCEEDS_DURATION) }
     }
 
     // Helper function to validate schedule type
@@ -174,6 +214,8 @@ object ValidationUtils {
     private const val NUM_DAYS_REQUIRED = "Number of days is required"
     private const val NUM_DAYS_INVALID = "Number of days must be greater than 0"
     private const val INVALID_DURATION_TYPE = "Invalid duration type"
+    private const val NO_SELECTED_DAYS_IN_DURATION = "The selected days of the week do not occur within the set number of days"
+    private const val INTERVAL_EXCEEDS_DURATION = "Interval is longer than the set number of days"
 
     //////////////////////////
 
