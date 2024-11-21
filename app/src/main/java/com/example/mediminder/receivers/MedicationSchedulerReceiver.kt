@@ -16,7 +16,9 @@ import com.example.mediminder.utils.AppUtils.isScheduledForDate
 import com.example.mediminder.utils.Constants.ALARM_PERMISSION_DENIED
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.DOSAGE
+import com.example.mediminder.utils.Constants.DOSAGE_DEFAULT_UNIT
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_SCHEDULING_NOTIFICATIONS
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.LOG_ID
 import com.example.mediminder.utils.Constants.MED_ID
@@ -42,7 +44,7 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
                     if (!hasAlarmPermission(alarmManager)) { return@launch }
                     processMedications(context, alarmManager)
                 } catch (e: Exception) {
-                    Log.e("testcat AppDebug", "Error in medication scheduling process: ${e.message}", e)
+                    Log.e(TAG, ERR_SCHEDULING_NOTIFICATIONS, e)
                 }
             }
         }
@@ -94,7 +96,9 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
     // Get dosage string
     private fun getDosageString(dosage: Dosage?): String {
         if (dosage == null) { return EMPTY_STRING }
-        else { return "${dosage.amount} ${dosage.units}" }
+        val amount = dosage.amount
+        val units = if (dosage.units.isNullOrEmpty()) { DOSAGE_DEFAULT_UNIT } else { dosage.units }
+        return "$amount $units"
     }
 
     // Get reminder times
@@ -160,5 +164,9 @@ class MedicationSchedulerReceiver: BroadcastReceiver() {
             .atZone(ZoneId.systemDefault())
             .toInstant()
             .toEpochMilli()
+    }
+
+    companion object {
+        private const val TAG = "MedicationSchedulerReceiver"
     }
 }

@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.utils.Constants.DOSAGE
+import com.example.mediminder.utils.Constants.DOSAGE_PRIVACY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
 import com.example.mediminder.utils.Constants.LOG_ID
 import com.example.mediminder.utils.Constants.MED_NAME
@@ -23,15 +24,12 @@ import com.example.mediminder.utils.Constants.TAKE_MEDICATION
 
 // https://developer.android.com/develop/ui/views/notifications
 // https://developer.android.com/develop/ui/views/notifications/build-notification
-
 // Broadcast receiver for medication reminders
 class MedicationReminderReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val logId = intent.getLongExtra(LOG_ID, -1L)
         val medicationName = intent.getStringExtra(MED_NAME) ?: MED_NAME_DEFAULT
-
-        // todo: do we want to include dosage in notification?
         val dosage = intent.getStringExtra(DOSAGE) ?: EMPTY_STRING
 
         createNotificationChannel(context)
@@ -75,9 +73,9 @@ class MedicationReminderReceiver: BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val contentText = getMessage(context, medicationName)
 
         // Build notification
+        val contentText = getMessage(context, medicationName, dosage)
         val notification = NotificationCompat.Builder(context, MED_REMINDER_CHANNEL_ID)
             .setSmallIcon(R.drawable.app_icon_small)
             .setContentTitle(context.getString(R.string.medication_reminder))
@@ -93,10 +91,18 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         notificationManager.notify(logId.toInt(), notification)
     }
 
-    // Get notification message based on user settings (show or hide medication name)
-    private fun getMessage(context: Context, medicationName: String): String {
-        return if (showMedicationName(context)) { context.getString(R.string.time_to_take, medicationName) }
-        else { context.getString(R.string.time_to_take_private) }
+    // Get notification message based on user settings (show or hide medication name and dosage)
+    private fun getMessage(context: Context, name: String, dosage: String): String {
+        val settingsPrefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
+        val showName = settingsPrefs.getBoolean(MED_PRIVACY, true)
+        val showDosage = settingsPrefs.getBoolean(DOSAGE_PRIVACY, true)
+
+        return when {
+            showName && showDosage -> context.getString(R.string.notification_show_med_and_dose, name, dosage)
+            showName && !showDosage -> context.getString(R.string.notification_show_med_hide_dose, name)
+            !showName && showDosage -> context.getString(R.string.notification_hide_med_show_dose, dosage)
+            else -> context.getString(R.string.notification_hide_med_and_dose)
+        }
     }
 
     // Create notification channel
@@ -107,13 +113,6 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         }
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private fun showMedicationName(context: Context): Boolean {
-        val settingsPrefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
-       // FIX THIS LOGIC BUG TO SHOW MED NAME CORRECTLY
-
-        return settingsPrefs.getBoolean(MED_PRIVACY, true) // default to true
     }
 
     companion object {

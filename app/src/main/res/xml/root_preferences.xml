@@ -10,6 +10,14 @@
             app:summaryOff="@string/show_med_name_summary_off"
             app:summaryOn="@string/show_med_name_summary_on" />
 
+        <!-- Show medication dosage -->
+        <SwitchPreferenceCompat
+            app:key="dosage_privacy"
+            app:title="@string/show_medication_dosage"
+            app:defaultValue="true"
+            app:summaryOff="@string/show_med_dosage_summary_off"
+            app:summaryOn="@string/show_med_dosage_summary_on" />
+
         <!-- Grace period to mark medication as missed -->
         <ListPreference
             app:key="grace_period"

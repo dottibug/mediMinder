@@ -29,6 +29,7 @@ abstract class BaseDosageFragment : Fragment() {
         )
     }
 
+    // Get dosage units as string (set default to "units" if not specified)
     private fun getDosageUnits(): String {
         val units = binding.dosageUnitsDropdown.text.toString()
         return if (units.isEmpty()) { DOSAGE_DEFAULT_UNIT } else { units }

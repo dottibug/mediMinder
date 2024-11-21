@@ -23,8 +23,8 @@ interface MedicationDao {
     @Query("SELECT COUNT(*) FROM medications")
     suspend fun getCount(): Int
 
-    // Get all medications
-    @Query("SELECT * FROM medications")
+    // Get all medications in alphabetical order by name (a to z, case-insensitive)
+    @Query("SELECT * FROM medications ORDER BY name COLLATE NOCASE ASC")
     suspend fun getAll(): List<Medication>
 
     // Get all scheduled medications
@@ -34,10 +34,6 @@ interface MedicationDao {
     // Get medication by medication id
     @Query("SELECT * FROM medications WHERE id = :medicationId")
     suspend fun getMedicationById(medicationId: Long): Medication
-
-    // Get all medications with reminders enabled
-//    @Query("SELECT * FROM medications WHERE reminder_enabled = 1")
-//    suspend fun getAllWithRemindersEnabled(): List<Medication>
 
     // Get all as-needed medications
     @Query("SELECT * FROM medications WHERE as_needed = 1")

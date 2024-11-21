@@ -55,6 +55,7 @@ object Constants {
 
     // Preferences
     const val MED_PRIVACY = "medication_privacy"
+    const val DOSAGE_PRIVACY = "dosage_privacy"
 
     // Error messages
     const val ERR_FETCHING_MED = "Error fetching medication."
@@ -89,4 +90,5 @@ object Constants {
     const val ERR_UNEXPECTED = "Unexpected error occurred."
     const val ERR_SEEDING_DB = "Error seeding database."
     const val ERR_CLEARING_DB = "Error clearing database."
+    const val ERR_SCHEDULING_NOTIFICATIONS = "Error scheduling notifications."
 }
