@@ -70,13 +70,14 @@ data class ScheduleData(
     val daysInterval: Int?
 )
 
-// Medication item: Medication, dosage, time, status, and log id
+// Medication item: Medication, dosage, time, status, log id, and canUpdateStatus
 data class MedicationItem(
     val medication: Medication,
     val dosage: Dosage?,
     val time: LocalTime,
     val status: MedicationStatus,
-    val logId: Long
+    val logId: Long,
+    val canUpdateStatus: Boolean = true
 )
 
 // Medication with details: Medication, dosage, reminders, and schedule

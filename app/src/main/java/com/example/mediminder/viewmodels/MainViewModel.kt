@@ -73,7 +73,11 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
             try {
-                _medications.value = repository.getLogsForDate(date)
+                val today = LocalDate.now()
+                val medications = repository.getLogsForDate(date)
+                _medications.value = medications.map { med ->
+                    med.copy(canUpdateStatus = !date.isAfter(today))
+                }
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 _errorMessage.value = ERR_FETCHING_MED_USER

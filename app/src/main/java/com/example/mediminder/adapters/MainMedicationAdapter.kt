@@ -83,6 +83,8 @@ class MainMedicationAdapter(
             deleteButton.visibility = View.GONE
             updateButton.apply {
                 visibility = View.VISIBLE
+                isEnabled = item.canUpdateStatus
+                alpha = if (item.canUpdateStatus) 1.0f else 0.5f  // Reduce opacity if not enabled
                 setOnClickListener { onUpdateStatusClick(item.logId) }
             }
         }
