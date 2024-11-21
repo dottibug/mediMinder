@@ -12,6 +12,9 @@ import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.DayLogs
 import com.example.mediminder.models.MedicationHistory
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MEDS
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY_USER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +33,13 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
 
     private val _selectedMonth = MutableStateFlow(YearMonth.now())
     val selectedMonth: StateFlow<YearMonth> = _selectedMonth.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    fun setErrorMessage(msg: String) { _errorMessage.value = msg }
+
+    fun clearError() { _errorMessage.value = null }
 
     fun setSelectedMedication(medicationId: Long?) { _selectedMedicationId.value = medicationId }
 
@@ -50,7 +60,8 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
             _medications.value = medications
             return medications
         } catch (e: Exception) {
-            Log.e("HistoryViewModel testcat", "Error loading medications", e)
+            Log.e(TAG, ERR_FETCHING_MEDS, e)
+            setErrorMessage(ERR_FETCHING_MEDS)
             return emptyList()
         }
     }
@@ -69,8 +80,9 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
            else { return getDayLogs(currentMonth, selectedMonth, today, history) }
 
         } catch (e: Exception) {
-            Log.e("HistoryViewModel testcat", "Error loading medication history", e)
-            return null
+           Log.e(TAG, ERR_FETCHING_MED_HISTORY, e)
+           setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
+           return null
         }
     }
 
@@ -106,6 +118,8 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
     }
 
     companion object {
+        private const val TAG = "HistoryViewModel"
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application

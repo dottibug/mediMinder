@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +22,7 @@ import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MainViewModel
@@ -100,7 +100,7 @@ class MainActivity : BaseActivity() {
                     InitializeDatabase(applicationContext).initDatabase()
                     viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
                 } catch (e: Exception) {
-                    Log.e("MainActivity", "Error initializing database: ${e.message}", e)
+                    viewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
                 }
             }
         }
@@ -160,7 +160,7 @@ class MainActivity : BaseActivity() {
                 launch { collectMedications() }         // Medication list
                 launch { collectSelectedDate() }        // Selected date text
                 launch { collectDateSelectorDates() }   // Date selector dates
-                launch { collectErrorMessage() }         // Error message
+                launch { collectErrorMessage() }        // Error message
             }
         }
     }

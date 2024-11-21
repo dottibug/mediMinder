@@ -29,6 +29,12 @@ import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_UPDATING_MED
+import com.example.mediminder.utils.Constants.ERR_UPDATING_MED_USER
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
@@ -136,8 +142,8 @@ class BaseMedicationViewModel(
                 _currentMedication.value = repository.getMedicationDetailsById(medicationId)
                 _asScheduled.value = _currentMedication.value?.medication?.asNeeded == false
             } catch (e: Exception) {
-                Log.e("BaseMedicationViewModel", "Error fetching medication", e)
-                throw e
+                Log.e(TAG, ERR_FETCHING_MED, e)
+                _errorMessage.value = ERR_FETCHING_MED_USER
             }
         }
     }
@@ -171,8 +177,13 @@ class BaseMedicationViewModel(
             // Create workers to schedule new medication
             createWorkers(CREATE_LOGS, medicationId)
             true
+        } catch (e: IllegalArgumentException) {
+            // Catch validation errors
+            _errorMessage.value = e.message
+            false
         } catch (e: Exception) {
-            _errorMessage.value = e.message ?: "Failed to save medication. Please try again."
+            Log.e(TAG, ERR_ADDING_MED, e)
+            _errorMessage.value = ERR_ADDING_MED_USER
             false
         }
     }
@@ -208,9 +219,14 @@ class BaseMedicationViewModel(
             // Create workers to update medication schedule
             createWorkers(UPDATE_LOGS, medicationId)
             true
-        } catch (e: Exception) {
-            Log.e("BaseMedicationViewModel", "Error updating medication", e)
-            _errorMessage.value = e.message ?: "Failed to update medication. Please try again."
+        } catch (e: IllegalArgumentException) {
+            // Catch validation errors
+            _errorMessage.value = e.message
+            false
+        }
+        catch (e: Exception) {
+            Log.e(TAG, ERR_UPDATING_MED, e)
+            _errorMessage.value = ERR_UPDATING_MED_USER
             false
         }
     }
@@ -241,7 +257,6 @@ class BaseMedicationViewModel(
             .build()
 
         val checkMissedRequest = OneTimeWorkRequestBuilder<CheckMissedMedicationsWorker>().build()
-
         return Pair(createFutureLogsRequest, checkMissedRequest)
     }
 
@@ -267,6 +282,7 @@ class BaseMedicationViewModel(
     }
 
     companion object {
+        private const val TAG = "BaseMedicationViewModel"
         private const val CREATE_LOGS = "create_logs"
         private const val UPDATE_LOGS = "update_logs"
 

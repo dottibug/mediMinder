@@ -19,6 +19,7 @@ class PermissionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var permissionManager: AlarmPermissionManager
 
+    // Handle the result of the notification permission request
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
@@ -26,6 +27,7 @@ class PermissionActivity : AppCompatActivity() {
         else { handlePermissionDenied(NOTIFICATION) }
     }
 
+    // Handle the result of the alarm permission request
     private val alarmPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
@@ -49,6 +51,7 @@ class PermissionActivity : AppCompatActivity() {
         else { checkAlarmPermissionAndNavigate() }
     }
 
+    // Check for notification permission
     private fun checkNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
@@ -56,41 +59,52 @@ class PermissionActivity : AppCompatActivity() {
         else true
     }
 
+    // Check for alarm permission and navigate to the main activity if granted
     private fun checkAlarmPermissionAndNavigate() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
             || permissionManager.hasAlarmPermission()) { navigateToMainActivity() }
         else { handlePermissionDenied(ALARM) }
     }
 
+    // Show the UI for requesting notification permissions
     private fun showNotificationPermissionUI() {
-        binding.permissionIcon.setImageResource(R.drawable.notification)
-        binding.permissionTitle.text = getString(R.string.enable_notifications)
-        binding.permissionDescription.text = getString(R.string.msg_enable_notifications)
-        binding.permissionButton.text = getString(R.string.enable_notifications)
-
-        binding.permissionButton.setOnClickListener {
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-//                putExtra(Settings.EXTRA_CHANNEL_ID, MedicationReminderReceiver.MED_REMINDER_CHANNEL_ID)
-            }
-            notificationPermissionLauncher.launch(intent)
+        with (binding) {
+            permissionIcon.setImageResource(R.drawable.notification)
+            permissionTitle.text = getString(R.string.enable_notifications)
+            permissionDescription.text = getString(R.string.msg_enable_notifications)
+            permissionButton.text = getString(R.string.enable_notifications)
+            permissionButton.setOnClickListener { handleNotificationPermissionClick() }
         }
     }
 
+    // Handle the click event for the notification permission button
+    private fun handleNotificationPermissionClick() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        notificationPermissionLauncher.launch(intent)
+    }
+
+    // Show the UI for requesting alarm permissions
     private fun showAlarmPermissionUI() {
-        binding.permissionIcon.setImageResource(R.drawable.alarm)
-        binding.permissionTitle.text = getString(R.string.enable_alarms)
-        binding.permissionDescription.text = getString(R.string.msg_enable_alarms)
-        binding.permissionButton.text = getString(R.string.enable_alarms)
-
-        binding.permissionButton.setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                alarmPermissionLauncher.launch(intent)
-            }
+        with (binding) {
+            permissionIcon.setImageResource(R.drawable.alarm)
+            permissionTitle.text = getString(R.string.enable_alarms)
+            permissionDescription.text = getString(R.string.msg_enable_alarms)
+            permissionButton.text = getString(R.string.enable_alarms)
+            permissionButton.setOnClickListener { handleAlarmPermissionClick() }
         }
     }
 
+    // Handle the click event for the alarm permission button
+    private fun handleAlarmPermissionClick() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            alarmPermissionLauncher.launch(intent)
+        }
+    }
+
+    // Handle the case where the permission is denied
     private fun handlePermissionDenied(permissionType: String) {
         val message = when (permissionType) {
             NOTIFICATION -> getString(R.string.notification_required)
@@ -100,6 +114,7 @@ class PermissionActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
+    // Navigate to the main activity
     private fun navigateToMainActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()

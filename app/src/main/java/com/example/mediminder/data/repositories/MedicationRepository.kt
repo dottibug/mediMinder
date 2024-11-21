@@ -19,6 +19,10 @@ import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.models.ValidatedAsNeededData
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED
+import com.example.mediminder.utils.Constants.ERR_UPDATING_MED
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -85,7 +89,8 @@ class MedicationRepository(
         try {
             return insertHelper.addMedicationData(medicationData, dosageData, reminderData, scheduleData)
         } catch (e: Exception) {
-            throw Exception("Failed to add medication: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_ADDING_MED_USER, e)
+            throw e     // Throw exception for BaseMedicationViewModel to handle
         }
     }
 
@@ -100,7 +105,8 @@ class MedicationRepository(
         try {
             updateHelper.updateMedicationData(medicationId, medicationData, dosageData, reminderData, scheduleData)
         } catch (e: Exception) {
-            throw Exception("Failed to update medication: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_MED, e)
+            throw e     // Throw exception for BaseMedicationViewModel to handle
         }
     }
 
@@ -209,10 +215,22 @@ class MedicationRepository(
                 )
             )
         } catch (e: Exception) {
-            Log.e("MedicationRepository testcat ", "Error adding as-needed log", e)
+            Log.e(TAG, e.message ?: ERR_ADDING_MED, e)
+            throw e     // Throw exception for MainViewModel to handle
         }
     }
 
     // Delete an as-needed medication log
-    suspend fun deleteAsNeededMedication(logId: Long) { medicationLogDao.deleteById(logId) }
+    suspend fun deleteAsNeededMedication(logId: Long) {
+        try {
+            medicationLogDao.deleteById(logId)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: ERR_DELETING_MED, e)
+            throw e     // Throw exception for MainViewModel to handle
+        }
+    }
+
+    companion object {
+        private const val TAG = "MedicationRepository"
+    }
 }

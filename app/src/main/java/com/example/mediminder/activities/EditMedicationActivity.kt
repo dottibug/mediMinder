@@ -1,12 +1,12 @@
 package com.example.mediminder.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
@@ -100,44 +100,49 @@ class EditMedicationActivity : BaseActivity() {
     // Update medication data and finish the activity
     private fun handleUpdateMedication(medicationId: Long) {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                val medData = getMedicationData(MedicationAction.EDIT)
-                val asScheduled = medicationViewModel.asScheduled.value
-                val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
-                val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
-                val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
+            try {
+                loadingSpinnerUtil.whileLoading {
+                    val medData = getMedicationData(MedicationAction.EDIT)
+                    val asScheduled = medicationViewModel.asScheduled.value
+                    val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
+                    val reminderData =
+                        if (asScheduled) medicationViewModel.getReminderData() else null
+                    val scheduleData =
+                        if (asScheduled) medicationViewModel.getScheduleData() else null
 
-                // Update medication if med data is not null (dosage data can be null if it is
-                // an as-needed medication)
-                if (medData != null && (dosageData != null || !asScheduled)) {
-                    val success = medicationViewModel.updateMedication(
-                        medicationId,
-                        medData,
-                        dosageData,
-                        reminderData,
-                        scheduleData
-                    )
+                    // Update medication if med data is not null (dosage data can be null if it is
+                    // an as-needed medication)
+                    if (medData != null && (dosageData != null || !asScheduled)) {
+                        val success = medicationViewModel.updateMedication(
+                            medicationId,
+                            medData,
+                            dosageData,
+                            reminderData,
+                            scheduleData
+                        )
 
-                    if (success) {
-                        createToast(this@EditMedicationActivity, "Medication updated successfully!")
-                        setResult(RESULT_OK)
-                        finish()
+                        if (success) {
+                            createToast(this@EditMedicationActivity, MED_UPDATED)
+                            setResult(RESULT_OK)
+                            finish()
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                medicationViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }
 
-    // Fetch medication data from the ViewModel
+    // Fetch medication data from the ViewModel (no need to catch errors here, as they are handled
+    // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                try {
-                    medicationViewModel.fetchMedication(medicationId)
-                } catch (e: Exception) {
-                    Log.e("EditMedicationActivity", "Error fetching medication", e)
-                }
-            }
+            loadingSpinnerUtil.whileLoading { medicationViewModel.fetchMedication(medicationId) }
         }
+    }
+
+    companion object {
+        private const val MED_UPDATED = "Medication updated successfully!"
     }
 }

@@ -47,10 +47,11 @@ abstract class BaseActivity : AppCompatActivity() {
         topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.quickAdd -> {
-                    if (this !is AddMedicationActivity) {
-                        startActivity(Intent(this, AddMedicationActivity::class.java))
+                    if (this is AddMedicationActivity) { false }
+                    else {
+                        startActivity(ADD)
                         true
-                    } else false
+                    }
                 }
                 else -> false
             }
@@ -70,32 +71,22 @@ abstract class BaseActivity : AppCompatActivity() {
     // Handle navigation item selection
     private fun handleNavigationItemSelected(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.nav_home -> {
-                if (this !is MainActivity) {
-                    startActivity(Intent(this, MainActivity::class.java))
-                }
-            }
+            R.id.nav_home -> if (this !is MainActivity) startActivity(HOME)
+            R.id.nav_medications -> if (this !is MedicationsActivity) startActivity(MEDS)
+            R.id.nav_history -> if (this !is HistoryActivity) { startActivity(HISTORY) }
+            R.id.nav_add_medication -> if (this !is AddMedicationActivity) { startActivity(ADD)}
+            R.id.nav_settings -> startActivity(SETTINGS)
+        }
+    }
 
-            R.id.nav_medications -> {
-                if (this !is MedicationsActivity) {
-                    startActivity(Intent(this, MedicationsActivity::class.java))
-                }
-            }
-
-            R.id.nav_history -> {
-                if (this !is HistoryActivity) {
-                    startActivity(Intent(this, HistoryActivity::class.java))
-                }
-            }
-
-            R.id.nav_add_medication -> {
-                if (this !is AddMedicationActivity) {
-                    startActivity(Intent(this, AddMedicationActivity::class.java))
-                }
-            }
-
-            R.id.nav_settings ->
-                startActivity(Intent(this, SettingsActivity::class.java))
+    // Start activity based on the name
+    private fun startActivity(name: String) {
+        when (name) {
+            HOME -> startActivity(Intent(this, MainActivity::class.java))
+            MEDS -> startActivity(Intent(this, MedicationsActivity::class.java))
+            HISTORY -> startActivity(Intent(this, HistoryActivity::class.java))
+            ADD -> startActivity(Intent(this, AddMedicationActivity::class.java))
+            SETTINGS -> startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 
@@ -128,5 +119,13 @@ abstract class BaseActivity : AppCompatActivity() {
     protected enum class MedicationAction {
         ADD,
         EDIT
+    }
+
+    companion object {
+        private const val HOME = "home"
+        private const val MEDS = "medications"
+        private const val HISTORY = "history"
+        private const val ADD = "add"
+        private const val SETTINGS = "settings"
     }
 }

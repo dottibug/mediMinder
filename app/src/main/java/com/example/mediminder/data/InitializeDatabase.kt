@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.DatabaseSeeder
+import com.example.mediminder.utils.Constants.ERR_SEEDING_DB
 
 // Initialize the database if it is empty
 class InitializeDatabase(private val context: Context) {
@@ -25,12 +26,16 @@ class InitializeDatabase(private val context: Context) {
                 database.medicationLogDao()
             )
 
-            try { seeder.seedDatabase() }
-            catch (e: Exception) {
-                Log.e("DatabaseInitializer", "Error seeding database", e)
-                throw e
+            try {
+                seeder.seedDatabase()
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_SEEDING_DB, e)
+                throw e     // Rethrow the exception to MainActivity to handle the error
             }
         }
+    }
 
+    companion object {
+        private const val TAG = "DatabaseInitializer"
     }
 }

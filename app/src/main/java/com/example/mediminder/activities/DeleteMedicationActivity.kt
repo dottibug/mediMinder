@@ -2,14 +2,16 @@ package com.example.mediminder.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
@@ -26,9 +28,13 @@ class DeleteMedicationActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get the medication ID from the intent
         medicationId = intent.getLongExtra(MED_ID, -1L)
         if (medicationId == -1L) { finish() }
+
         setupBindings()
+        setupObservers()
 
         // Handle back press
         onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
@@ -44,7 +50,6 @@ class DeleteMedicationActivity : BaseActivity() {
         super.onStart()
         setupUI()
         setupListeners()
-        setupObservers()
     }
 
     // Fetch medication data when the activity is resumed
@@ -83,25 +88,39 @@ class DeleteMedicationActivity : BaseActivity() {
         finish()
     }
 
-    // Update the UI when medication name is fetched
+    // Set up observers to update the UI when state flow changes
     private fun setupObservers() {
         lifecycleScope.launch {
-            viewModel.medicationName.collect { name ->
-                val message = resources.getString(R.string.msg_delete_medication, name)
-                binding.deleteMedicationMessage.text = message
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectMedicationName() }
+                launch { collectErrorMessage() }
             }
         }
     }
 
-    // Fetch medication details from the database
+    // Collect medication name from the view model
+    private suspend fun collectMedicationName() {
+        viewModel.medicationName.collect { name ->
+            val message = resources.getString(R.string.msg_delete_medication, name)
+            binding.deleteMedicationMessage.text = message
+        }
+    }
+
+    // Collect error messages from the view model
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(this@DeleteMedicationActivity, msg)
+                viewModel.clearError()
+            }
+        }
+    }
+
+    // Fetch medication data (no need to catch errors here, as they are handled in the view model
+    // and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                try { viewModel.fetchMedication(medicationId) }
-                catch (e: Exception) {
-                    Log.e("DeleteMedicationActivity testcat", "Error fetching medication", e)
-                }
-            }
+            loadingSpinnerUtil.whileLoading { viewModel.fetchMedication(medicationId) }
         }
     }
 
@@ -129,13 +148,9 @@ class DeleteMedicationActivity : BaseActivity() {
     private fun deleteMedication() {
         lifecycleScope.launch {
             loadingSpinnerUtil.whileLoading {
-                try {
-                    viewModel.deleteMedication()
-                    medicationDeleted = true
-                    showSuccessMessage()
-                } catch (e: Exception) {
-                    Log.e("DeleteMedicationActivity", "Error deleting medication", e)
-                }
+                viewModel.deleteMedication()
+                medicationDeleted = true
+                showSuccessMessage()
             }
         }
     }

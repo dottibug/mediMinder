@@ -21,6 +21,8 @@ import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
+import com.example.mediminder.utils.Constants.ERR_ADDING_AS_NEEDED_LOG
+import com.example.mediminder.utils.Constants.ERR_VALIDATING_INPUT
 import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.ValidationUtils.getValidatedAsNeededData
 import com.example.mediminder.viewmodels.MainViewModel
@@ -43,6 +45,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentAddAsNeededMedBinding.inflate(inflater, container, false)
+        setupObservers()
         return binding.root
     }
 
@@ -54,22 +57,12 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     // Fetch medications on resume to update dropdown menu of as-needed medications
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch { fetchAsNeededMedications() }
-    }
-
-    // Fetch as-needed medications for the dropdown menu
-    private fun fetchAsNeededMedications() {
-        try {
-            viewModel.fetchAsNeededMedications()
-        } catch (e: Exception) {
-            Log.e("AddAsNeededMedicationDialog testcat", "Error fetching as needed medications", e)
-        }
+        lifecycleScope.launch { viewModel.fetchAsNeededMedications() }
     }
 
     // Setup UI elements
     private fun setupUI() {
         binding.asNeededMedDropdown.setAdapter(adapter)
-        setupObservers()
         setupListeners()
     }
 
@@ -175,23 +168,19 @@ class AddAsNeededMedicationDialog: DialogFragment() {
                 timeTaken
             )
 
-            lifecycleScope.launch {
-                try {
-                    viewModel.addAsNeededLog(validatedData)
-                    viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
-                } catch (e: Exception) {
-                    Log.e("AddAsNeededMedicationDialog testcat", "Error adding as needed log", e)
-                    viewModel.setErrorMessage(e.message ?: "Error adding medication log")
-                }
-            }
+            viewModel.addAsNeededLog(validatedData)
+            viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+
             true
         } catch (e: IllegalArgumentException) {
-            Log.e("AddAsNeededMedicationDialog testcat", "Invalid input", e)
-            viewModel.setErrorMessage(e.message ?: "Error validating input")
+            // Catch validation errors
+            Log.e(TAG, ERR_VALIDATING_INPUT, e)
+            viewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {
-            Log.e("AddAsNeededMedicationDialog testcat", "Error adding as needed log", e)
-            viewModel.setErrorMessage(e.message ?: "Error adding an as-needed medication")
+            // Other errors
+            Log.e(TAG, ERR_ADDING_AS_NEEDED_LOG, e)
+            viewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
             false
         }
     }
@@ -230,6 +219,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     }
 
     companion object {
+        private const val TAG = "AddAsNeededMedicationDialog"
         private const val ADD_AS_NEEDED = "ADD_AS_NEEDED"
         private const val SELECT_TIME_TAKEN = "Select time medication was taken"
         private const val SELECT_DATE_TAKEN = "Select date medication was taken"

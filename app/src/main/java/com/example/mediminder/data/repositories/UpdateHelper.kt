@@ -1,5 +1,6 @@
 package com.example.mediminder.data.repositories
 
+import android.util.Log
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
@@ -15,6 +16,13 @@ import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.utils.AppUtils.getLocalTimeFromPair
+import com.example.mediminder.utils.Constants.ERR_INVALID_TIME_PAIR
+import com.example.mediminder.utils.Constants.ERR_SCHEDULE_NOT_FOUND
+import com.example.mediminder.utils.Constants.ERR_UPDATING_DOSAGE
+import com.example.mediminder.utils.Constants.ERR_UPDATING_MED
+import com.example.mediminder.utils.Constants.ERR_UPDATING_MED_INFO
+import com.example.mediminder.utils.Constants.ERR_UPDATING_REMINDER
+import com.example.mediminder.utils.Constants.ERR_UPDATING_SCHEDULE
 import java.time.LocalDate
 
 // Methods to update medications in the database
@@ -39,7 +47,8 @@ class UpdateHelper (
             if (reminderData != null) { updateReminder(medicationId, reminderData) }
             if (scheduleData != null) { updateSchedule(medicationId, scheduleData) }
         } catch (e: Exception) {
-            throw Exception("Failed to update medication: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_MED, e)
+            throw Exception(ERR_UPDATING_MED, e) // Throw exception to MedicationRepository
         }
     }
 
@@ -61,7 +70,8 @@ class UpdateHelper (
                 )
             )
         } catch (e: Exception) {
-            throw Exception("Failed to update medication details: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_MED_INFO, e)
+            throw Exception(ERR_UPDATING_MED_INFO, e)
         }
     }
 
@@ -89,7 +99,8 @@ class UpdateHelper (
                 )
             }
         } catch (e: Exception) {
-            throw Exception("Failed to update dosage: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_DOSAGE, e)
+            throw Exception(ERR_UPDATING_DOSAGE, e)
         }
     }
 
@@ -107,7 +118,8 @@ class UpdateHelper (
             else { updateExistingReminder(currentReminder, medicationId, reminderData) }
 
         } catch (e: Exception) {
-            throw Exception("Failed to update reminder: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_REMINDER, e)
+            throw Exception(ERR_UPDATING_REMINDER, e)
         }
     }
 
@@ -133,9 +145,7 @@ class UpdateHelper (
                     reminderData.hourlyReminderEndTime
                 ),
                 dailyReminderTimes = reminderData.dailyReminderTimes
-                    .map { getLocalTimeFromPair(it)
-                        ?: throw Exception("Invalid time pair when trying to create reminder: $it")
-                    }
+                    .map { getLocalTimeFromPair(it) ?: throw Exception(ERR_INVALID_TIME_PAIR) }
             )
         )
     }
@@ -160,9 +170,7 @@ class UpdateHelper (
                         reminderData.hourlyReminderEndTime
                     ),
                     dailyReminderTimes = reminderData.dailyReminderTimes
-                        .map { getLocalTimeFromPair(it)
-                            ?: throw Exception("Invalid time pair when trying to update reminder: $it")
-                        }
+                        .map { getLocalTimeFromPair(it) ?: throw Exception(ERR_INVALID_TIME_PAIR) }
                 )
             )
         }
@@ -175,7 +183,7 @@ class UpdateHelper (
 
             scheduleDao.update(
                 Schedules(
-                    id = currentSchedule?.id ?: throw(Exception("Error updating schedule: Schedule not found for medication with id $medicationId")),
+                    id = currentSchedule?.id ?: throw(Exception(ERR_SCHEDULE_NOT_FOUND)),
                     medicationId = medicationId,
                     startDate = scheduleData.startDate ?: LocalDate.now(),
                     durationType = scheduleData.durationType,
@@ -186,8 +194,12 @@ class UpdateHelper (
                 )
             )
         } catch (e: Exception) {
-            throw Exception("Failed to update schedule: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_UPDATING_SCHEDULE, e)
+            throw Exception(ERR_UPDATING_SCHEDULE, e)
         }
     }
 
+    companion object {
+        private const val TAG = "UpdateHelper"
+    }
 }

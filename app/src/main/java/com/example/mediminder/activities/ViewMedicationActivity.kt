@@ -2,10 +2,11 @@ package com.example.mediminder.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
@@ -13,6 +14,7 @@ import com.example.mediminder.data.local.classes.Schedules
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
 import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationWithDetails
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.daysOfWeekString
 import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.formatToLongDate
@@ -49,13 +51,13 @@ class ViewMedicationActivity(): BaseActivity() {
         medicationId = intent.getLongExtra(MED_ID, -1L)
         if (medicationId == -1L) { finish() }
         setupBindings()
+        setupObservers()
     }
 
     // Set up listeners and observers before data is fetched
     override fun onStart() {
         super.onStart()
         setupListeners()
-        setupObservers()
     }
 
     // Fetch/refresh medication data (observers will update UI when data is available)
@@ -87,21 +89,38 @@ class ViewMedicationActivity(): BaseActivity() {
         }
     }
 
-    // Updates the UI after medication details are fetched
+    // Set up observers to update the UI when state flow changes
     private fun setupObservers() {
         lifecycleScope.launch {
-            viewModel.medication.collect { medicationDetails ->
-                medicationDetails?.let { setupMedicationDetails(it) }
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectMedication() }
+                launch { collectErrorMessage() }
             }
         }
     }
 
+    // Collect medication details from the view model
+    private suspend fun collectMedication() {
+        viewModel.medication.collect { medicationDetails ->
+            medicationDetails?.let { setupMedicationDetails(it) }
+        }
+    }
+
+    // Collect error messages from the view model and display them as toasts
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(this@ViewMedicationActivity, msg)
+                viewModel.clearError()
+            }
+        }
+    }
+
+    // Fetch medication data from the ViewModel (no need to catch errors here, as they are handled
+    // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData(medicationId: Long) {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                try { viewModel.fetchMedication(medicationId) }
-                catch (e: Exception) { Log.e("ViewMedicationActivity testcat", "Error fetching medication", e) }
-            }
+            loadingSpinnerUtil.whileLoading { viewModel.fetchMedication(medicationId) }
         }
     }
 

@@ -32,6 +32,7 @@ object Constants {
     const val SCHEDULE_DAILY_MEDICATIONS = "com.example.mediminder.SCHEDULE_DAILY_MEDICATIONS"
     const val MIDNIGHT_SCHEDULER = "midnight_scheduler"
     const val ALARM_PERMISSION_DENIED = "Permission to schedule exact alarms not granted"
+    const val ADD_AS_NEEDED = "ADD_AS_NEEDED"
 
     // Date and time patterns
     const val TIME_PATTERN = "h:mm a"
@@ -53,4 +54,38 @@ object Constants {
 
     // Preferences
     const val MED_PRIVACY = "show_medication_name"
+
+    // Error messages
+    const val ERR_FETCHING_MED = "Error fetching medication."
+    const val ERR_FETCHING_MEDS = "Error fetching medications."
+    const val ERR_FETCHING_AS_NEEDED_MEDS = "Error fetching medications."
+    const val ERR_ADDING_MED = "Error adding medication."
+    const val ERR_ADDING_AS_NEEDED_LOG = "Error adding as-needed log."
+    const val ERR_INSERTING_MED = "Error inserting medication."
+    const val ERR_INSERTING_DOSAGE = "Error inserting dosage."
+    const val ERR_INVALID_TIME_PAIR = "Invalid time pair."
+    const val ERR_INSERTING_REMINDER = "Error inserting reminder."
+    const val ERR_INSERTING_SCHEDULE = "Error inserting schedule."
+    const val ERR_UPDATING_MED = "Error updating medication."
+    const val ERR_UPDATING_MED_INFO = "Error updating medication info."
+    const val ERR_UPDATING_DOSAGE = "Error updating dosage."
+    const val ERR_UPDATING_REMINDER = "Error updating reminder."
+    const val ERR_UPDATING_SCHEDULE = "Error updating schedule."
+    const val ERR_SCHEDULE_NOT_FOUND = "Scheduled medication not found."
+    const val ERR_DELETING_MED = "Error deleting medication."
+    const val ERR_FETCHING_MED_HISTORY = "Error fetching medication history."
+    const val ERR_SETTING_STATUS = "Error setting medication status."
+    const val ERR_UPDATING_STATUS = "Error updating medication status."
+    const val ERR_VALIDATING_INPUT = "Error validating input."
+
+    const val ERR_FETCHING_MED_USER = "Error fetching medication. Please try again."
+    const val ERR_ADDING_MED_USER = "Error adding medication. Please try again."
+    const val ERR_UPDATING_MED_USER = "Error updating medication. Please try again."
+    const val ERR_DELETING_MED_USER = "Error deleting medication. Please try again."
+    const val ERR_FETCHING_MED_HISTORY_USER = "Error fetching medication history. Please try again."
+    const val ERR_UPDATING_STATUS_USER = "Error updating medication status. Please try again."
+
+    const val ERR_UNEXPECTED = "Unexpected error occurred."
+    const val ERR_SEEDING_DB = "Error seeding database."
+    const val ERR_CLEARING_DB = "Error clearing database."
 }

@@ -2,12 +2,14 @@ package com.example.mediminder.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
@@ -24,12 +26,13 @@ class MedicationsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
+        setupObservers()
     }
 
     // Set up recycler view and observers before data is fetched
     override fun onStart() {
         super.onStart()
-        setupUI()
+        setupRecyclerView()
     }
 
     // Fetch/refresh medication data (observers will update UI when data is available)
@@ -47,9 +50,31 @@ class MedicationsActivity : BaseActivity() {
         loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
     }
 
-    private fun setupUI() {
-        setupRecyclerView()
-        observeViewModel()
+    // Sets up observers for the view model
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectMedications() }
+                launch { collectErrorMessage() }
+            }
+        }
+    }
+
+    // Collect medications from the view model
+    private suspend fun collectMedications() {
+        viewModel.medications.collect { medications ->
+            adapter.submitList(medications)
+        }
+    }
+
+    // Collect error messages from the view model and display them as toasts
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(this@MedicationsActivity, msg)
+                viewModel.clearError()
+            }
+        }
     }
 
     // Sets up the recycler view to display fetched medications
@@ -76,22 +101,11 @@ class MedicationsActivity : BaseActivity() {
         binding.medicationsList.adapter = adapter
     }
 
-    // Updates the UI after medications are fetched
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            viewModel.medications.collect { medications -> adapter.submitList(medications) }
-        }
-    }
-
-
+    // Fetch medications from the ViewModel (no need to catch errors here, as they are handled
+    // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedications() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                try { viewModel.fetchMedications() }
-                catch (e: Exception) {
-                    Log.e("MedicationsActivity testcat", "Error fetching medications", e)
-                }
-            }
+            loadingSpinnerUtil.whileLoading { viewModel.fetchMedications() }
         }
     }
 }

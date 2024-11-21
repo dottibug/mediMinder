@@ -25,6 +25,8 @@ import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.Constants.CONTINUOUS
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_CLEARING_DB
+import com.example.mediminder.utils.Constants.ERR_SEEDING_DB
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.INTERVAL
 import com.example.mediminder.utils.Constants.NUM_DAYS
@@ -287,7 +289,7 @@ class DatabaseSeeder(
                     }
                 }
         } catch (e: Exception) {
-            Log.e("DatabaseSeeder testcat", "Error seeding database: ${e.message}", e)
+            Log.e(TAG, ERR_SEEDING_DB, e)
             throw e
         }
     }
@@ -407,8 +409,12 @@ class DatabaseSeeder(
 
             return
         } catch (e: Exception) {
-            Log.e("DatabaseSeeder testcat", "Error clearing database: ${e.message}", e)
+            Log.e(TAG, ERR_CLEARING_DB, e)
             throw e
         }
+    }
+
+    companion object {
+        private const val TAG = "DatabaseSeeder"
     }
 }

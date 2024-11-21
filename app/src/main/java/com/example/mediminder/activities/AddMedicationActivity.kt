@@ -6,6 +6,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.ActivityAddMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.ADD_AS_NEEDED
+import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
 
@@ -19,7 +21,7 @@ class AddMedicationActivity : BaseActivity() {
         setupBindings()
 
         // Hide dosage, reminder, and schedule fragments if the activity started with ADD_AS_NEEDED flag
-        if (intent.getBooleanExtra("ADD_AS_NEEDED", false)) {
+        if (intent.getBooleanExtra(ADD_AS_NEEDED, false)) {
             medicationViewModel.setAsScheduled(false)
         }
     }
@@ -85,14 +87,10 @@ class AddMedicationActivity : BaseActivity() {
             try {
                 loadingSpinnerUtil.whileLoading {
                     val medData = getMedicationData(MedicationAction.ADD)
-
                     val isAsScheduled = medicationViewModel.asScheduled.value
-                    val dosageData =
-                        if (isAsScheduled) getDosageData(MedicationAction.ADD) else null
-                    val reminderData =
-                        if (isAsScheduled) medicationViewModel.getReminderData() else null
-                    val scheduleData =
-                        if (isAsScheduled) medicationViewModel.getScheduleData() else null
+                    val dosageData = if (isAsScheduled) getDosageData(MedicationAction.ADD) else null
+                    val reminderData = if (isAsScheduled) medicationViewModel.getReminderData() else null
+                    val scheduleData = if (isAsScheduled) medicationViewModel.getScheduleData() else null
 
                     // Add medication if med data is not null (dosage data can be null if it is
                     // an as-needed medication)
@@ -111,11 +109,8 @@ class AddMedicationActivity : BaseActivity() {
                         }
                     }
                 }
-            } catch (e: IllegalArgumentException) {
-                medicationViewModel.setErrorMessage(e.message ?: "Invalid medication data")
-                medicationViewModel.errorMessage.value?.let {
-                    createToast(this@AddMedicationActivity, it)
-                }
+            } catch (e: Exception) {
+                medicationViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }

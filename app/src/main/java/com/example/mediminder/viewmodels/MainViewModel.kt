@@ -15,6 +15,16 @@ import com.example.mediminder.models.MedicationItem
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.models.ValidatedAsNeededData
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_FETCHING_AS_NEEDED_MEDS
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_SETTING_STATUS
+import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS
+import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS_USER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,8 +75,8 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             try {
                 _medications.value = repository.getLogsForDate(date)
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error fetching medications", e)
-                _errorMessage.value = "Failed to fetch medications: ${e.message}"
+                Log.e(TAG, ERR_FETCHING_MED, e)
+                _errorMessage.value = ERR_FETCHING_MED_USER
             }
         }
     }
@@ -78,8 +88,8 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 val status = repository.getMedicationLogStatus(logId)
                 _initialMedStatus.value = status
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error getting status", e)
-                _errorMessage.value = "Failed to get medication status: ${e.message}"
+                Log.e(TAG, ERR_SETTING_STATUS, e)
+                _errorMessage.value = ERR_SETTING_STATUS
             }
         }
     }
@@ -91,8 +101,8 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 repository.updateMedicationLogStatus(logId, newStatus)
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error updating status", e)
-                _errorMessage.value = "Failed to update medication status: ${e.message}"
+                Log.e(TAG, ERR_UPDATING_STATUS, e)
+                _errorMessage.value = ERR_UPDATING_STATUS_USER
             }
         }
     }
@@ -118,10 +128,9 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             try {
                 val testResult = repository.getAsNeededMedications()
                 _asNeededMedications.value = testResult
-
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error fetching as needed medications", e)
-                _errorMessage.value = "Failed to fetch as needed medications: ${e.message}"
+                Log.e(TAG, ERR_FETCHING_AS_NEEDED_MEDS, e)
+                _errorMessage.value = ERR_FETCHING_AS_NEEDED_MEDS
             }
         }
     }
@@ -140,8 +149,8 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 // Refresh medication list for the current date
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error adding as needed log", e)
-                _errorMessage.value = "Failed to add as needed log: ${e.message}"
+                Log.e(TAG, ERR_ADDING_MED, e)
+                _errorMessage.value = ERR_ADDING_MED_USER
             }
         }
     }
@@ -153,13 +162,14 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 repository.deleteAsNeededMedication(logId)
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e("MainViewModel testcat", "Error deleting as needed medication", e)
-                _errorMessage.value = "Failed to delete as needed medication: ${e.message}"
+                Log.e(TAG, ERR_DELETING_MED, e)
+                _errorMessage.value = ERR_DELETING_MED_USER
             }
         }
     }
 
     companion object {
+        private const val TAG = "MainViewModel"
         private const val DAYS_AGO = -3
         private const val DAYS_AHEAD = 7
 

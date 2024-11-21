@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.FragmentUpdateMedicationStatusDialogBinding
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -63,17 +66,35 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
     // Observe initial status and set radio button
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.initialMedStatus.collect { status ->
-                status?.let {
-                    val radioButtonId = when (it) {
-                        MedicationStatus.TAKEN -> binding.radioButtonTaken.id
-                        MedicationStatus.SKIPPED -> binding.radioButtonSkipped.id
-                        MedicationStatus.MISSED -> binding.radioButtonMissed.id
-                        else -> binding.radioButtonTaken.id  // Default to taken if no status is found
-                    }
-                    binding.radioGroupMedStatus.check(radioButtonId)
-                    selectedStatus = it
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectInitialStatus() }
+                launch { collectErrorMessage() }
+            }
+        }
+    }
+
+    // Collect initial status and set status radio button
+    private suspend fun collectInitialStatus() {
+        viewModel.initialMedStatus.collect { status ->
+            status?.let {
+                val radioButtonId = when (it) {
+                    MedicationStatus.TAKEN -> binding.radioButtonTaken.id
+                    MedicationStatus.SKIPPED -> binding.radioButtonSkipped.id
+                    MedicationStatus.MISSED -> binding.radioButtonMissed.id
+                    else -> binding.radioButtonTaken.id  // Default to taken if no status is found
                 }
+                binding.radioGroupMedStatus.check(radioButtonId)
+                selectedStatus = it
+            }
+        }
+    }
+
+    // Collect error messages from the view model
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(requireContext(), msg)
+                viewModel.clearError()
             }
         }
     }

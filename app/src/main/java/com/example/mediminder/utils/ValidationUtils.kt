@@ -1,6 +1,5 @@
 package com.example.mediminder.utils
 
-import android.util.Log
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationIcon
@@ -55,9 +54,7 @@ object ValidationUtils {
     // - Medication name is required
     // - Defaults to tablet icon if icon is null
     private fun validateMedInfo(data: MedicationData): MedicationData {
-        if (data.name.trim().isEmpty()) {
-            throw IllegalArgumentException(MED_NAME_REQUIRED)
-        }
+        if (data.name.trim().isEmpty()) { throw IllegalArgumentException(MED_NAME_REQUIRED) }
 
         return data.copy(
             name = data.name.trim(),
@@ -206,11 +203,7 @@ object ValidationUtils {
         dateTaken: LocalDate?,
         timeTaken: Pair<Int, Int>?
     ): ValidatedAsNeededData {
-        Log.d("AddAsNeededMedicationDialog testcat", "selectedMedId: $selectedMedId")
-
         requireNotNull(selectedMedId) { MEDICATION_REQ }
-        Log.d("AddAsNeededMedicationDialog testcat", "selectedMedId after requireNotNull: $selectedMedId")
-
         val validDosageAmount = validatedDosageAmount(dosageAmount)
         val validDosageUnits = dosageUnits?.takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
         val validDateTaken = dateTaken ?: throw IllegalArgumentException(DATE_TAKEN_REQ)

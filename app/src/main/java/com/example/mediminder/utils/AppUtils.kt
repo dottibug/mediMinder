@@ -35,9 +35,9 @@ import java.util.Locale
 
 // Various utility functions used throughout the app
 object AppUtils {
-    private var currentToast: Toast? = null
 
     // Create and show a toast message (cancels previous toast, if one exists
+    private var currentToast: Toast? = null
     fun createToast(context: Context, message: String) {
         currentToast?.cancel()
         currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT)

@@ -1,5 +1,6 @@
 package com.example.mediminder.data.repositories
 
+import android.util.Log
 import com.example.mediminder.data.local.classes.Dosage
 import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.data.local.classes.Medication
@@ -14,6 +15,12 @@ import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.utils.AppUtils.getLocalTimeFromPair
+import com.example.mediminder.utils.Constants.ERR_ADDING_MED
+import com.example.mediminder.utils.Constants.ERR_INSERTING_DOSAGE
+import com.example.mediminder.utils.Constants.ERR_INSERTING_MED
+import com.example.mediminder.utils.Constants.ERR_INSERTING_REMINDER
+import com.example.mediminder.utils.Constants.ERR_INSERTING_SCHEDULE
+import com.example.mediminder.utils.Constants.ERR_INVALID_TIME_PAIR
 import java.time.LocalDate
 
 // Methods to insert medications into the database
@@ -37,7 +44,8 @@ class InsertHelper (
             if (scheduleData != null) { insertSchedule(medicationId, scheduleData) }
             return medicationId
         } catch (e: Exception) {
-            throw Exception("Failed to add medication: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_ADDING_MED, e)
+            throw Exception(ERR_ADDING_MED, e) // Throw exception to MedicationRepository
         }
     }
 
@@ -58,7 +66,8 @@ class InsertHelper (
             )
             return medicationId
         } catch (e: Exception) {
-            throw Exception("Failed to insert medication: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_INSERTING_MED, e)
+            throw Exception(ERR_INSERTING_MED, e) // Throw exception to MedicationRepository
         }
     }
 
@@ -72,7 +81,8 @@ class InsertHelper (
                 )
             )
         } catch (e: Exception) {
-            throw Exception("Failed to insert dosage: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_INSERTING_DOSAGE, e)
+            throw Exception(ERR_INSERTING_DOSAGE, e) // Throw exception to MedicationRepository
         }
     }
 
@@ -90,14 +100,13 @@ class InsertHelper (
                         reminderData.hourlyReminderEndTime
                     ),
                     dailyReminderTimes = reminderData.dailyReminderTimes.map {
-                        getLocalTimeFromPair(it) ?: throw Exception(
-                            "Invalid time pair when trying to insert reminder: $it"
-                        )
+                        getLocalTimeFromPair(it) ?: throw Exception(ERR_INVALID_TIME_PAIR)
                     }
                 )
             )
         } catch (e: Exception) {
-            throw Exception("Failed to insert reminder: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_INSERTING_REMINDER, e)
+            throw Exception(ERR_INSERTING_REMINDER, e) // Throw exception to MedicationRepository
         }
     }
 
@@ -115,7 +124,12 @@ class InsertHelper (
                 )
             )
         } catch (e: Exception) {
-            throw Exception("Failed to insert schedule: ${e.message}", e)
+            Log.e(TAG, e.message ?: ERR_INSERTING_SCHEDULE, e)
+            throw Exception(ERR_INSERTING_SCHEDULE, e)  // Throw exception to MedicationRepository
         }
+    }
+
+    companion object {
+        private const val TAG = "InsertHelper"
     }
 }
