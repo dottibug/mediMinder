@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutAddMedSchedule"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="18dp"
+    android:layout_marginTop="36dp"
     android:orientation="vertical"
     tools:context=".fragments.AddMedicationScheduleFragment">
 
@@ -89,6 +89,7 @@
             android:orientation="horizontal">
 
             <LinearLayout style="@style/med_settings_summary_wrapper">
+
                 <TextView
                     android:id="@+id/textViewNumDaysSummaryLabel"
                     style="@style/med_settings_summary_text"
@@ -157,6 +158,7 @@
             android:orientation="horizontal">
 
             <LinearLayout style="@style/med_settings_summary_wrapper">
+
                 <TextView
                     android:id="@+id/textViewDaySelectionSummaryLabel"
                     style="@style/med_settings_summary_text"
@@ -182,6 +184,7 @@
             android:orientation="horizontal">
 
             <LinearLayout style="@style/med_settings_summary_wrapper">
+
                 <TextView
                     android:id="@+id/textViewDaysIntervalSummaryLabel"
                     style="@style/med_settings_summary_text"

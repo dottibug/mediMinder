@@ -1,6 +1,5 @@
 package com.example.mediminder.fragments
 
-import android.R
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +17,7 @@ import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.FragmentAddAsNeededMedBinding
 import com.example.mediminder.utils.AppUtils.createDatePicker
 import com.example.mediminder.utils.AppUtils.createTimePicker
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
@@ -35,7 +35,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, mutableListOf<String>())
+        adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf<String>())
     }
 
     override fun onCreateView(
@@ -62,7 +62,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         try {
             viewModel.fetchAsNeededMedications()
         } catch (e: Exception) {
-            Log.e("HistoryViewModel testcat", "Error fetching as needed medications", e)
+            Log.e("AddAsNeededMedicationDialog testcat", "Error fetching as needed medications", e)
         }
     }
 
@@ -73,19 +73,34 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         setupListeners()
     }
 
-    // Observe asNeededMedications to update dropdown menu
     // RepeatOnLifecycle only collects data when the fragment is in the STARTED state to prevent
     // UI updates when the fragment is not visible
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.asNeededMedications.collect { medications ->
-                    if (medications.isEmpty()) { hideAsNeededInputs() }
-                    else {
-                        showAsNeededInputs()
-                        updateAdapter(medications)
-                    }
-                }
+                launch { collectAsNeededMeds() }
+                launch { collectErrorMessage() }
+            }
+        }
+    }
+
+    // Collect as-needed medications from the view model
+    private suspend fun collectAsNeededMeds() {
+        viewModel.asNeededMedications.collect { medications ->
+            if (medications.isEmpty()) { hideAsNeededInputs() }
+            else {
+                showAsNeededInputs()
+                updateAdapter(medications)
+            }
+        }
+    }
+
+    // Collect error messages from the view model
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(requireContext(), msg)
+                viewModel.clearError()
             }
         }
     }
@@ -101,10 +116,12 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     // Hide the as-needed medication inputs
     private fun hideAsNeededInputs() {
         with (binding) {
-            layoutAddAsNeededMed.visibility = View.GONE
-            noAsNeededMedsMessage.visibility = View.GONE
-            addNewButton.visibility = View.GONE
+            layoutAddAsNeededContent.visibility = View.VISIBLE
+            layoutAddAsNeededMed.visibility = View.VISIBLE
+            textViewAsNeededMedLabel.visibility = View.GONE
             asNeededMedDropdownWrapper.visibility = View.GONE
+            addNewButton.visibility = View.VISIBLE
+            textViewDosage.visibility = View.GONE
             layoutDosage.visibility = View.GONE
             layoutAsNeededDateTime.visibility = View.GONE
         }
@@ -114,7 +131,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     private fun showAsNeededInputs() {
         with (binding) {
             layoutAddAsNeededMed.visibility = View.VISIBLE
-            noAsNeededMedsMessage.visibility = View.GONE
             addNewButton.visibility = View.VISIBLE
             asNeededMedDropdownWrapper.visibility = View.VISIBLE
             layoutDosage.visibility = View.VISIBLE
@@ -135,32 +151,48 @@ class AddAsNeededMedicationDialog: DialogFragment() {
             buttonCancelAddAsNeededMed.setOnClickListener { dismiss() }
 
             buttonSetAddAsNeededMed.setOnClickListener {
-                addAsNeededMedication()
-                dismiss()
+                val validAsNeededMed = addAsNeededMedication()
+                if (validAsNeededMed) { dismiss() }
             }
         }
     }
 
     // Add as-needed medication to the database
-    private fun addAsNeededMedication() {
-        val selectedMedId = viewModel.selectedAsNeededMedId.value
-        val dosageAmount = binding.asNeededDosageAmount.text.toString()
-        val dosageUnits = binding.asNeededDosageUnits.text.toString()
-        val dateTaken = viewModel.dateTaken.value
-        val timeTaken = viewModel.timeTaken.value
+    private fun addAsNeededMedication(): Boolean {
+        return try {
+            val selectedMedId = viewModel.selectedAsNeededMedId.value
+            val dosageAmount = binding.asNeededDosageAmount.text.toString()
+            val dosageUnits = binding.asNeededDosageUnits.text.toString()
+            val dateTaken = viewModel.dateTaken.value
+            val timeTaken = viewModel.timeTaken.value
 
-        // Validate input
-        val validatedData = getValidatedAsNeededData(selectedMedId, dosageAmount, dosageUnits, dateTaken, timeTaken)
+            // Validate input
+            val validatedData = getValidatedAsNeededData(
+                selectedMedId,
+                dosageAmount,
+                dosageUnits,
+                dateTaken,
+                timeTaken
+            )
 
-        lifecycleScope.launch {
-            try {
-                viewModel.addAsNeededLog(validatedData)
-                // Refresh medications for the current date
-                viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
-                dismiss()
-            } catch (e: Exception) {
-                Log.e("HistoryViewModel testcat", "Error adding as needed log", e)
+            lifecycleScope.launch {
+                try {
+                    viewModel.addAsNeededLog(validatedData)
+                    viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+                } catch (e: Exception) {
+                    Log.e("AddAsNeededMedicationDialog testcat", "Error adding as needed log", e)
+                    viewModel.setErrorMessage(e.message ?: "Error adding medication log")
+                }
             }
+            true
+        } catch (e: IllegalArgumentException) {
+            Log.e("AddAsNeededMedicationDialog testcat", "Invalid input", e)
+            viewModel.setErrorMessage(e.message ?: "Error validating input")
+            false
+        } catch (e: Exception) {
+            Log.e("AddAsNeededMedicationDialog testcat", "Error adding as needed log", e)
+            viewModel.setErrorMessage(e.message ?: "Error adding an as-needed medication")
+            false
         }
     }
 

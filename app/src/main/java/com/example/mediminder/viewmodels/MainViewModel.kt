@@ -52,8 +52,12 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     private val _initialMedStatus = MutableStateFlow<MedicationStatus?>(null)
     val initialMedStatus: StateFlow<MedicationStatus?> = _initialMedStatus.asStateFlow()
 
-    private val _errorState = MutableStateFlow<String?>(null)
-    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    fun setErrorMessage(msg: String) { _errorMessage.value = msg }
+
+    fun clearError() { _errorMessage.value = null }
 
     // Fetch medications for the selected date
     fun fetchMedicationsForDate(date: LocalDate) {
@@ -62,7 +66,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 _medications.value = repository.getLogsForDate(date)
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error fetching medications", e)
-                _errorState.value = "Failed to fetch medications: ${e.message}"
+                _errorMessage.value = "Failed to fetch medications: ${e.message}"
             }
         }
     }
@@ -75,7 +79,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 _initialMedStatus.value = status
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error getting status", e)
-                _errorState.value = "Failed to get medication status: ${e.message}"
+                _errorMessage.value = "Failed to get medication status: ${e.message}"
             }
         }
     }
@@ -88,7 +92,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error updating status", e)
-                _errorState.value = "Failed to update medication status: ${e.message}"
+                _errorMessage.value = "Failed to update medication status: ${e.message}"
             }
         }
     }
@@ -117,7 +121,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
 
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error fetching as needed medications", e)
-                _errorState.value = "Failed to fetch as needed medications: ${e.message}"
+                _errorMessage.value = "Failed to fetch as needed medications: ${e.message}"
             }
         }
     }
@@ -137,7 +141,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error adding as needed log", e)
-                _errorState.value = "Failed to add as needed log: ${e.message}"
+                _errorMessage.value = "Failed to add as needed log: ${e.message}"
             }
         }
     }
@@ -150,7 +154,7 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
                 Log.e("MainViewModel testcat", "Error deleting as needed medication", e)
-                _errorState.value = "Failed to delete as needed medication: ${e.message}"
+                _errorMessage.value = "Failed to delete as needed medication: ${e.message}"
             }
         }
     }

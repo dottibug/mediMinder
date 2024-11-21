@@ -1,5 +1,6 @@
 package com.example.mediminder.utils
 
+import android.util.Log
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationIcon
@@ -197,6 +198,51 @@ object ValidationUtils {
         return data
     }
 
+    // Validate data for an as-needed medication
+    fun getValidatedAsNeededData(
+        selectedMedId: Long?,
+        dosageAmount: String,
+        dosageUnits: String?,
+        dateTaken: LocalDate?,
+        timeTaken: Pair<Int, Int>?
+    ): ValidatedAsNeededData {
+        Log.d("AddAsNeededMedicationDialog testcat", "selectedMedId: $selectedMedId")
+
+        requireNotNull(selectedMedId) { MEDICATION_REQ }
+        Log.d("AddAsNeededMedicationDialog testcat", "selectedMedId after requireNotNull: $selectedMedId")
+
+        val validDosageAmount = validatedDosageAmount(dosageAmount)
+        val validDosageUnits = dosageUnits?.takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
+        val validDateTaken = dateTaken ?: throw IllegalArgumentException(DATE_TAKEN_REQ)
+        val validTimeTaken = timeTaken ?: throw IllegalArgumentException(TIME_TAKEN_REQ)
+
+        // Ensure that date and time taken are not in the future
+        val validDateTime = validateDateTimeTaken(validDateTaken, validTimeTaken)
+
+        return ValidatedAsNeededData(
+            medicationId = selectedMedId,
+            scheduleId = null,
+            plannedDatetime = validDateTime,
+            takenDatetime = validDateTime,
+            status = TAKEN,
+            asNeededDosageAmount = validDosageAmount,
+            asNeededDosageUnit = validDosageUnits
+        )
+    }
+
+    // Helper function to validate dosage amount
+    private fun validatedDosageAmount(dosageAmount: String): String {
+        return dosageAmount.trim().takeIf { it.isNotEmpty() }
+            ?: throw IllegalArgumentException(DOSAGE_AMOUNT_REQUIRED)
+    }
+
+    // Helper function to ensure that date and time taken are not in the future
+    private fun validateDateTimeTaken(validDateTaken: LocalDate, validTimeTaken: Pair<Int, Int>): LocalDateTime {
+        val dateTime = LocalDateTime.of(validDateTaken, LocalTime.of(validTimeTaken.first, validTimeTaken.second))
+        if (dateTime.isAfter(LocalDateTime.now())) { throw IllegalArgumentException(FUTURE_NOT_ALLOWED) }
+        return dateTime
+    }
+
     // Constants
     private const val MED_NAME_REQUIRED = "Medication name is required"
     private const val DOSAGE_AMOUNT_REQUIRED = "Dosage amount is required"
@@ -216,38 +262,10 @@ object ValidationUtils {
     private const val INVALID_DURATION_TYPE = "Invalid duration type"
     private const val NO_SELECTED_DAYS_IN_DURATION = "The selected days of the week do not occur within the set number of days"
     private const val INTERVAL_EXCEEDS_DURATION = "Interval is longer than the set number of days"
-
-    //////////////////////////
-
-    // Validate data for an as-needed medication
-    fun getValidatedAsNeededData(
-        selectedMedId: Long?,
-        dosageAmount: String,
-        dosageUnits: String,
-        dateTaken: LocalDate?,
-        timeTaken: Pair<Int, Int>?
-    ): ValidatedAsNeededData {
-        val validatedMedId =
-            selectedMedId ?: throw IllegalArgumentException("Medication is required")
-        val validatedDosageAmount =
-            dosageAmount.trim().takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException(
-                DOSAGE_AMOUNT_REQUIRED
-            )
-        val validatedDosageUnits =
-            dosageUnits.trim().takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
-        val validatedDateTaken =
-            dateTaken ?: throw IllegalArgumentException("Date taken is required")
-        val validatedTimeTaken = timeTaken?.let { LocalTime.of(it.first, it.second) }
-
-        return ValidatedAsNeededData(
-            medicationId = validatedMedId,
-            scheduleId = null,
-            plannedDatetime = LocalDateTime.of(validatedDateTaken, validatedTimeTaken),
-            takenDatetime = LocalDateTime.of(validatedDateTaken, validatedTimeTaken),
-            status = com.example.mediminder.models.MedicationStatus.TAKEN,
-            asNeededDosageAmount = validatedDosageAmount,
-            asNeededDosageUnit = validatedDosageUnits
-        )
-    }
+    private const val MEDICATION_REQ = "Please select a medication"
+    private const val DATE_TAKEN_REQ = "Date taken is required"
+    private const val TIME_TAKEN_REQ = "Time taken is required"
+    private const val FUTURE_NOT_ALLOWED = "As-needed medications cannot be taken in the future"
+    private val TAKEN = com.example.mediminder.models.MedicationStatus.TAKEN
 
 }

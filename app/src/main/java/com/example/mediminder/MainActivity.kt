@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +21,7 @@ import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.LoadingSpinnerUtil
@@ -160,7 +160,7 @@ class MainActivity : BaseActivity() {
                 launch { collectMedications() }         // Medication list
                 launch { collectSelectedDate() }        // Selected date text
                 launch { collectDateSelectorDates() }   // Date selector dates
-                launch { collectErrorState() }          // Error state
+                launch { collectErrorMessage() }         // Error message
             }
         }
     }
@@ -186,10 +186,11 @@ class MainActivity : BaseActivity() {
     }
 
     // Collect error state from the view model
-    private suspend fun collectErrorState() {
-        viewModel.errorState.collect { error ->
-            error?.let {
-                Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+    private suspend fun collectErrorMessage() {
+        viewModel.errorMessage.collect { msg ->
+            if (msg != null) {
+                createToast(this@MainActivity, msg)
+                viewModel.clearError()
             }
         }
     }
