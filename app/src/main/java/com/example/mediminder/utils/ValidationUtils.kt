@@ -21,34 +21,161 @@ import java.time.LocalTime
 // Validation utilities help validate medication, dose, reminder, and schedule data before saving
 // or updating medications in the database
 object ValidationUtils {
-    private const val MED_NAME_REQ = "Medication name is required"
-    private const val DOSE_AMT_REQ = "Dosage amount is required"
-    private const val DOSE_UNIT_DEFAULT = "units"
-    private const val REM_FREQ_REQ = "Reminder frequency is required when reminders are enabled"
-    private const val HOURLY_INTERVAL_REQ = "An interval is required for hourly reminders"
-    private const val START_TIME_REQ = "A start time is required for hourly reminders"
-    private const val END_TIME_REQ = "An end time is required for hourly reminders"
-    private const val REM_TIME_REQ = "At least one reminder time is required for daily reminders"
-    private const val NUM_DAYS_REQ = "Number of days must be greater than 0"
-    private const val SPECIFIC_DAYS_REQ = "Specific days of the week must be selected"
-    private const val DAYS_INTERVAL_REQ = "Days interval must be greater than 0"
 
-    // Validate data for a scheduled medication
-    fun getValidatedData(
+    // Main validation function
+    fun validateMedicationData(
         medicationData: MedicationData,
         dosageData: DosageData?,
         reminderData: ReminderData?,
         scheduleData: ScheduleData?
     ): ValidatedData {
+        val validMedInfo = validateMedInfo(medicationData)
         val isScheduled = !medicationData.asNeeded
 
-        return ValidatedData(
-            medicationData = validateMedicationData(medicationData),
-            dosageData = if (isScheduled) validateDosageData(dosageData) else null,
-            reminderData = if (isScheduled) reminderData?.let { validateReminderData(it) } else null,
-            scheduleData = if (isScheduled) scheduleData?.let { validateScheduleData(it) } else null
+        // Validate dosage, schedule, and reminders if the medication is scheduled
+        if (isScheduled) {
+            return ValidatedData(
+                medicationData = validMedInfo,
+                dosageData = validateDosageData(dosageData),
+                reminderData = validateReminderData(reminderData),
+                scheduleData = validateScheduleData(scheduleData)
+            )
+        } else {
+            return ValidatedData(
+                medicationData = validMedInfo,
+                dosageData = null,
+                reminderData = null,
+                scheduleData = null
+            )
+        }
+    }
+
+    // Validate medication info:
+    // - Medication name is required
+    // - Defaults to tablet icon if icon is null
+    private fun validateMedInfo(data: MedicationData): MedicationData {
+        if (data.name.trim().isEmpty()) {
+            throw IllegalArgumentException(MED_NAME_REQUIRED)
+        }
+
+        return data.copy(
+            name = data.name.trim(),
+            doctor = data.doctor.trim(),
+            notes = data.notes.trim(),
+            icon = data.icon ?: MedicationIcon.TABLET
         )
     }
+
+    // Validate dosage data:
+    // - Dosage amount is required
+    // - Defaults to "units" if dosage units are null
+    private fun validateDosageData(data: DosageData?): DosageData {
+        requireNotNull(data) { DOSAGE_AMOUNT_REQUIRED }
+        if (data.dosageAmount.isNullOrBlank()) {
+            throw IllegalArgumentException(DOSAGE_AMOUNT_REQUIRED)
+        }
+
+        return data.copy(
+            dosageAmount = data.dosageAmount.trim(),
+            dosageUnits = data.dosageUnits ?: DOSE_UNIT_DEFAULT
+        )
+    }
+
+    // Validate reminder data: Reminder frequency can not be null
+    private fun validateReminderData(data: ReminderData?): ReminderData {
+        requireNotNull(data) { REMINDER_REQUIRED }
+
+        return when (data.reminderFrequency) {
+            DAILY -> validateDailyReminders(data)
+            EVERY_X_HOURS -> validateHourlyReminders(data)
+            else -> throw IllegalArgumentException(INVALID_REMINDER_FREQUENCY)
+        }
+    }
+
+    // Validate schedule data
+    private fun validateScheduleData(data: ScheduleData?): ScheduleData {
+        requireNotNull(data) { SCHEDULE_REQUIRED }
+        val validDurationData = validateDuration(data)
+        val validData = validateScheduleType(validDurationData)
+        return validData
+    }
+
+    // Helper function to validate schedule type
+    private fun validateScheduleType(data: ScheduleData): ScheduleData {
+        return when (data.scheduleType) {
+            DAILY -> data.copy(selectedDays = EMPTY_STRING, daysInterval = 0)
+            SPECIFIC_DAYS -> validateSpecificDays(data)
+            INTERVAL -> validateDaysInterval(data)
+            else -> throw IllegalArgumentException(INVALID_SCHEDULE_TYPE)
+        }
+    }
+
+    // Helper function to validate schedule duration
+    private fun validateDuration(data: ScheduleData): ScheduleData {
+        return when (data.durationType) {
+            CONTINUOUS -> data.copy(numDays = null)
+            NUM_DAYS -> validateNumDays(data)
+            else -> throw IllegalArgumentException(INVALID_DURATION_TYPE)
+        }
+    }
+
+    // Helper function to validate number of days
+    private fun validateNumDays(data: ScheduleData): ScheduleData {
+        requireNotNull(data.numDays) { NUM_DAYS_REQUIRED }
+        if (data.numDays <= 0) { throw IllegalArgumentException(NUM_DAYS_INVALID) }
+        return data.copy()
+    }
+
+    // Helper function to validate specific days schedule
+    private fun validateSpecificDays(data: ScheduleData): ScheduleData {
+        if (data.selectedDays.isEmpty()) {
+            throw IllegalArgumentException(SCHEDULE_DAYS_REQUIRED)
+        }
+        return data.copy(daysInterval = 0)
+    }
+
+    // Helper function to validate days interval schedule
+    private fun validateDaysInterval(data: ScheduleData): ScheduleData {
+        val interval = data.daysInterval ?: 0
+        require(interval > 0) { DAY_INTERVAL_REQ }
+        return data.copy(selectedDays = EMPTY_STRING)
+    }
+
+    // Helper function to validate daily reminders
+    private fun validateDailyReminders(data: ReminderData): ReminderData {
+        if (data.dailyReminderTimes.isEmpty()) {
+            throw IllegalArgumentException(REMINDER_TIME_REQ)
+        }
+        return data
+    }
+
+    // Helper function to validate hourly reminders
+    private fun validateHourlyReminders(data: ReminderData): ReminderData {
+        requireNotNull(data.hourlyReminderInterval) { HOURLY_INTERVAL_REQ }
+        requireNotNull(data.hourlyReminderStartTime) { START_TIME_REQ }
+        requireNotNull(data.hourlyReminderEndTime) { END_TIME_REQ }
+        return data
+    }
+
+    // Constants
+    private const val MED_NAME_REQUIRED = "Medication name is required"
+    private const val DOSAGE_AMOUNT_REQUIRED = "Dosage amount is required"
+    private const val DOSE_UNIT_DEFAULT = "units"
+    private const val REMINDER_REQUIRED = "Reminders are required for scheduled medications"
+    private const val INVALID_REMINDER_FREQUENCY = "Invalid reminder frequency"
+    private const val REMINDER_TIME_REQ = "At least one daily reminder time is required"
+    private const val HOURLY_INTERVAL_REQ = "An hourly interval is required"
+    private const val START_TIME_REQ = "A start time is required"
+    private const val END_TIME_REQ = "An end time is required"
+    private const val SCHEDULE_REQUIRED = "A schedule is required for scheduled medications"
+    private const val INVALID_SCHEDULE_TYPE = "Invalid schedule type"
+    private const val DAY_INTERVAL_REQ = "Day interval must be greater than 0"
+    private const val SCHEDULE_DAYS_REQUIRED = "Please select which days to take the medication"
+    private const val NUM_DAYS_REQUIRED = "Number of days is required"
+    private const val NUM_DAYS_INVALID = "Number of days must be greater than 0"
+    private const val INVALID_DURATION_TYPE = "Invalid duration type"
+
+    //////////////////////////
 
     // Validate data for an as-needed medication
     fun getValidatedAsNeededData(
@@ -58,10 +185,16 @@ object ValidationUtils {
         dateTaken: LocalDate?,
         timeTaken: Pair<Int, Int>?
     ): ValidatedAsNeededData {
-        val validatedMedId = selectedMedId ?: throw IllegalArgumentException("Medication is required")
-        val validatedDosageAmount = dosageAmount.trim().takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException(DOSE_AMT_REQ)
-        val validatedDosageUnits = dosageUnits.trim().takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
-        val validatedDateTaken = dateTaken ?: throw IllegalArgumentException("Date taken is required")
+        val validatedMedId =
+            selectedMedId ?: throw IllegalArgumentException("Medication is required")
+        val validatedDosageAmount =
+            dosageAmount.trim().takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException(
+                DOSAGE_AMOUNT_REQUIRED
+            )
+        val validatedDosageUnits =
+            dosageUnits.trim().takeIf { it.isNotEmpty() } ?: DOSE_UNIT_DEFAULT
+        val validatedDateTaken =
+            dateTaken ?: throw IllegalArgumentException("Date taken is required")
         val validatedTimeTaken = timeTaken?.let { LocalTime.of(it.first, it.second) }
 
         return ValidatedAsNeededData(
@@ -75,152 +208,4 @@ object ValidationUtils {
         )
     }
 
-    // Validate medication data:
-    // - Name cannot be empty
-    // - Doctor and notes are trimmed
-    // - Icon defaults to tablet if null
-    private fun validateMedicationData(medicationData: MedicationData): MedicationData {
-        return medicationData.copy(
-            name = medicationData.name
-                .trim().takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(MED_NAME_REQ),
-            doctor = medicationData.doctor.trim(),
-            notes = medicationData.notes.trim(),
-            icon = medicationData.icon ?: MedicationIcon.TABLET
-        )
-    }
-
-    // Validate dosage data:
-    // - Amount cannot be empty
-    // - Units defaults to "units" if empty
-    private fun validateDosageData(dosageData: DosageData?): DosageData? {
-        if (dosageData != null) {
-            return dosageData.copy(
-                dosageAmount = dosageData.dosageAmount?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: throw IllegalArgumentException(DOSE_AMT_REQ),
-
-                dosageUnits = dosageData.dosageUnits?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: DOSE_UNIT_DEFAULT
-            )
-        }
-        else return null
-    }
-
-    // Validate reminder data:
-    // - Reminder frequency is required when reminders are enabled
-    // - Hourly reminder interval is required for hourly reminders
-    // - Hourly reminder start and end time are required for hourly reminders
-    // - Daily reminder times are required for daily reminders
-    private fun validateReminderData(reminderData: ReminderData): ReminderData {
-        return reminderData.copy(
-            reminderEnabled = reminderData.reminderEnabled,
-            reminderFrequency = getReminderFrequency(reminderData),
-            hourlyReminderInterval = getHourlyReminderInterval(reminderData),
-            hourlyReminderStartTime = getReminderStartTime(reminderData),
-            hourlyReminderEndTime = getReminderEndTime(reminderData),
-            dailyReminderTimes = getDailyReminderTimes(reminderData),
-        )
-    }
-
-    // Helper function to validate reminder frequency
-    private fun getReminderFrequency(reminderData: ReminderData): String {
-        if (reminderData.reminderEnabled) {
-            return reminderData.reminderFrequency.takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(REM_FREQ_REQ)
-        }
-        else { return EMPTY_STRING }
-    }
-
-    // Helper function to validate hourly reminder interval
-    private fun getHourlyReminderInterval(reminderData: ReminderData): String? {
-        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
-            return reminderData.hourlyReminderInterval?.takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(HOURLY_INTERVAL_REQ)
-        }
-        else { return null }
-    }
-
-    // Helper function to validate reminder start time
-    private fun getReminderStartTime (reminderData: ReminderData): Pair<Int, Int>? {
-        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
-            return reminderData.hourlyReminderStartTime
-                ?: throw IllegalArgumentException(START_TIME_REQ)
-        }
-        else { return null }
-    }
-
-    // Helper function to validate reminder end time
-    private fun getReminderEndTime (reminderData: ReminderData): Pair<Int, Int>? {
-        if (reminderData.reminderFrequency == EVERY_X_HOURS) {
-            return reminderData.hourlyReminderEndTime
-                ?: throw IllegalArgumentException(END_TIME_REQ)
-        }
-        else { return null }
-    }
-
-    // Helper function to validate daily reminder times
-    private fun getDailyReminderTimes(reminderData: ReminderData): List<Pair<Int, Int>> {
-        if (reminderData.reminderFrequency == DAILY) {
-            return reminderData.dailyReminderTimes.takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(REM_TIME_REQ)
-        } else { return emptyList() }
-    }
-
-   // Validate schedule data:
-    // - Duration type defaults to "continuous" if empty
-    // - Start date defaults to today if null
-    // - Number of days is required for numDays type
-    // - Schedule type defaults to "daily" if empty
-    // - Selected days are required for specificDays type
-    // - Days interval is required for interval type
-    private fun validateScheduleData(scheduleData: ScheduleData): ScheduleData {
-        return scheduleData.copy(
-            isScheduled = scheduleData.isScheduled,
-            startDate = scheduleData.startDate ?: LocalDate.now(),
-            durationType = getDurationType(scheduleData),
-            numDays = getNumDays(scheduleData),
-            scheduleType = getScheduleType(scheduleData),
-            selectedDays = getSelectDays(scheduleData),
-            daysInterval = getDaysInterval(scheduleData)
-        )
-    }
-
-    // Helper function to validate duration type
-    private fun getDurationType(scheduleData: ScheduleData): String {
-        if (scheduleData.durationType.isEmpty()) { return CONTINUOUS }
-        else { return scheduleData.durationType }
-    }
-
-    // Helper function to validate number of days
-    private fun getNumDays(scheduleData: ScheduleData): Int? {
-        if (scheduleData.durationType == NUM_DAYS) {
-            return scheduleData.numDays?.takeIf { it > 0 }
-                ?: throw IllegalArgumentException(NUM_DAYS_REQ)
-        }
-        else { return null }
-    }
-
-    // Helper function to validate schedule type
-    private fun getScheduleType(scheduleData: ScheduleData): String {
-        if (scheduleData.scheduleType.isEmpty()) { return DAILY }
-        else { return scheduleData.scheduleType }
-    }
-
-    // Helper function to validate selected days
-    private fun getSelectDays(scheduleData: ScheduleData): String {
-        if (scheduleData.scheduleType == SPECIFIC_DAYS) {
-            return scheduleData.selectedDays.takeIf { it.isNotEmpty() }
-                ?: throw IllegalArgumentException(SPECIFIC_DAYS_REQ)
-        }
-        else { return EMPTY_STRING }
-    }
-
-    // Helper function to validate days interval
-    private fun getDaysInterval(scheduleData: ScheduleData): Int {
-        if (scheduleData.scheduleType == INTERVAL) {
-            return scheduleData.daysInterval?.takeIf { it > 0 }
-                ?: throw IllegalArgumentException(DAYS_INTERVAL_REQ)
-        }
-        else { return 0 }
-    }
 }

@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.LoadingSpinnerUtil
@@ -69,9 +70,20 @@ class EditMedicationActivity : BaseActivity() {
 
     // Update UI when asScheduled changes
     private fun setupObservers() {
+        // Observe asScheduled changes
         lifecycleScope.launch {
             medicationViewModel.asScheduled.collect { asScheduled ->
                 updateFragmentVisibility(asScheduled)
+            }
+        }
+
+        // Error observer
+        lifecycleScope.launch {
+            medicationViewModel.errorMessage.collect { errMsg ->
+                if (errMsg != null) {
+                    createToast(this@EditMedicationActivity, errMsg)
+                    medicationViewModel.clearError()
+                }
             }
         }
     }
@@ -89,28 +101,28 @@ class EditMedicationActivity : BaseActivity() {
     private fun handleUpdateMedication(medicationId: Long) {
         lifecycleScope.launch {
             loadingSpinnerUtil.whileLoading {
-                try {
-                    val medData = getMedicationData(MedicationAction.EDIT)
-                    val asScheduled = medicationViewModel.asScheduled.value
-                    val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
-                    val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
-                    val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
+                val medData = getMedicationData(MedicationAction.EDIT)
+                val asScheduled = medicationViewModel.asScheduled.value
+                val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
+                val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
+                val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
 
-                    // Update medication if med data is not null (dosage data can be null if it is
-                    // an as-needed medication)
-                    if (medData != null && (dosageData != null || !asScheduled)) {
-                        medicationViewModel.updateMedication(
-                            medicationId,
-                            medData,
-                            dosageData,
-                            reminderData,
-                            scheduleData
-                        )
+                // Update medication if med data is not null (dosage data can be null if it is
+                // an as-needed medication)
+                if (medData != null && (dosageData != null || !asScheduled)) {
+                    val success = medicationViewModel.updateMedication(
+                        medicationId,
+                        medData,
+                        dosageData,
+                        reminderData,
+                        scheduleData
+                    )
+
+                    if (success) {
+                        createToast(this@EditMedicationActivity, "Medication updated successfully!")
                         setResult(RESULT_OK)
                         finish()
                     }
-                } catch (e: Exception) {
-                    Log.e("EditMedicationActivity testcat", "Error updating medication", e)
                 }
             }
         }

@@ -132,6 +132,7 @@ abstract class BaseReminderFragment : Fragment() {
     // Add a new time picker button to the list of daily reminder times (defaults to 12:00 PM)
     private fun addDailyTimePicker() { reminderViewModel.addDailyReminderTime(12, 0) }
 
+    // Update the time picker buttons in the list of daily reminder times
     private fun updateDailyTimePickers(times: List<Pair<Int, Int>>) {
         binding.dailyTimePickersContainer.removeAllViews()
 

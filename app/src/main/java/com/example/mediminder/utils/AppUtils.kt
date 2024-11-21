@@ -1,7 +1,9 @@
 package com.example.mediminder.utils
 
+import android.content.Context
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mediminder.R
@@ -33,6 +35,14 @@ import java.util.Locale
 
 // Various utility functions used throughout the app
 object AppUtils {
+    private var currentToast: Toast? = null
+
+    // Create and show a toast message (cancels previous toast, if one exists
+    fun createToast(context: Context, message: String) {
+        currentToast?.cancel()
+        currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+        currentToast?.show()
+    }
 
     // Create LocalTime from a pair of Ints
     fun getLocalTimeFromPair(pair: Pair<Int, Int>?): LocalTime? {

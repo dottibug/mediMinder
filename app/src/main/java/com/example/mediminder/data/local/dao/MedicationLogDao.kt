@@ -66,6 +66,11 @@ interface MedicationLogDao {
     @Query("DELETE FROM medication_logs WHERE medication_id = :medicationId")
     suspend fun deleteAllLogsForMedication(medicationId: Long)
 
+    // Delete future logs for a specific medication
+    @Query("""DELETE FROM medication_logs WHERE medication_id = :medicationId 
+        AND planned_datetime >= :currentDateTime""")
+    suspend fun deleteFutureLogs(medicationId: Long, currentDateTime: LocalDateTime)
+
     // Delete all medication logs
     @Query("DELETE FROM medication_logs")
     suspend fun deleteAll()

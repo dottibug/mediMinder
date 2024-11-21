@@ -110,6 +110,7 @@ abstract class BaseMedicationInfoFragment: Fragment() {
 
     // Helper function to get the medication icon from the dropdown
     private fun getIcon(iconName: String): MedicationIcon {
-        return MedicationIcon.valueOf(iconName.uppercase())
+        return if (iconName.isEmpty()) { MedicationIcon.TABLET }
+        else { MedicationIcon.valueOf(iconName.uppercase()) }
     }
 }

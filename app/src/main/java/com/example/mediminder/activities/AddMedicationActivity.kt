@@ -1,10 +1,10 @@
 package com.example.mediminder.activities
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.databinding.ActivityAddMedicationBinding
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
@@ -52,9 +52,20 @@ class AddMedicationActivity : BaseActivity() {
 
     // Update UI when asScheduled changes
     private fun setupObservers() {
+        // As-scheduled medication observer
         lifecycleScope.launch {
             medicationViewModel.asScheduled.collect { asScheduled ->
                 updateFragmentVisibility(asScheduled)
+            }
+        }
+
+        // Error observer
+        lifecycleScope.launch {
+            medicationViewModel.errorMessage.collect { errMsg ->
+                if (errMsg != null) {
+                    createToast(this@AddMedicationActivity, errMsg)
+                    medicationViewModel.clearError()
+                }
             }
         }
     }
@@ -71,25 +82,45 @@ class AddMedicationActivity : BaseActivity() {
     // Add medication to the database
     private fun handleAddMedication() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                try {
+            try {
+                loadingSpinnerUtil.whileLoading {
                     val medData = getMedicationData(MedicationAction.ADD)
+
                     val isAsScheduled = medicationViewModel.asScheduled.value
-                    val dosageData = if (isAsScheduled) getDosageData(MedicationAction.ADD) else null
-                    val reminderData = if (isAsScheduled) medicationViewModel.getReminderData() else null
-                    val scheduleData = if (isAsScheduled) medicationViewModel.getScheduleData() else null
+                    val dosageData =
+                        if (isAsScheduled) getDosageData(MedicationAction.ADD) else null
+                    val reminderData =
+                        if (isAsScheduled) medicationViewModel.getReminderData() else null
+                    val scheduleData =
+                        if (isAsScheduled) medicationViewModel.getScheduleData() else null
 
                     // Add medication if med data is not null (dosage data can be null if it is
                     // an as-needed medication)
                     if (medData != null && (dosageData != null || !isAsScheduled)) {
-                        medicationViewModel.addMedication(medData, dosageData, reminderData, scheduleData)
-                        setResult(RESULT_OK)
-                        finish()
+                        val success = medicationViewModel.addMedication(
+                            medData,
+                            dosageData,
+                            reminderData,
+                            scheduleData
+                        )
+
+                        if (success) {
+                            createToast(this@AddMedicationActivity, MED_ADDED)
+                            setResult(RESULT_OK)
+                            finish()
+                        }
                     }
-                } catch (e: Exception) {
-                    Log.e("AddMedicationActivity testcat", "Error adding medication", e)
+                }
+            } catch (e: IllegalArgumentException) {
+                medicationViewModel.setErrorMessage(e.message ?: "Invalid medication data")
+                medicationViewModel.errorMessage.value?.let {
+                    createToast(this@AddMedicationActivity, it)
                 }
             }
         }
+    }
+
+    companion object {
+        private const val MED_ADDED = "Medication added successfully!"
     }
 }

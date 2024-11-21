@@ -25,7 +25,6 @@ import com.example.mediminder.models.ReminderData
 import com.example.mediminder.models.ReminderState
 import com.example.mediminder.models.ScheduleData
 import com.example.mediminder.models.ScheduleState
-import com.example.mediminder.models.ValidatedData
 import com.example.mediminder.receivers.MedicationSchedulerReceiver
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import com.example.mediminder.utils.Constants.DAILY
@@ -34,7 +33,7 @@ import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.Constants.SCHEDULE_NEW_MEDICATION
-import com.example.mediminder.utils.ValidationUtils.getValidatedData
+import com.example.mediminder.utils.ValidationUtils.validateMedicationData
 import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,8 +57,14 @@ class BaseMedicationViewModel(
     private val _asScheduled = MutableStateFlow(true)
     val asScheduled: StateFlow<Boolean> = _asScheduled.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     private val reminderState = ReminderState()
     private val scheduleState = ScheduleState()
+
+    fun clearError() { _errorMessage.value = null }
+    fun setErrorMessage(msg: String) { _errorMessage.value = msg }
 
     // Schedule state update functions
     fun setAsScheduled(enabled: Boolean) { _asScheduled.value = enabled }
@@ -137,83 +142,76 @@ class BaseMedicationViewModel(
         }
     }
 
-    // Save medication data to database. Validates data before saving.
-    fun addMedication(
+    // Add medication to database
+    suspend fun addMedication(
         medicationData: MedicationData,
         dosageData: DosageData?,
         reminderData: ReminderData?,
         scheduleData: ScheduleData?
-    ) {
-        // Update medicationData to include asNeeded flag
-        val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
+    ): Boolean {
+        return try {
+            // Validate medication data
+            val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
 
-        val validatedData = if (dosageData != null) {
-            getValidatedData(updatedMedicationData, dosageData, reminderData, scheduleData)
-        } else {
-            // As-needed medications only need medicationData validated
-            ValidatedData(
-                medicationData = updatedMedicationData,
-                dosageData = null,
-                reminderData = null,
-                scheduleData = null
+            val validData = validateMedicationData(
+                updatedMedicationData,
+                dosageData,
+                reminderData,
+                scheduleData
             )
-        }
 
-        // Save medication to database and trigger workers
-        viewModelScope.launch {
-            try {
-                val medicationId = repository.addMedication(
-                    validatedData.medicationData,
-                    validatedData.dosageData,
-                    validatedData.reminderData,
-                    validatedData.scheduleData
-                )
-                createWorkers(CREATE_LOGS, medicationId)
-            } catch (e: Exception) {
-                Log.e("testcat", "Error saving medication: ${e.message}")
-                throw e
-            }
+            // Add to database
+            val medicationId = repository.addMedication(
+                validData.medicationData,
+                validData.dosageData,
+                validData.reminderData,
+                validData.scheduleData
+            )
+
+            // Create workers to schedule new medication
+            createWorkers(CREATE_LOGS, medicationId)
+            true
+        } catch (e: Exception) {
+            _errorMessage.value = e.message ?: "Failed to save medication. Please try again."
+            false
         }
     }
 
     // Update medication data in database. Validates data before updating.
-    fun updateMedication(
+    suspend fun updateMedication(
         medicationId: Long,
         medicationData: MedicationData,
         dosageData: DosageData?,
         reminderData: ReminderData?,
         scheduleData: ScheduleData?
-    ) {
-        val validatedData = if (dosageData != null) {
-            getValidatedData(medicationData, dosageData, reminderData, scheduleData)
-        } else {
-            // As-needed medications only need medicationData validated
-            ValidatedData(
-                medicationData = medicationData.copy(
-                    name = medicationData.name.trim().takeIf { it.isNotEmpty() }
-                        ?: throw IllegalArgumentException("Medication name is required")
-                ),
-                dosageData = null,
-                reminderData = null,
-                scheduleData = null
+    ): Boolean {
+        return try {
+            val validData = validateMedicationData(
+                medicationData,
+                dosageData,
+                reminderData,
+                scheduleData
             )
-        }
 
-        // Update medication in the database and trigger workers to update logs
-        viewModelScope.launch {
-            try {
-                repository.updateMedication(
-                    medicationId,
-                    validatedData.medicationData,
-                    validatedData.dosageData,
-                    validatedData.reminderData,
-                    validatedData.scheduleData
-                )
-                createWorkers(UPDATE_LOGS, medicationId)
-            } catch (e: Exception) {
-                Log.e("testcat", "Error updating medication: ${e.message}")
-                throw e
-            }
+            // Delete future logs before updating medication
+            repository.deleteFutureLogs(medicationId)
+
+            // Update in database
+            repository.updateMedication(
+                medicationId,
+                validData.medicationData,
+                validData.dosageData,
+                validData.reminderData,
+                validData.scheduleData
+            )
+
+            // Create workers to update medication schedule
+            createWorkers(UPDATE_LOGS, medicationId)
+            true
+        } catch (e: Exception) {
+            Log.e("BaseMedicationViewModel", "Error updating medication", e)
+            _errorMessage.value = e.message ?: "Failed to update medication. Please try again."
+            false
         }
     }
 

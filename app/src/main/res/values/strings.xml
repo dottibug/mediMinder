@@ -126,7 +126,7 @@
     <string name="info_frequency">Set Hourly or Daily Reminders</string>
     <string name="hint_reminder_frequency">Reminder frequency</string>
     <string name="remind_every">Remind every</string>
-    <string name="placeholder_hourly_reminders">30 minutes</string>
+    <string name="select_interval">Select Interval</string>
     <string name="button_add_time">+ Add Reminder Time</string>
 
     <!-- AS NEEDED MEDICATION DIALOG -->

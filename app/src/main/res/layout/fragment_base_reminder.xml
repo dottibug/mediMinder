@@ -77,9 +77,8 @@
                 <Button
                     android:id="@+id/buttonHourlyRemindEvery"
                     style="@style/med_settings_button"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/placeholder_hourly_reminders"
+                    android:text="@string/select_interval"
                     android:textSize="16sp"
                     app:cornerRadius="4dp" />
             </LinearLayout>
@@ -105,7 +104,6 @@
                 <Button
                     android:id="@+id/buttonReminderStartTime"
                     style="@style/med_settings_button"
-                    android:layout_width="140dp"
                     android:layout_height="wrap_content"
                     android:text="@string/select_time" />
             </LinearLayout>
@@ -132,7 +130,6 @@
                 <Button
                     android:id="@+id/buttonReminderEndTime"
                     style="@style/med_settings_button"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/select_time" />
             </LinearLayout>

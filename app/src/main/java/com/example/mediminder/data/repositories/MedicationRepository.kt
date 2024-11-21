@@ -109,24 +109,10 @@ class MedicationRepository(
         medicationDao.deleteById(medicationId)
     }
 
-    // Get all medication logs for the specified date, sorted by time
-    suspend fun getMedicationLogsForDate(date: LocalDate): List<MedicationItem> {
-        val startOfDay = LocalDateTime.of(date, LocalTime.MIN)
-        val endOfDay = LocalDateTime.of(date.plusDays(1), LocalTime.MIN)
-        val logs = medicationLogDao.getLogsForDate(startOfDay, endOfDay)
-
-        val result = logs.map { log ->
-            val medication = medicationDao.getMedicationById(log.medicationId)
-            val dosage = dosageDao.getDosageByMedicationId(log.medicationId)
-            MedicationItem(
-                medication = medication,
-                dosage = dosage,
-                time = log.plannedDatetime.toLocalTime(),
-                status = log.status,
-                logId = log.id
-            )
-        }
-        return result.distinctBy { it.logId }.sortedBy { it.time }
+    // Delete future medication logs of a specific medication
+    suspend fun deleteFutureLogs(medicationId: Long) {
+        val currentDateTime = LocalDateTime.now()
+        medicationLogDao.deleteFutureLogs(medicationId, currentDateTime)
     }
 
     // Update the status of a medication log
