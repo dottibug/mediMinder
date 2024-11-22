@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.FragmentUpdateMedicationStatusDialogBinding
 import com.example.mediminder.models.MedicationStatus
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -68,7 +67,6 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectInitialStatus() }
-                launch { collectErrorMessage() }
             }
         }
     }
@@ -85,16 +83,6 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
                 }
                 binding.radioGroupMedStatus.check(radioButtonId)
                 selectedStatus = it
-            }
-        }
-    }
-
-    // Collect error messages from the view model
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(requireContext(), msg)
-                viewModel.clearError()
             }
         }
     }

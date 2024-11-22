@@ -136,14 +136,11 @@ class BaseMedicationViewModel(
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                startLoading()
                 _currentMedication.value = repository.getMedicationDetailsById(medicationId)
                 _asScheduled.value = _currentMedication.value?.medication?.asNeeded == false
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 setErrorMessage(ERR_FETCHING_MED_USER)
-            } finally {
-                stopLoading()
             }
         }
     }
@@ -157,7 +154,6 @@ class BaseMedicationViewModel(
     ): Boolean {
         return try {
             _isAdding.value = true
-            startLoading()
 
             // Validate medication data
             val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
@@ -188,9 +184,6 @@ class BaseMedicationViewModel(
             Log.e(TAG, ERR_ADDING_MED, e)
             setErrorMessage(ERR_ADDING_MED_USER)
             false
-        } finally {
-            stopLoading()
-            _isAdding.value = false
         }
     }
 
@@ -203,7 +196,6 @@ class BaseMedicationViewModel(
         scheduleData: ScheduleData?
     ): Boolean {
         return try {
-            startLoading()
 
             val validData = validateMedicationData(
                 medicationData,
@@ -236,8 +228,6 @@ class BaseMedicationViewModel(
             Log.e(TAG, ERR_UPDATING_MED, e)
             setErrorMessage(ERR_UPDATING_MED_USER)
             false
-        } finally {
-            stopLoading()
         }
     }
 

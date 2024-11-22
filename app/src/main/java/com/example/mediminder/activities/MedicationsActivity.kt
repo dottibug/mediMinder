@@ -9,7 +9,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.viewmodels.MedicationsViewModel
 import kotlinx.coroutines.launch
@@ -49,8 +48,6 @@ class MedicationsActivity : BaseActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedications() }
-                launch { collectErrorMessage() }
-                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -59,23 +56,6 @@ class MedicationsActivity : BaseActivity() {
     private suspend fun collectMedications() {
         viewModel.medications.collect { medications ->
             adapter.submitList(medications)
-        }
-    }
-
-    // Collect error messages from the view model and display them as toasts
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(this@MedicationsActivity, msg)
-                viewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state from the view model
-    private suspend fun collectLoadingSpinner() {
-        viewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 

@@ -37,15 +37,12 @@ class DeleteMedicationViewModel(
     suspend fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                startLoading()
                 val medication = repository.getMedicationById(medicationId)
                 _currentMedication.value = medication
                 _medicationName.value = medication.name
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 setErrorMessage(ERR_FETCHING_MED_USER)
-            } finally {
-                stopLoading()
             }
         }
     }
@@ -55,7 +52,6 @@ class DeleteMedicationViewModel(
         viewModelScope.launch {
             try {
                 _isDeleting.value = true
-                startLoading()
 
                 currentMedication.value?.let { medication ->
                     repository.deleteMedication(medication.id)
@@ -65,7 +61,6 @@ class DeleteMedicationViewModel(
                 setErrorMessage(ERR_DELETING_MED_USER)
             } finally {
                 _isDeleting.value = false
-                stopLoading()
             }
         }
     }

@@ -47,7 +47,6 @@ class HistoryViewModel(private val repository: MedicationRepository): BaseViewMo
     // Fetch medications
     suspend fun fetchMedications(): List<Medication> {
         try {
-            startLoading()
             val medications = repository.getAllMedicationsSimple()
             _medications.value = medications
             return medications
@@ -55,15 +54,12 @@ class HistoryViewModel(private val repository: MedicationRepository): BaseViewMo
             Log.e(TAG, ERR_FETCHING_MEDS, e)
             setErrorMessage(ERR_FETCHING_MEDS)
             return emptyList()
-        } finally {
-            stopLoading()
         }
     }
 
     // Fetch medication history for a specific medication
     suspend fun fetchMedicationHistory(medicationId: Long?): List<DayLogs>? {
        try {
-           startLoading()
            val selectedMonth = selectedMonth.value
            val today = LocalDate.now()
            val currentMonth = YearMonth.from(today)
@@ -75,8 +71,6 @@ class HistoryViewModel(private val repository: MedicationRepository): BaseViewMo
            Log.e(TAG, ERR_FETCHING_MED_HISTORY, e)
            setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
            return null
-        } finally {
-            stopLoading()
         }
     }
 

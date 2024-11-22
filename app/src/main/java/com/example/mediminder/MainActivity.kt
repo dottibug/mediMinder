@@ -20,7 +20,6 @@ import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.viewmodels.MainViewModel
@@ -93,7 +92,7 @@ class MainActivity : BaseActivity() {
                 InitializeDatabase(applicationContext).initDatabase()
                 viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
             } catch (e: Exception) {
-                viewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+                baseViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }
@@ -149,11 +148,9 @@ class MainActivity : BaseActivity() {
             // Only collect latest data flow when the activity is in the STARTED state to avoid UI
             // updates when the activity is not visible to the user
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { collectMedications() }         // Medication list
-                launch { collectSelectedDate() }        // Selected date text
-                launch { collectDateSelectorDates() }   // Date selector dates
-                launch { collectErrorMessage() }        // Error message
-                launch { collectLoadingSpinner() }      // Loading spinner
+                launch { collectMedications() }
+                launch { collectSelectedDate() }
+                launch { collectDateSelectorDates() }
             }
         }
     }
@@ -175,23 +172,6 @@ class MainActivity : BaseActivity() {
         viewModel.dateSelectorDates.collect { dates ->
             dateSelectorAdapter.submitList(dates)
             dateSelectorAdapter.updateSelectedPosition()
-        }
-    }
-
-    // Collect error state from the view model
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(this@MainActivity, msg)
-                viewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state
-    private suspend fun collectLoadingSpinner() {
-        viewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 

@@ -61,8 +61,6 @@ class EditMedicationActivity : BaseActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectAsScheduled() }
                 launch { collectCurrentMedication() }
-                launch { collectErrorMessage() }
-                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -79,23 +77,6 @@ class EditMedicationActivity : BaseActivity() {
         medicationViewModel.currentMedication.collect { med ->
             if (med == null) { toggleContentVisibility(HIDE) }
             else { toggleContentVisibility(SHOW) }
-        }
-    }
-
-    // Collect error message state
-    private suspend fun collectErrorMessage() {
-        medicationViewModel.errorMessage.collect { errMsg ->
-            if (errMsg != null) {
-                createToast(this@EditMedicationActivity, errMsg)
-                medicationViewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state
-    private suspend fun collectLoadingSpinner() {
-        medicationViewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 
@@ -148,7 +129,7 @@ class EditMedicationActivity : BaseActivity() {
                     }
                 }
             } catch (e: Exception) {
-                medicationViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+                baseViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }

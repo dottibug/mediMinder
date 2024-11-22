@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.HistoryAdapter
 import com.example.mediminder.databinding.ActivityHistoryBinding
 import com.example.mediminder.models.DayLogs
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.HistoryDateUtils
 import com.example.mediminder.utils.HistoryMedicationDropdownUtils
 import com.example.mediminder.viewmodels.HistoryViewModel
@@ -72,8 +71,6 @@ class HistoryActivity : BaseActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectSelectedMedication() }
                 launch { collectSelectedMonth() }
-                launch { collectErrorMessage() }
-                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -88,23 +85,6 @@ class HistoryActivity : BaseActivity() {
         viewModel.selectedMonth.collect { month ->
             refreshMedicationHistory(viewModel.selectedMedicationId.value)
             dateUtils.updateMonthYearText(month)
-        }
-    }
-
-    // Collect the error message and display to user as a Toast
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(this@HistoryActivity, msg)
-                viewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state
-    private suspend fun collectLoadingSpinner() {
-        viewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 

@@ -28,14 +28,11 @@ class ViewMedicationViewModel(private val repository: MedicationRepository) :Bas
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                startLoading()
                 _medication.value = repository.getMedicationDetailsById(medicationId)
             }
             catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 setErrorMessage(ERR_FETCHING_MED_USER)
-            } finally {
-                stopLoading()
             }
         }
     }

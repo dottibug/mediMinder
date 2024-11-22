@@ -6,6 +6,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
@@ -16,12 +18,14 @@ import com.example.mediminder.fragments.EditDosageFragment
 import com.example.mediminder.fragments.EditMedicationInfoFragment
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import com.example.mediminder.viewmodels.BaseViewModel
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import kotlinx.coroutines.launch
 
 // Base activity for all activities in the app
 // Sets up the top app bar and navigation drawer
@@ -31,19 +35,38 @@ abstract class BaseActivity : AppCompatActivity() {
     private val navView get() = baseBinding.navView
     private val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
-    protected lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
+    protected val baseViewModel: BaseViewModel by viewModels()
+
+    // Set up the error and loading observers
+    private fun setupBaseObservers() {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                launch { collectErrors() }
+            }
+        }
+    }
+
+    // Collects changes in the error message state flow
+    private suspend fun collectErrors() {
+        baseViewModel.errorMessage.collect { error ->
+            if (error != null) {
+                createToast(this, error)
+                baseViewModel.clearError()
+            }
+        }
+    }
 
     // Set up the base activity bindings and inflate the child activity into the base layout
     // Call this only after inflating the child activity layout
     // Accepts an optional loading spinner to show while data is loading
     protected fun setupBaseBinding(
         binding: ViewBinding,
-        loadingSpinner: CircularProgressIndicator? = null
+        loadingSpinner: CircularProgressIndicator
     ) {
         setupBaseLayout()
         baseBinding.contentContainer.addView(binding.root)
         setupWindowInsets(binding.root)
-        loadingSpinner?.let { loadingSpinnerUtil = LoadingSpinnerUtil(it) }
+        setupBaseObservers()
     }
 
     // Set up the base layout, including the top app bar, navigation drawer, and edge-to-edge display

@@ -8,7 +8,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
@@ -72,8 +71,6 @@ class ViewMedicationActivity(): BaseActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedication() }
-                launch { collectErrorMessage() }
-                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -87,23 +84,6 @@ class ViewMedicationActivity(): BaseActivity() {
                 toggleContentVisibility(SHOW)
                 setupUI.setupMedicationDetails(medicationDetails)
             }
-        }
-    }
-
-    // Collect error messages from the view model and display them as toasts
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(this@ViewMedicationActivity, msg)
-                viewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state
-    private suspend fun collectLoadingSpinner() {
-        viewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 

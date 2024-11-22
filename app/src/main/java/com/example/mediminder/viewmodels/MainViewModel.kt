@@ -65,7 +65,6 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
     fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
             try {
-                startLoading()
                 val today = LocalDate.now()
                 val medications = repository.getLogsForDate(date)
                 _medications.value = medications.map { med ->
@@ -74,8 +73,6 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 setErrorMessage(ERR_FETCHING_MED_USER)
-            } finally {
-                stopLoading()
             }
         }
     }

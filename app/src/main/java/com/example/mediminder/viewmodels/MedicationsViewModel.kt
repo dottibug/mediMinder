@@ -26,13 +26,10 @@ class MedicationsViewModel(private val repository: MedicationRepository) : BaseV
     fun fetchMedications() {
         viewModelScope.launch {
             try {
-                startLoading()
                 _medications.value = repository.getAllMedicationsDetailed()
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MEDS, e)
                 setErrorMessage(ERR_FETCHING_MEDS)
-            } finally {
-                stopLoading()
             }
         }
     }

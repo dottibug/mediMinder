@@ -17,7 +17,6 @@ import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.FragmentAddAsNeededMedBinding
 import com.example.mediminder.utils.AppUtils.createDatePicker
 import com.example.mediminder.utils.AppUtils.createTimePicker
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
@@ -25,6 +24,7 @@ import com.example.mediminder.utils.Constants.ERR_ADDING_AS_NEEDED_LOG
 import com.example.mediminder.utils.Constants.ERR_VALIDATING_INPUT
 import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.ValidationUtils.getValidatedAsNeededData
+import com.example.mediminder.viewmodels.BaseViewModel
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -33,6 +33,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     private lateinit var binding: FragmentAddAsNeededMedBinding
     private lateinit var adapter: ArrayAdapter<String>
     private val viewModel: MainViewModel by activityViewModels()
+    private val baseViewModel: BaseViewModel by activityViewModels()
     private val asNeededMedIds = mutableListOf<Long?>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +73,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectAsNeededMeds() }
-                launch { collectErrorMessage() }
             }
         }
     }
@@ -84,16 +84,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
             else {
                 showAsNeededInputs()
                 updateAdapter(medications)
-            }
-        }
-    }
-
-    // Collect error messages from the view model
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(requireContext(), msg)
-                viewModel.clearError()
             }
         }
     }
@@ -175,12 +165,12 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         } catch (e: IllegalArgumentException) {
             // Catch validation errors
             Log.e(TAG, ERR_VALIDATING_INPUT, e)
-            viewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
+            baseViewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {
             // Other errors
             Log.e(TAG, ERR_ADDING_AS_NEEDED_LOG, e)
-            viewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
+            baseViewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
             false
         }
     }

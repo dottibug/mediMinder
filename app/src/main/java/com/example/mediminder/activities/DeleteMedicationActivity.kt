@@ -11,7 +11,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
-import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.SHOW
@@ -86,8 +85,6 @@ class DeleteMedicationActivity : BaseActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedicationName() }
                 launch { collectCurrentMedication() }
-                launch { collectErrorMessage() }
-                launch { collectLoadingSpinner() }
                 launch { collectIsDeleting() }
             }
         }
@@ -106,23 +103,6 @@ class DeleteMedicationActivity : BaseActivity() {
         viewModel.currentMedication.collect { med ->
             if (med == null) { toggleConfirmContentVisibility(HIDE) }
             else { toggleConfirmContentVisibility(SHOW) }
-        }
-    }
-
-    // Collect error messages from the view model
-    private suspend fun collectErrorMessage() {
-        viewModel.errorMessage.collect { msg ->
-            if (msg != null) {
-                createToast(this@DeleteMedicationActivity, msg)
-                viewModel.clearError()
-            }
-        }
-    }
-
-    // Collect loading spinner state
-    private suspend fun collectLoadingSpinner() {
-        viewModel.isLoading.collect { isLoading ->
-            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 
