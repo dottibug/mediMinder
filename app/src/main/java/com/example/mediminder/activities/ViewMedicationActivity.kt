@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
+import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
@@ -28,7 +29,7 @@ class ViewMedicationActivity(): BaseActivity() {
     // Initialize variables and setup bindings
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        checkMedicationId()
+        medicationId = getMedicationId(this) ?: return
         setupActivity()
         setupObservers()
     }
@@ -43,11 +44,6 @@ class ViewMedicationActivity(): BaseActivity() {
     override fun onResume() {
         super.onResume()
         fetchMedicationData(medicationId)
-    }
-
-    private fun checkMedicationId() {
-        medicationId = intent.getLongExtra(MED_ID, -1L)
-        if (medicationId == -1L) { finish() }
     }
 
     // Set up bindings for this activity

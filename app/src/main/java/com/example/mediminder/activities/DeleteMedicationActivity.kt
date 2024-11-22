@@ -12,8 +12,8 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
+import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.HIDE
-import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ class DeleteMedicationActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        checkMedicationId()
+        medicationId = getMedicationId(this) ?: return
         setupActivity()
         setupObservers()
 
@@ -51,12 +51,6 @@ class DeleteMedicationActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         fetchMedicationData()
-    }
-
-    // Get the medication ID from the intent (if it is not found, finish the activity)
-    private fun checkMedicationId() {
-        medicationId = intent.getLongExtra(MED_ID, -1L)
-        if (medicationId == -1L) { finish() }
     }
 
     // Set up bindings for this activity

@@ -1,5 +1,6 @@
 package com.example.mediminder.utils
 
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.Button
@@ -16,6 +17,7 @@ import com.example.mediminder.utils.Constants.CONTINUOUS
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.DATE_PATTERN
 import com.example.mediminder.utils.Constants.INTERVAL
+import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.NUM_DAYS
 import com.example.mediminder.utils.Constants.PM
 import com.example.mediminder.utils.Constants.SPACE
@@ -35,6 +37,17 @@ import java.util.Locale
 
 // Various utility functions used throughout the app
 object AppUtils {
+
+    // Check if medication ID exists from the intent.
+    // Returns the id if it exists; otherwise finishes the activity
+    fun getMedicationId(activity: Activity): Long? {
+        val medicationId = activity.intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) {
+            activity.finish()
+            return null
+        }
+        return medicationId
+    }
 
     // Create and show a toast message (cancels previous toast, if one exists
     private var currentToast: Toast? = null
