@@ -9,11 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityViewMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.utils.ViewMedicationSetupUtils
 import com.example.mediminder.viewmodels.ViewMedicationViewModel
 import kotlinx.coroutines.launch
@@ -24,16 +22,14 @@ import kotlinx.coroutines.launch
 class ViewMedicationActivity(): BaseActivity() {
     private val viewModel: ViewMedicationViewModel by viewModels { ViewMedicationViewModel.Factory }
     private lateinit var binding: ActivityViewMedicationBinding
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
     private lateinit var setupUI: ViewMedicationSetupUtils
     private var medicationId: Long = -1L
 
     // Initialize variables and setup bindings
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        medicationId = intent.getLongExtra(MED_ID, -1L)
-        if (medicationId == -1L) { finish() }
-        setupBindings()
+        checkMedicationId()
+        setupActivity()
         setupObservers()
     }
 
@@ -49,13 +45,15 @@ class ViewMedicationActivity(): BaseActivity() {
         fetchMedicationData(medicationId)
     }
 
-    // Set up bindings for the base class, then inflate this view into the base layout
-    private fun setupBindings() {
-        setupBaseLayout()
+    private fun checkMedicationId() {
+        medicationId = intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) { finish() }
+    }
+
+    // Set up bindings for this activity
+    private fun setupActivity() {
         binding = ActivityViewMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+        setupBaseBinding(binding, binding.loadingSpinner)
         setupUI = ViewMedicationSetupUtils(binding, resources)
     }
 

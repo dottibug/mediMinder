@@ -7,28 +7,24 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
 
 // This activity allows the user to edit an existing medication. It uses the MedicationViewModel to
 // fetch and update medication data.
 class EditMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityEditMedicationBinding
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
     private var medicationId: Long = -1L
 
     // Initialize the ViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBindings()
+        checkMedicationId()
+        setupActivity()
         setupObservers()
-        medicationId = intent.getLongExtra(MED_ID, -1L)
-        validateMedicationId(medicationId)
     }
 
     // Set up listeners and observers before data is fetched
@@ -43,28 +39,21 @@ class EditMedicationActivity : BaseActivity() {
         fetchMedicationData()
     }
 
-    // Set up bindings for the base class, then inflate this view into the base layout.
-    private fun setupBindings() {
-        setupBaseLayout()
-        binding = ActivityEditMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+    // Get the medication ID from the intent (if it is not found, finish the activity)
+    private fun checkMedicationId() {
+        medicationId = intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) { finish() }
     }
 
-    // Check if the medication ID is valid. If not, finish the activity.
-    private fun validateMedicationId(medId: Long) {
-        if (medId == -1L) {
-            finish()
-            return
-        }
+    // Set up bindings for this activity
+    private fun setupActivity() {
+        binding = ActivityEditMedicationBinding.inflate(layoutInflater)
+        setupBaseBinding(binding, binding.loadingSpinner)
     }
 
     // Click listeners for buttons
     private fun setupListeners() {
-        binding.buttonUpdateMed.setOnClickListener {
-            handleUpdateMedication(medicationId)
-        }
+        binding.buttonUpdateMed.setOnClickListener { handleUpdateMedication(medicationId) }
 
         binding.buttonCancelUpdateMed.setOnClickListener {
             setResult(RESULT_CANCELED)

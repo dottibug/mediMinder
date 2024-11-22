@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.MED_ID
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MedicationsViewModel
 import kotlinx.coroutines.launch
 
@@ -21,11 +19,10 @@ class MedicationsActivity : BaseActivity() {
     private val viewModel: MedicationsViewModel by viewModels { MedicationsViewModel.Factory }
     private lateinit var binding: ActivityMedicationsBinding
     private lateinit var adapter: MedicationsAdapter
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBindings()
+        setupActivity()
         setupObservers()
     }
 
@@ -41,13 +38,10 @@ class MedicationsActivity : BaseActivity() {
         fetchMedications()
     }
 
-    // Sets up bindings for the base class, then inflates this view into the base layout.
-    private fun setupBindings() {
-        setupBaseLayout()
+    // Set up bindings for this activity
+    private fun setupActivity() {
         binding = ActivityMedicationsBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+        setupBaseBinding(binding, binding.loadingSpinner)
     }
 
     // Sets up observers for the view model

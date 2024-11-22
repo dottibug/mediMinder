@@ -12,11 +12,9 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
 
@@ -24,18 +22,13 @@ import kotlinx.coroutines.launch
 class DeleteMedicationActivity : BaseActivity() {
     private val viewModel: DeleteMedicationViewModel by viewModels { DeleteMedicationViewModel.Factory }
     private lateinit var binding: ActivityDeleteMedicationBinding
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
     private var medicationId: Long = -1L
     private var medicationDeleted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Get the medication ID from the intent
-        medicationId = intent.getLongExtra(MED_ID, -1L)
-        if (medicationId == -1L) { finish() }
-
-        setupBindings()
+        checkMedicationId()
+        setupActivity()
         setupObservers()
 
         // Handle back press
@@ -60,13 +53,16 @@ class DeleteMedicationActivity : BaseActivity() {
         fetchMedicationData()
     }
 
-    // Set up bindings for the base class, then inflate this view into the base layout
-    private fun setupBindings() {
-        setupBaseLayout()
+    // Get the medication ID from the intent (if it is not found, finish the activity)
+    private fun checkMedicationId() {
+        medicationId = intent.getLongExtra(MED_ID, -1L)
+        if (medicationId == -1L) { finish() }
+    }
+
+    // Set up bindings for this activity
+    private fun setupActivity() {
         binding = ActivityDeleteMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+        setupBaseBinding(binding, binding.loadingSpinner)
     }
 
     private fun setupUI() {

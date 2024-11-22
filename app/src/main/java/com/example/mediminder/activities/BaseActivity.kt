@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.viewbinding.ViewBinding
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityBaseBinding
@@ -15,9 +16,12 @@ import com.example.mediminder.fragments.EditDosageFragment
 import com.example.mediminder.fragments.EditMedicationInfoFragment
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationData
+import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.progressindicator.CircularProgressIndicator
 
 // Base activity for all activities in the app
 // Sets up the top app bar and navigation drawer
@@ -27,14 +31,27 @@ abstract class BaseActivity : AppCompatActivity() {
     protected val navView get() = baseBinding.navView
     protected val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
+    protected lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
+    // Set up the base activity bindings and inflate the child activity into the base layout
+    // Call this only after inflating the child activity layout
+    // Accepts an optional loading spinner to show while data is loading
+    protected fun setupBaseBinding(
+        binding: ViewBinding,
+        loadingSpinner: CircularProgressIndicator? = null
+    ) {
+        setupBaseLayout()
+        baseBinding.contentContainer.addView(binding.root)
+        setupWindowInsets(binding.root)
+        loadingSpinner?.let { loadingSpinnerUtil = LoadingSpinnerUtil(it) }
+    }
 
-
+    // Set up the base layout, including the top app bar, navigation drawer, and edge-to-edge display
     protected fun setupBaseLayout() {
         enableEdgeToEdge()
         baseBinding = ActivityBaseBinding.inflate(layoutInflater)
         super.setContentView(baseBinding.root)
-        setupBaseUI(baseBinding.drawerLayout, baseBinding.navView, baseBinding.topAppBar)
+        setupBaseUI(drawerLayout, navView, topAppBar)
     }
 
     protected fun setupBaseUI(drawer: DrawerLayout, navView: NavigationView, topAppBar: MaterialToolbar) {

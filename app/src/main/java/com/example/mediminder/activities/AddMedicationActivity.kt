@@ -7,28 +7,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityAddMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.ADD_AS_NEEDED
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.SHOW
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
 
 // Activity to add a new medication
 class AddMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityAddMedicationBinding
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBindings()
+        setupActivity()
         setupObservers()
-
-        // Hide dosage, reminder, and schedule fragments if the activity started with ADD_AS_NEEDED flag
-        if (intent.getBooleanExtra(ADD_AS_NEEDED, false)) {
-            medicationViewModel.setAsScheduled(false)
-        }
+        checkAsNeededIntent()
     }
 
     // Set up listeners and observers before data is fetched
@@ -37,13 +30,17 @@ class AddMedicationActivity : BaseActivity() {
         setupListeners()
     }
 
-    // Set up bindings for the base class, then inflate this view into the base layout
-    private fun setupBindings() {
-        setupBaseLayout()
+    // Set up bindings for this activity
+    private fun setupActivity() {
         binding = ActivityAddMedicationBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
+        setupBaseBinding(binding, binding.loadingSpinner)
+    }
+
+    // Hide dosage, reminder, and schedule fragments if the activity is started with ADD_AS_NEEDED flag
+    private fun checkAsNeededIntent() {
+        if (intent.getBooleanExtra(ADD_AS_NEEDED, false)) {
+            medicationViewModel.setAsScheduled(false)
+        }
     }
 
     // Click listeners

@@ -21,10 +21,8 @@ import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -36,7 +34,6 @@ class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var medicationAdapter: MainMedicationAdapter
     private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
     // Broadcast receiver for medication status changes
     private val statusChangeReceiver = object : BroadcastReceiver() {
@@ -51,9 +48,8 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBindings()
+        setupActivity()
         registerStatusChangeReceiver()
-        setupBaseUI(drawerLayout, navView, topAppBar)
         createNotificationChannel()
         setupObservers()
     }
@@ -74,6 +70,13 @@ class MainActivity : BaseActivity() {
         unregisterReceiver(statusChangeReceiver)
     }
 
+    // Set up bindings for this activity
+    private fun setupActivity() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setupBaseBinding(binding, binding.loadingSpinner)
+    }
+
+
     // Register the status change receiver
     private fun registerStatusChangeReceiver() {
         registerReceiver(
@@ -83,26 +86,15 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    // Setup bindings for the activity
-    private fun setupBindings() {
-        setupBaseLayout()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
-    }
-
     // Initialize the database and fetch data
     private fun initializeDatabaseAndFetchData() {
         lifecycleScope.launch {
-//            loadingSpinnerUtil.whileLoading {
-                try {
-                    InitializeDatabase(applicationContext).initDatabase()
-                    viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
-                } catch (e: Exception) {
-                    viewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
-                }
-//            }
+            try {
+                InitializeDatabase(applicationContext).initDatabase()
+                viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+            } catch (e: Exception) {
+                viewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+            }
         }
     }
 

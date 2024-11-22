@@ -11,10 +11,8 @@ import com.example.mediminder.adapters.HistoryAdapter
 import com.example.mediminder.databinding.ActivityHistoryBinding
 import com.example.mediminder.models.DayLogs
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.HistoryDateUtils
 import com.example.mediminder.utils.HistoryMedicationDropdownUtils
-import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.HistoryViewModel
 import kotlinx.coroutines.launch
 
@@ -26,13 +24,12 @@ class HistoryActivity : BaseActivity() {
     private val viewModel: HistoryViewModel by viewModels { HistoryViewModel.Factory }
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var historyAdapter: HistoryAdapter
-    private lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
     private lateinit var dateUtils: HistoryDateUtils
     private lateinit var dropdownUtils: HistoryMedicationDropdownUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupBindings()
+        setupActivity()
         setupObservers()
     }
 
@@ -46,15 +43,10 @@ class HistoryActivity : BaseActivity() {
         fetchMedicationsList()
     }
 
-    // Set up bindings for the base class, then inflate this view into the base layout.
-    private fun setupBindings() {
-        setupBaseLayout()
+    // Set up bindings and utilities for this activity
+    private fun setupActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        loadingSpinnerUtil = LoadingSpinnerUtil(binding.loadingSpinner)
-
-
+        setupBaseBinding(binding, binding.loadingSpinner)
         dateUtils = HistoryDateUtils(binding, viewModel, supportFragmentManager)
         dropdownUtils = HistoryMedicationDropdownUtils(this, binding, viewModel, resources)
     }
