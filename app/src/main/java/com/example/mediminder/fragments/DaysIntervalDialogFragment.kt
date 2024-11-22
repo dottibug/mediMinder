@@ -23,6 +23,12 @@ class DaysIntervalDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (editingDaysInterval) {
+            val initialDaysInterval = parentFragment.scheduleViewModel.daysInterval.value
+            binding.inputIntervalDays.setText(initialDaysInterval.toString())
+        }
+
         setupListeners()
     }
 
@@ -34,8 +40,14 @@ class DaysIntervalDialogFragment(
 
         binding.buttonSetDaysIntervalDialog.setOnClickListener {
             val daysInterval = binding.inputIntervalDays.text.toString()
-            parentFragment.setDaysInterval(daysInterval)
-            dismiss()
+
+            if (daysInterval.isEmpty()) {
+                if (!editingDaysInterval) { parentFragment.setScheduleTypeToDaily() }
+                dismiss()
+            } else {
+                parentFragment.setDaysInterval(daysInterval)
+                dismiss()
+            }
         }
     }
 

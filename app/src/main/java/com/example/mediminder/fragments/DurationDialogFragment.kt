@@ -24,6 +24,12 @@ class DurationDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (editingNumDays) {
+            val initialNumDays = parentFragment.scheduleViewModel.numDays.value
+            binding.inputDurationNumOfDays.setText(initialNumDays.toString())
+        }
+
         setupListeners()
     }
 
@@ -35,8 +41,14 @@ class DurationDialogFragment(
 
         binding.buttonSetDurationDialog.setOnClickListener {
             val numDays = binding.inputDurationNumOfDays.text.toString()
-            parentFragment.setDurationNumDays(numDays)
-            dismiss()
+
+            if (numDays.isEmpty()) {
+                if (!editingNumDays) { parentFragment.setDurationRadioToContinuous() }
+                dismiss()
+            } else {
+                parentFragment.setDurationNumDays(numDays)
+                dismiss()
+            }
         }
     }
 

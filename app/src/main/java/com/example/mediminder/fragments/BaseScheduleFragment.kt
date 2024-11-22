@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 // Base fragment for adding or editing a medication's schedule
 abstract class BaseScheduleFragment : Fragment() {
     protected lateinit var binding: FragmentBaseScheduleBinding
-    protected open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
+    open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     protected abstract val medicationViewModel: BaseMedicationViewModel
     private var prevScheduleWasDaily: Boolean = true
     protected lateinit var selectedDays: String
