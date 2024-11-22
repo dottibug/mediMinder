@@ -26,10 +26,10 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 // Base activity for all activities in the app
 // Sets up the top app bar and navigation drawer
 abstract class BaseActivity : AppCompatActivity() {
-    lateinit var baseBinding: ActivityBaseBinding
-    protected val drawerLayout get() = baseBinding.drawerLayout
-    protected val navView get() = baseBinding.navView
-    protected val topAppBar get() = baseBinding.topAppBar
+    private lateinit var baseBinding: ActivityBaseBinding
+    private val drawerLayout get() = baseBinding.drawerLayout
+    private val navView get() = baseBinding.navView
+    private val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
     protected lateinit var loadingSpinnerUtil: LoadingSpinnerUtil
 
