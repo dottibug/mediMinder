@@ -23,9 +23,11 @@ import com.example.mediminder.utils.Constants.CONTINUOUS
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
+import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.INTERVAL
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.NUM_DAYS
+import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
 import com.example.mediminder.utils.Constants.TIME_PATTERN
 import com.example.mediminder.utils.LoadingSpinnerUtil
@@ -95,6 +97,7 @@ class ViewMedicationActivity(): BaseActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedication() }
                 launch { collectErrorMessage() }
+                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -102,7 +105,12 @@ class ViewMedicationActivity(): BaseActivity() {
     // Collect medication details from the view model
     private suspend fun collectMedication() {
         viewModel.medication.collect { medicationDetails ->
-            medicationDetails?.let { setupMedicationDetails(it) }
+            if (medicationDetails == null) { toggleContentVisibility(HIDE) }
+
+            else {
+                toggleContentVisibility(SHOW)
+                setupMedicationDetails(medicationDetails)
+            }
         }
     }
 
@@ -116,11 +124,24 @@ class ViewMedicationActivity(): BaseActivity() {
         }
     }
 
+    // Collect loading spinner state
+    private suspend fun collectLoadingSpinner() {
+        viewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
+        }
+    }
+
+    // Toggle the visibility of the layout and edit/delete buttons based on the action
+    private fun toggleContentVisibility(action: String) {
+        binding.layoutMedSummary.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+        binding.layoutEditDeleteButtons.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+    }
+
     // Fetch medication data from the ViewModel (no need to catch errors here, as they are handled
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData(medicationId: Long) {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading { viewModel.fetchMedication(medicationId) }
+            viewModel.fetchMedication(medicationId)
         }
     }
 

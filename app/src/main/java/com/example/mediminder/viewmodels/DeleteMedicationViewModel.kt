@@ -25,9 +25,14 @@ import kotlinx.coroutines.launch
 class DeleteMedicationViewModel(
     private val repository: MedicationRepository,
 ) : ViewModel() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _isDeleting = MutableStateFlow(false)
+    val isDeleting: StateFlow<Boolean> = _isDeleting.asStateFlow()
 
     private val _currentMedication = MutableStateFlow<Medication?>(null)
-    private val currentMedication: StateFlow<Medication?> = _currentMedication.asStateFlow()
+    val currentMedication: StateFlow<Medication?> = _currentMedication.asStateFlow()
 
     private val _medicationName = MutableStateFlow("")
     val medicationName: StateFlow<String> = _medicationName.asStateFlow()
@@ -41,12 +46,15 @@ class DeleteMedicationViewModel(
     suspend fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 val medication = repository.getMedicationById(medicationId)
                 _currentMedication.value = medication
                 _medicationName.value = medication.name
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 _errorMessage.value = ERR_FETCHING_MED_USER
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -55,12 +63,18 @@ class DeleteMedicationViewModel(
     suspend fun deleteMedication() {
         viewModelScope.launch {
             try {
+                _isDeleting.value = true
+                _isLoading.value = true
+
                 currentMedication.value?.let { medication ->
                     repository.deleteMedication(medication.id)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, ERR_DELETING_MED, e)
                 _errorMessage.value = ERR_DELETING_MED_USER
+            } finally {
+                _isDeleting.value = false
+                _isLoading.value = false
             }
         }
     }

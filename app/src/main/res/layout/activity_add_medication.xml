@@ -8,20 +8,6 @@
     android:background="@color/white"
     tools:context=".activities.AddMedicationActivity">
 
-    <!-- Loading Spinner -->
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loadingSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="731dp"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:indicatorSize="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- Content -->
     <ScrollView
         android:id="@+id/scrollAddMed"
@@ -45,6 +31,18 @@
                 android:id="@+id/headlineAddMed"
                 android:text="@string/add_new_medication"
                 style="@style/activity_title" />
+
+            <!-- Loading Spinner -->
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loadingSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="72dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorSize="72dp"
+                tools:visibility="visible" />
 
             <!-- Medication Info -->
             <androidx.fragment.app.FragmentContainerView

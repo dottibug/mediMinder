@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 // details from the MedicationRepository to display in the UI.
 class ViewMedicationViewModel(private val repository: MedicationRepository) : ViewModel() {
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val _medication = MutableStateFlow<MedicationWithDetails?>(null)
     val medication: StateFlow<MedicationWithDetails?> = _medication.asStateFlow()
 
@@ -34,11 +37,14 @@ class ViewMedicationViewModel(private val repository: MedicationRepository) : Vi
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 _medication.value = repository.getMedicationDetailsById(medicationId)
             }
             catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 _errorMessage.value = ERR_FETCHING_MED_USER
+            } finally {
+                _isLoading.value = false
             }
         }
     }

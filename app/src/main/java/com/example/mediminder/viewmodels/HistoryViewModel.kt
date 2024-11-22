@@ -24,6 +24,8 @@ import java.time.YearMonth
 // View model for the HistoryActivity
 // Tracks selected medication and month, and provides methods to fetch medication history
 class HistoryViewModel(private val repository: MedicationRepository): ViewModel() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
     val medications: StateFlow<List<Medication>> = _medications.asStateFlow()
@@ -37,12 +39,12 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    // Error message functions
     fun setErrorMessage(msg: String) { _errorMessage.value = msg }
-
     fun clearError() { _errorMessage.value = null }
 
+    // Selection functions
     fun setSelectedMedication(medicationId: Long?) { _selectedMedicationId.value = medicationId }
-
     fun setSelectedMonth(yearMonth: YearMonth) { _selectedMonth.value = yearMonth }
 
     // Move to the previous or next month
@@ -56,6 +58,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
     // Fetch medications
     suspend fun fetchMedications(): List<Medication> {
         try {
+            _isLoading.value = true
             val medications = repository.getAllMedicationsSimple()
             _medications.value = medications
             return medications
@@ -63,26 +66,28 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
             Log.e(TAG, ERR_FETCHING_MEDS, e)
             setErrorMessage(ERR_FETCHING_MEDS)
             return emptyList()
+        } finally {
+            _isLoading.value = false
         }
     }
 
     // Fetch medication history for a specific medication
     suspend fun fetchMedicationHistory(medicationId: Long?): List<DayLogs>? {
        try {
+           _isLoading.value = true
            val selectedMonth = selectedMonth.value
            val today = LocalDate.now()
            val currentMonth = YearMonth.from(today)
-
            if (selectedMonth.isAfter(currentMonth)) return null
-
            val history = repository.getMedicationHistory(medicationId, selectedMonth)
            if (history.logs.isEmpty() && selectedMonth.isBefore(currentMonth)) { return null }
            else { return getDayLogs(currentMonth, selectedMonth, today, history) }
-
         } catch (e: Exception) {
            Log.e(TAG, ERR_FETCHING_MED_HISTORY, e)
            setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
            return null
+        } finally {
+            _isLoading.value = false
         }
     }
 

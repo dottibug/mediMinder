@@ -7,20 +7,6 @@
     android:id="@+id/main"
     tools:context=".activities.EditMedicationActivity">
 
-    <!-- Loading Spinner -->
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loadingSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="731dp"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:indicatorSize="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- Content -->
     <ScrollView
         android:id="@+id/scrollEditMed"
@@ -49,6 +35,18 @@
                 android:text="@string/edit_medication"
                 android:textAlignment="textStart"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
+
+            <!-- Loading Spinner -->
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loadingSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="72dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorSize="72dp"
+                tools:visibility="visible" />
 
             <!-- Medication Info -->
             <androidx.fragment.app.FragmentContainerView

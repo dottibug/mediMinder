@@ -103,6 +103,7 @@ class HistoryActivity : BaseActivity() {
                 launch { collectSelectedMedication() }
                 launch { collectSelectedMonth() }
                 launch { collectErrorMessage() }
+                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -130,17 +131,22 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
+    // Collect loading spinner state
+    private suspend fun collectLoadingSpinner() {
+        viewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
+        }
+    }
+
     // Refresh the medication history based on the selected medication and month
     private suspend fun refreshMedicationHistory(medicationId: Long?) {
-        loadingSpinnerUtil.whileLoading {
-            val dayLogs = viewModel.fetchMedicationHistory(medicationId)
+        val dayLogs = viewModel.fetchMedicationHistory(medicationId)
 
-            if (dayLogs == null) { hideHistoryList() }
+        if (dayLogs == null) { hideHistoryList() }
 
-            else {
-                showHistoryList(dayLogs)
-                historyAdapter.submitList(dayLogs)
-            }
+        else {
+            showHistoryList(dayLogs)
+            historyAdapter.submitList(dayLogs)
         }
     }
 
@@ -157,12 +163,10 @@ class HistoryActivity : BaseActivity() {
     // Fetch list of medications for the dropdown menu
     private fun fetchMedicationsList() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                val medications = viewModel.fetchMedications()
-                updateMedicationIds(medications)
-                createMedicationDropdown(medications)
-                viewModel.setSelectedMedication(null)
-            }
+            val medications = viewModel.fetchMedications()
+            updateMedicationIds(medications)
+            createMedicationDropdown(medications)
+            viewModel.setSelectedMedication(null)
         }
     }
 

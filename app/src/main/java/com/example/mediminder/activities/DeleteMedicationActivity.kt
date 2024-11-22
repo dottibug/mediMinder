@@ -13,7 +13,9 @@ import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
@@ -93,7 +95,10 @@ class DeleteMedicationActivity : BaseActivity() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedicationName() }
+                launch { collectCurrentMedication() }
                 launch { collectErrorMessage() }
+                launch { collectLoadingSpinner() }
+                launch { collectIsDeleting() }
             }
         }
     }
@@ -103,6 +108,14 @@ class DeleteMedicationActivity : BaseActivity() {
         viewModel.medicationName.collect { name ->
             val message = resources.getString(R.string.msg_delete_medication, name)
             binding.deleteMedicationMessage.text = message
+        }
+    }
+
+    // Collect current medication state
+    private suspend fun collectCurrentMedication() {
+        viewModel.currentMedication.collect { med ->
+            if (med == null) { toggleConfirmContentVisibility(HIDE) }
+            else { toggleConfirmContentVisibility(SHOW) }
         }
     }
 
@@ -116,11 +129,44 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
+    // Collect loading spinner state
+    private suspend fun collectLoadingSpinner() {
+        viewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
+        }
+    }
+
+    // Collect isDeleting state
+    private suspend fun collectIsDeleting() {
+        viewModel.isDeleting.collect { isDeleting ->
+            if (isDeleting) toggleSuccessContentVisibility(HIDE)
+            else toggleSuccessContentVisibility(SHOW)
+        }
+    }
+
+    // Toggle the visibility of the confirmation layout and edit/delete buttons based on the action
+    private fun toggleConfirmContentVisibility(action: String) {
+        with (binding) {
+            deleteMedicationMessage.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonConfirmDeleteMed.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonCancelDeleteMed.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+        }
+    }
+
+    // Toggle the visibility of the success layout based on the action
+    private fun toggleSuccessContentVisibility(action: String) {
+        with (binding) {
+            successDeleteMedMessage.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonGoToMain.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonGoToMedications.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+        }
+    }
+
     // Fetch medication data (no need to catch errors here, as they are handled in the view model
     // and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading { viewModel.fetchMedication(medicationId) }
+            viewModel.fetchMedication(medicationId)
         }
     }
 
@@ -147,11 +193,9 @@ class DeleteMedicationActivity : BaseActivity() {
     // Delete medication from the database (cascades to all related entities)
     private fun deleteMedication() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
-                viewModel.deleteMedication()
-                medicationDeleted = true
-                showSuccessMessage()
-            }
+            viewModel.deleteMedication()
+            medicationDeleted = true
+            showSuccessMessage()
         }
     }
 

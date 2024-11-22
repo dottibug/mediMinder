@@ -38,6 +38,9 @@ import java.time.ZoneId
 // Handles data flow between the medication repository and the main activity UI
 class MainViewModel(private val repository: MedicationRepository) : ViewModel() {
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val _medications = MutableStateFlow<List<MedicationItem>>(emptyList())
     val medications: StateFlow<List<MedicationItem>> = _medications.asStateFlow()
 
@@ -65,14 +68,15 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    // Error message functions
     fun setErrorMessage(msg: String) { _errorMessage.value = msg }
-
     fun clearError() { _errorMessage.value = null }
 
     // Fetch medications for the selected date
     fun fetchMedicationsForDate(date: LocalDate) {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 val today = LocalDate.now()
                 val medications = repository.getLogsForDate(date)
                 _medications.value = medications.map { med ->
@@ -81,6 +85,8 @@ class MainViewModel(private val repository: MedicationRepository) : ViewModel() 
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 _errorMessage.value = ERR_FETCHING_MED_USER
+            } finally {
+                _isLoading.value = false
             }
         }
     }

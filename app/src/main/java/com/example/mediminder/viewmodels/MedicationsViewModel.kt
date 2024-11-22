@@ -20,6 +20,9 @@ import kotlinx.coroutines.launch
 // ViewModel for the MedicationsActivity. Fetches medications from the repository for the activity to display.
 class MedicationsViewModel(private val repository: MedicationRepository) : ViewModel() {
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val _medications = MutableStateFlow<List<MedicationWithDetails>>(emptyList())
     val medications: StateFlow<List<MedicationWithDetails>> = _medications.asStateFlow()
 
@@ -32,10 +35,13 @@ class MedicationsViewModel(private val repository: MedicationRepository) : ViewM
     fun fetchMedications() {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 _medications.value = repository.getAllMedicationsDetailed()
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MEDS, e)
                 _errorMessage.value = ERR_FETCHING_MEDS
+            } finally {
+                _isLoading.value = false
             }
         }
     }

@@ -57,6 +57,12 @@ class BaseMedicationViewModel(
     private val applicationContext: Context
 ) : ViewModel() {
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _isAdding = MutableStateFlow(false)
+    val isAdding: StateFlow<Boolean> = _isAdding.asStateFlow()
+
     private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
     val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
 
@@ -113,9 +119,9 @@ class BaseMedicationViewModel(
 
     // Helper function to get the reminder frequency
     private fun getReminderFrequency(): String {
-        when (reminderState.reminderFrequency.value) {
-            EVERY_X_HOURS -> return EVERY_X_HOURS
-            else -> return DAILY
+        return when (reminderState.reminderFrequency.value) {
+            EVERY_X_HOURS -> EVERY_X_HOURS
+            else -> DAILY
         }
     }
 
@@ -139,11 +145,14 @@ class BaseMedicationViewModel(
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
+                _isLoading.value = true
                 _currentMedication.value = repository.getMedicationDetailsById(medicationId)
                 _asScheduled.value = _currentMedication.value?.medication?.asNeeded == false
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
                 _errorMessage.value = ERR_FETCHING_MED_USER
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -156,6 +165,9 @@ class BaseMedicationViewModel(
         scheduleData: ScheduleData?
     ): Boolean {
         return try {
+            _isAdding.value = true
+            _isLoading.value = true
+
             // Validate medication data
             val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
 
@@ -185,6 +197,9 @@ class BaseMedicationViewModel(
             Log.e(TAG, ERR_ADDING_MED, e)
             _errorMessage.value = ERR_ADDING_MED_USER
             false
+        } finally {
+            _isLoading.value = false
+            _isAdding.value = false
         }
     }
 
@@ -197,6 +212,8 @@ class BaseMedicationViewModel(
         scheduleData: ScheduleData?
     ): Boolean {
         return try {
+            _isLoading.value = true
+
             val validData = validateMedicationData(
                 medicationData,
                 dosageData,
@@ -228,6 +245,8 @@ class BaseMedicationViewModel(
             Log.e(TAG, ERR_UPDATING_MED, e)
             _errorMessage.value = ERR_UPDATING_MED_USER
             false
+        } finally {
+            _isLoading.value = false
         }
     }
 

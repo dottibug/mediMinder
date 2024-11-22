@@ -25,12 +25,14 @@
         android:id="@+id/loadingSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
         android:indeterminate="true"
         android:visibility="gone"
         app:indicatorSize="72dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/medicationTitle" />
+        app:layout_constraintTop_toBottomOf="@id/medicationTitle"
+        tools:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/layoutMedSummary"
@@ -288,11 +290,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layoutEditDeleteButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -307,9 +310,9 @@
             android:backgroundTint="@color/white"
             android:text="@string/edit"
             android:textColor="@color/cadetGray"
+            app:cornerRadius="4dp"
             app:strokeColor="@color/cadetGray"
-            app:strokeWidth="2dp"
-            app:cornerRadius="4dp" />
+            app:strokeWidth="2dp" />
 
         <Button
             android:id="@+id/buttonDeleteMed"
@@ -319,9 +322,9 @@
             android:backgroundTint="@color/white"
             android:text="@string/delete"
             android:textColor="@color/red"
+            app:cornerRadius="4dp"
             app:strokeColor="@color/red"
-            app:strokeWidth="2dp"
-            app:cornerRadius="4dp" />
+            app:strokeWidth="2dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

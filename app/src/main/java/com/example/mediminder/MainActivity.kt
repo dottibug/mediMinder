@@ -95,14 +95,14 @@ class MainActivity : BaseActivity() {
     // Initialize the database and fetch data
     private fun initializeDatabaseAndFetchData() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading {
+//            loadingSpinnerUtil.whileLoading {
                 try {
                     InitializeDatabase(applicationContext).initDatabase()
                     viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
                 } catch (e: Exception) {
                     viewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
                 }
-            }
+//            }
         }
     }
 
@@ -161,6 +161,7 @@ class MainActivity : BaseActivity() {
                 launch { collectSelectedDate() }        // Selected date text
                 launch { collectDateSelectorDates() }   // Date selector dates
                 launch { collectErrorMessage() }        // Error message
+                launch { collectLoadingSpinner() }      // Loading spinner
             }
         }
     }
@@ -192,6 +193,13 @@ class MainActivity : BaseActivity() {
                 createToast(this@MainActivity, msg)
                 viewModel.clearError()
             }
+        }
+    }
+
+    // Collect loading spinner state
+    private suspend fun collectLoadingSpinner() {
+        viewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 

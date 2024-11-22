@@ -2,12 +2,16 @@ package com.example.mediminder.activities
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.setupWindowInsets
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
+import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
+import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.utils.LoadingSpinnerUtil
 import kotlinx.coroutines.launch
 
@@ -22,6 +26,7 @@ class EditMedicationActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBindings()
+        setupObservers()
         medicationId = intent.getLongExtra(MED_ID, -1L)
         validateMedicationId(medicationId)
     }
@@ -30,7 +35,6 @@ class EditMedicationActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         setupListeners()
-        setupObservers()
     }
 
     // Fetch medication data when the activity is resumed
@@ -70,21 +74,57 @@ class EditMedicationActivity : BaseActivity() {
 
     // Update UI when asScheduled changes
     private fun setupObservers() {
-        // Observe asScheduled changes
         lifecycleScope.launch {
-            medicationViewModel.asScheduled.collect { asScheduled ->
-                updateFragmentVisibility(asScheduled)
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { collectAsScheduled() }
+                launch { collectCurrentMedication() }
+                launch { collectErrorMessage() }
+                launch { collectLoadingSpinner() }
             }
         }
+    }
 
-        // Error observer
-        lifecycleScope.launch {
-            medicationViewModel.errorMessage.collect { errMsg ->
-                if (errMsg != null) {
-                    createToast(this@EditMedicationActivity, errMsg)
-                    medicationViewModel.clearError()
-                }
+    // Collect asScheduled state
+    private suspend fun collectAsScheduled() {
+        medicationViewModel.asScheduled.collect { asScheduled ->
+            updateFragmentVisibility(asScheduled)
+        }
+    }
+
+    // Collect current medication state
+    private suspend fun collectCurrentMedication() {
+        medicationViewModel.currentMedication.collect { med ->
+            if (med == null) { toggleContentVisibility(HIDE) }
+            else { toggleContentVisibility(SHOW) }
+        }
+    }
+
+    // Collect error message state
+    private suspend fun collectErrorMessage() {
+        medicationViewModel.errorMessage.collect { errMsg ->
+            if (errMsg != null) {
+                createToast(this@EditMedicationActivity, errMsg)
+                medicationViewModel.clearError()
             }
+        }
+    }
+
+    // Collect loading spinner state
+    private suspend fun collectLoadingSpinner() {
+        medicationViewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
+        }
+    }
+
+    // Toggle the visibility of the layout and edit/delete buttons based on the action
+    private fun toggleContentVisibility(action: String) {
+        with (binding) {
+            fragmentEditMedInfo.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            fragmentEditMedDosage.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            fragmentEditMedSchedule.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            fragmentEditMedReminder.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonUpdateMed.visibility = if (action == HIDE) View.GONE else View.VISIBLE
+            buttonCancelUpdateMed.visibility = if (action == HIDE) View.GONE else View.VISIBLE
         }
     }
 
@@ -101,31 +141,27 @@ class EditMedicationActivity : BaseActivity() {
     private fun handleUpdateMedication(medicationId: Long) {
         lifecycleScope.launch {
             try {
-                loadingSpinnerUtil.whileLoading {
-                    val medData = getMedicationData(MedicationAction.EDIT)
-                    val asScheduled = medicationViewModel.asScheduled.value
-                    val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
-                    val reminderData =
-                        if (asScheduled) medicationViewModel.getReminderData() else null
-                    val scheduleData =
-                        if (asScheduled) medicationViewModel.getScheduleData() else null
+                val medData = getMedicationData(MedicationAction.EDIT)
+                val asScheduled = medicationViewModel.asScheduled.value
+                val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
+                val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
+                val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
 
-                    // Update medication if med data is not null (dosage data can be null if it is
-                    // an as-needed medication)
-                    if (medData != null && (dosageData != null || !asScheduled)) {
-                        val success = medicationViewModel.updateMedication(
-                            medicationId,
-                            medData,
-                            dosageData,
-                            reminderData,
-                            scheduleData
-                        )
+                // Update medication if med data is not null (dosage data can be null if it is
+                // an as-needed medication)
+                if (medData != null && (dosageData != null || !asScheduled)) {
+                    val success = medicationViewModel.updateMedication(
+                        medicationId,
+                        medData,
+                        dosageData,
+                        reminderData,
+                        scheduleData
+                    )
 
-                        if (success) {
-                            createToast(this@EditMedicationActivity, MED_UPDATED)
-                            setResult(RESULT_OK)
-                            finish()
-                        }
+                    if (success) {
+                        createToast(this@EditMedicationActivity, MED_UPDATED)
+                        setResult(RESULT_OK)
+                        finish()
                     }
                 }
             } catch (e: Exception) {
@@ -138,7 +174,7 @@ class EditMedicationActivity : BaseActivity() {
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading { medicationViewModel.fetchMedication(medicationId) }
+            medicationViewModel.fetchMedication(medicationId)
         }
     }
 

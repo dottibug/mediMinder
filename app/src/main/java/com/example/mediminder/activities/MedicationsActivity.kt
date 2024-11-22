@@ -56,6 +56,7 @@ class MedicationsActivity : BaseActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { collectMedications() }
                 launch { collectErrorMessage() }
+                launch { collectLoadingSpinner() }
             }
         }
     }
@@ -74,6 +75,13 @@ class MedicationsActivity : BaseActivity() {
                 createToast(this@MedicationsActivity, msg)
                 viewModel.clearError()
             }
+        }
+    }
+
+    // Collect loading spinner state from the view model
+    private suspend fun collectLoadingSpinner() {
+        viewModel.isLoading.collect { isLoading ->
+            if (isLoading) loadingSpinnerUtil.show() else loadingSpinnerUtil.hide()
         }
     }
 
@@ -105,7 +113,7 @@ class MedicationsActivity : BaseActivity() {
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedications() {
         lifecycleScope.launch {
-            loadingSpinnerUtil.whileLoading { viewModel.fetchMedications() }
+            viewModel.fetchMedications()
         }
     }
 }

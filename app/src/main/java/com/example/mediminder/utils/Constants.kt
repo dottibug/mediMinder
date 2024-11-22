@@ -48,6 +48,10 @@ object Constants {
     const val TAKE_MEDICATION = "take_medication"
     const val SKIP_MEDICATION = "skip_medication"
 
+    // Visibility toggle
+    const val HIDE = "hide"
+    const val SHOW = "show"
+
     // Channels
     const val MED_REMINDER_CHANNEL_ID = "medication_reminder_channel"
     const val MED_REMINDER_CHANNEL_NAME = "Medication Reminder"

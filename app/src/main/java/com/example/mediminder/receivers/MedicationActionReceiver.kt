@@ -10,6 +10,7 @@ import com.example.mediminder.R
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS
 import com.example.mediminder.utils.Constants.LOG_ID
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.Constants.NEW_STATUS
@@ -39,7 +40,7 @@ class MedicationActionReceiver: BroadcastReceiver() {
                     updateMedStatus(context, logId, newStatus)
                     sendBroadcast(context, logId, newStatus, action)
                 } catch (e: Exception) {
-                    Log.e("MedActionReceiver testcat", "Error updating status: ${e.message}")
+                    Log.e(TAG, ERR_UPDATING_STATUS, e)
                 }
             }
             cancelNotification(context, logId)
@@ -88,5 +89,9 @@ class MedicationActionReceiver: BroadcastReceiver() {
     private fun cancelNotification(context: Context, logId: Long) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(logId.toInt())
+    }
+
+    companion object {
+        private const val TAG = "MedActionReceiver"
     }
 }
