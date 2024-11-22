@@ -2,7 +2,6 @@ package com.example.mediminder.viewmodels
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -20,31 +19,23 @@ import kotlinx.coroutines.launch
 
 // This view model holds state for the view medication activity. It handles fetching medication
 // details from the MedicationRepository to display in the UI.
-class ViewMedicationViewModel(private val repository: MedicationRepository) : ViewModel() {
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+class ViewMedicationViewModel(private val repository: MedicationRepository) :BaseViewModel() {
 
     private val _medication = MutableStateFlow<MedicationWithDetails?>(null)
     val medication: StateFlow<MedicationWithDetails?> = _medication.asStateFlow()
-
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
-    fun clearError() { _errorMessage.value = null }
 
     // Fetch medication details from the repository (updates UI when data is available)
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                startLoading()
                 _medication.value = repository.getMedicationDetailsById(medicationId)
             }
             catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
-                _errorMessage.value = ERR_FETCHING_MED_USER
+                setErrorMessage(ERR_FETCHING_MED_USER)
             } finally {
-                _isLoading.value = false
+                stopLoading()
             }
         }
     }

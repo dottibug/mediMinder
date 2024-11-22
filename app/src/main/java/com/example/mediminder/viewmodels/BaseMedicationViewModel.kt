@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -35,6 +34,7 @@ import com.example.mediminder.utils.Constants.ERR_FETCHING_MED
 import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_USER
 import com.example.mediminder.utils.Constants.ERR_UPDATING_MED
 import com.example.mediminder.utils.Constants.ERR_UPDATING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_VALIDATING_INPUT
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
@@ -55,10 +55,7 @@ import java.util.UUID
 class BaseMedicationViewModel(
     private val repository: MedicationRepository,
     private val applicationContext: Context
-) : ViewModel() {
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+) : BaseViewModel() {
 
     private val _isAdding = MutableStateFlow(false)
     val isAdding: StateFlow<Boolean> = _isAdding.asStateFlow()
@@ -69,14 +66,8 @@ class BaseMedicationViewModel(
     private val _asScheduled = MutableStateFlow(true)
     val asScheduled: StateFlow<Boolean> = _asScheduled.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
     private val reminderState = ReminderState()
     private val scheduleState = ScheduleState()
-
-    fun clearError() { _errorMessage.value = null }
-    fun setErrorMessage(msg: String) { _errorMessage.value = msg }
 
     // Schedule state update functions
     fun setAsScheduled(enabled: Boolean) { _asScheduled.value = enabled }
@@ -145,14 +136,14 @@ class BaseMedicationViewModel(
     fun fetchMedication(medicationId: Long) {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
+                startLoading()
                 _currentMedication.value = repository.getMedicationDetailsById(medicationId)
                 _asScheduled.value = _currentMedication.value?.medication?.asNeeded == false
             } catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_MED, e)
-                _errorMessage.value = ERR_FETCHING_MED_USER
+                setErrorMessage(ERR_FETCHING_MED_USER)
             } finally {
-                _isLoading.value = false
+                stopLoading()
             }
         }
     }
@@ -166,7 +157,7 @@ class BaseMedicationViewModel(
     ): Boolean {
         return try {
             _isAdding.value = true
-            _isLoading.value = true
+            startLoading()
 
             // Validate medication data
             val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
@@ -191,14 +182,14 @@ class BaseMedicationViewModel(
             true
         } catch (e: IllegalArgumentException) {
             // Catch validation errors
-            _errorMessage.value = e.message
+            setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {
             Log.e(TAG, ERR_ADDING_MED, e)
-            _errorMessage.value = ERR_ADDING_MED_USER
+            setErrorMessage(ERR_ADDING_MED_USER)
             false
         } finally {
-            _isLoading.value = false
+            stopLoading()
             _isAdding.value = false
         }
     }
@@ -212,7 +203,7 @@ class BaseMedicationViewModel(
         scheduleData: ScheduleData?
     ): Boolean {
         return try {
-            _isLoading.value = true
+            startLoading()
 
             val validData = validateMedicationData(
                 medicationData,
@@ -238,15 +229,15 @@ class BaseMedicationViewModel(
             true
         } catch (e: IllegalArgumentException) {
             // Catch validation errors
-            _errorMessage.value = e.message
+            setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         }
         catch (e: Exception) {
             Log.e(TAG, ERR_UPDATING_MED, e)
-            _errorMessage.value = ERR_UPDATING_MED_USER
+            setErrorMessage(ERR_UPDATING_MED_USER)
             false
         } finally {
-            _isLoading.value = false
+            stopLoading()
         }
     }
 

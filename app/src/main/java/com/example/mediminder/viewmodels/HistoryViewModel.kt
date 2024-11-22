@@ -2,7 +2,6 @@ package com.example.mediminder.viewmodels
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -23,10 +22,7 @@ import java.time.YearMonth
 
 // View model for the HistoryActivity
 // Tracks selected medication and month, and provides methods to fetch medication history
-class HistoryViewModel(private val repository: MedicationRepository): ViewModel() {
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
+class HistoryViewModel(private val repository: MedicationRepository): BaseViewModel() {
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
     val medications: StateFlow<List<Medication>> = _medications.asStateFlow()
 
@@ -35,13 +31,6 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
 
     private val _selectedMonth = MutableStateFlow(YearMonth.now())
     val selectedMonth: StateFlow<YearMonth> = _selectedMonth.asStateFlow()
-
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-
-    // Error message functions
-    fun setErrorMessage(msg: String) { _errorMessage.value = msg }
-    fun clearError() { _errorMessage.value = null }
 
     // Selection functions
     fun setSelectedMedication(medicationId: Long?) { _selectedMedicationId.value = medicationId }
@@ -58,7 +47,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
     // Fetch medications
     suspend fun fetchMedications(): List<Medication> {
         try {
-            _isLoading.value = true
+            startLoading()
             val medications = repository.getAllMedicationsSimple()
             _medications.value = medications
             return medications
@@ -67,14 +56,14 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
             setErrorMessage(ERR_FETCHING_MEDS)
             return emptyList()
         } finally {
-            _isLoading.value = false
+            stopLoading()
         }
     }
 
     // Fetch medication history for a specific medication
     suspend fun fetchMedicationHistory(medicationId: Long?): List<DayLogs>? {
        try {
-           _isLoading.value = true
+           startLoading()
            val selectedMonth = selectedMonth.value
            val today = LocalDate.now()
            val currentMonth = YearMonth.from(today)
@@ -87,7 +76,7 @@ class HistoryViewModel(private val repository: MedicationRepository): ViewModel(
            setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
            return null
         } finally {
-            _isLoading.value = false
+            stopLoading()
         }
     }
 
