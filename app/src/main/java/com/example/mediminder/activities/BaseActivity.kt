@@ -28,6 +28,8 @@ abstract class BaseActivity : AppCompatActivity() {
     protected val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
 
+
+
     protected fun setupBaseLayout() {
         enableEdgeToEdge()
         baseBinding = ActivityBaseBinding.inflate(layoutInflater)
