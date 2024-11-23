@@ -12,6 +12,7 @@ import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.SHOW
+import com.example.mediminder.utils.Constants.UPDATE
 import kotlinx.coroutines.launch
 
 // This activity allows the user to edit an existing medication. It uses the MedicationViewModel to
@@ -68,14 +69,14 @@ class EditMedicationActivity : BaseActivity() {
 
     // Collect asScheduled state
     private suspend fun collectAsScheduled() {
-        medicationViewModel.asScheduled.collect { asScheduled ->
+        appViewModel.medication.asScheduled.collect { asScheduled ->
             updateFragmentVisibility(asScheduled)
         }
     }
 
     // Collect current medication state
     private suspend fun collectCurrentMedication() {
-        medicationViewModel.currentMedication.collect { med ->
+        appViewModel.medication.current.collect { med ->
             if (med == null) { toggleContentVisibility(HIDE) }
             else { toggleContentVisibility(SHOW) }
         }
@@ -107,21 +108,16 @@ class EditMedicationActivity : BaseActivity() {
         lifecycleScope.launch {
             try {
                 val medData = getMedicationData(MedicationAction.EDIT)
-                val asScheduled = medicationViewModel.asScheduled.value
+                val asScheduled = appViewModel.medication.asScheduled.value
                 val dosageData = if (asScheduled) getDosageData(MedicationAction.EDIT) else null
-                val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
-                val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
+                val reminderData = if (asScheduled) appViewModel.reminder.getReminders() else null
+                val scheduleData = if (asScheduled) appViewModel.schedule.getSchedule() else null
 
                 // Update medication if med data is not null (dosage data can be null if it is
                 // an as-needed medication)
                 if (medData != null && (dosageData != null || !asScheduled)) {
-                    val success = medicationViewModel.updateMedication(
-                        medicationId,
-                        medData,
-                        dosageData,
-                        reminderData,
-                        scheduleData
-                    )
+                    val success = appViewModel.saveMedication(UPDATE, medData, dosageData,
+                        reminderData, scheduleData, medicationId)
 
                     if (success) {
                         createToast(this@EditMedicationActivity, MED_UPDATED)
@@ -130,7 +126,7 @@ class EditMedicationActivity : BaseActivity() {
                     }
                 }
             } catch (e: Exception) {
-                baseViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+                appViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }
@@ -139,7 +135,7 @@ class EditMedicationActivity : BaseActivity() {
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            medicationViewModel.fetchMedication(medicationId)
+            appViewModel.fetchMedicationDetails(medicationId)
         }
     }
 

@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +21,10 @@ import com.example.mediminder.databinding.ActivityMainBinding
 import com.example.mediminder.fragments.AddAsNeededMedicationDialog
 import com.example.mediminder.fragments.UpdateMedicationStatusDialogFragment
 import com.example.mediminder.utils.AppUtils
-import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED_USER
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_USER
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
@@ -29,7 +33,7 @@ import kotlinx.coroutines.launch
 // Users can add new medications and update the status of a scheduled medication, as well as add
 // as-needed medications.
 class MainActivity : BaseActivity() {
-    private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val mainViewModel: MainViewModel by viewModels { MainViewModel.Factory }
     private lateinit var binding: ActivityMainBinding
     private lateinit var medicationAdapter: MainMedicationAdapter
     private lateinit var dateSelectorAdapter: MainDateSelectorAdapter
@@ -39,7 +43,7 @@ class MainActivity : BaseActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == MED_STATUS_CHANGED) {
                 lifecycleScope.launch {
-                    viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+                    mainViewModel.fetchMedicationsForDate(mainViewModel.selectedDate.value)
                 }
             }
         }
@@ -90,9 +94,10 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch {
             try {
                 InitializeDatabase(applicationContext).initDatabase()
-                viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+                mainViewModel.fetchMedicationsForDate(mainViewModel.selectedDate.value)
             } catch (e: Exception) {
-                baseViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+                Log.e(TAG, ERR_FETCHING_MED, e)
+                appViewModel.setErrorMessage(ERR_FETCHING_MED_USER)
             }
         }
     }
@@ -114,10 +119,17 @@ class MainActivity : BaseActivity() {
                     .show(supportFragmentManager, TAG_UPDATE_STATUS)
             },
             // Delete medication callback
-            onDeleteAsNeededClick = { logId -> viewModel.deleteAsNeededMedication(logId) }
+            onDeleteAsNeededClick = { logId ->
+                try {
+                    mainViewModel.deleteAsNeededMedication(logId)
+                } catch (e: Exception) {
+                    Log.e(TAG, ERR_DELETING_MED, e)
+                    appViewModel.setErrorMessage(ERR_DELETING_MED_USER)
+                }
+            }
         )
 
-        dateSelectorAdapter = MainDateSelectorAdapter { date -> viewModel.selectDate(date) }
+        dateSelectorAdapter = MainDateSelectorAdapter { date -> mainViewModel.selectDate(date) }
 
         setupMedicationList()
         setupDateSelector()
@@ -157,19 +169,19 @@ class MainActivity : BaseActivity() {
 
     // Collect medication data from the view model
     private suspend fun collectMedications() {
-        viewModel.medications.collect { medications -> medicationAdapter.submitList(medications) }
+        mainViewModel.medications.collect { medications -> medicationAdapter.submitList(medications) }
     }
 
     // Collect selected date from the view model
     private suspend fun collectSelectedDate() {
-        viewModel.selectedDate.collect { date ->
+        mainViewModel.selectedDate.collect { date ->
             binding.selectedDateText.text = AppUtils.formatToLongDate(date)
         }
     }
 
     // Collect date selector dates from the view model
     private suspend fun collectDateSelectorDates() {
-        viewModel.dateSelectorDates.collect { dates ->
+        mainViewModel.dateSelectorDates.collect { dates ->
             dateSelectorAdapter.submitList(dates)
             dateSelectorAdapter.updateSelectedPosition()
         }
@@ -188,6 +200,7 @@ class MainActivity : BaseActivity() {
     }
 
     companion object {
+        private const val TAG = "MainActivity"
         private const val TAG_ADD_AS_NEEDED_MED = "add_as_needed_med"
         private const val TAG_UPDATE_STATUS = "update_status"
         private const val MED_REMINDERS_CHANNEL_ID = "medication_reminders"

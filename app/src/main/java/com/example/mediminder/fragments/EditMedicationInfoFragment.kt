@@ -2,17 +2,14 @@ package com.example.mediminder.fragments
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.Medication
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import kotlinx.coroutines.launch
 
 // Fragment for editing a medication's information. Pre-populates the medication fields with the
 // selected medication data
 class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
-    override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -23,7 +20,7 @@ class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
     // Hide the switch (users cannot change an as-needed med to scheduled and vice versa)
     // Show/hide the as-needed message based on the state of the switch
     private fun setupAsNeededUI() {
-        val asScheduled = medicationViewModel.asScheduled.value
+        val asScheduled = appViewModel.medication.asScheduled.value
         binding.asScheduledSwitch.visibility = View.GONE
 
         binding.asNeededMessage.apply {
@@ -35,7 +32,7 @@ class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
     // Observe the current medication and update the UI with the medication data
     private fun setupObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            medicationViewModel.currentMedication.collect { medication ->
+            appViewModel.medication.current.collect { medication ->
                 medication?.let { updateUIWithMedicationData(it.medication) }
             }
         }

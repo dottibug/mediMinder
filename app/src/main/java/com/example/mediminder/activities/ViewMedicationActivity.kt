@@ -3,7 +3,6 @@ package com.example.mediminder.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -13,14 +12,12 @@ import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.utils.ViewMedicationSetupUtils
-import com.example.mediminder.viewmodels.ViewMedicationViewModel
 import kotlinx.coroutines.launch
 
 // This activity displays the details of a medication, including icon, name, dosage, doctor, notes,
 // reminders, schedule, start date, and end date. It uses the ViewMedicationViewModel to fetch the
 // medication details.
 class ViewMedicationActivity(): BaseActivity() {
-    private val viewModel: ViewMedicationViewModel by viewModels { ViewMedicationViewModel.Factory }
     private lateinit var binding: ActivityViewMedicationBinding
     private lateinit var setupUI: ViewMedicationSetupUtils
     private var medicationId: Long = -1L
@@ -77,7 +74,7 @@ class ViewMedicationActivity(): BaseActivity() {
 
     // Collect medication details from the view model
     private suspend fun collectMedication() {
-        viewModel.medication.collect { medicationDetails ->
+        appViewModel.medication.current.collect { medicationDetails ->
             if (medicationDetails == null) { toggleContentVisibility(HIDE) }
 
             else {
@@ -97,7 +94,7 @@ class ViewMedicationActivity(): BaseActivity() {
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData(medicationId: Long) {
         lifecycleScope.launch {
-            viewModel.fetchMedication(medicationId)
+            appViewModel.fetchMedicationDetails(medicationId)
         }
     }
 }

@@ -9,6 +9,8 @@ object Constants {
     const val MED_NAME_DEFAULT = "Medication"
     const val DOSAGE = "dosage"
     const val DOSAGE_DEFAULT_UNIT = "units"
+    const val ADD = "add"
+    const val UPDATE = "update"
 
     // Schedule duration
     const val CONTINUOUS = "continuous"

@@ -1,7 +1,7 @@
 package com.example.mediminder.viewmodels
 
 import android.app.Application
-import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -11,9 +11,6 @@ import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.DayLogs
 import com.example.mediminder.models.MedicationHistory
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MEDS
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY_USER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +19,7 @@ import java.time.YearMonth
 
 // View model for the HistoryActivity
 // Tracks selected medication and month, and provides methods to fetch medication history
-class HistoryViewModel(private val repository: MedicationRepository): BaseViewModel() {
+class HistoryViewModel(private val repository: MedicationRepository): ViewModel() {
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
     val medications: StateFlow<List<Medication>> = _medications.asStateFlow()
 
@@ -51,9 +48,7 @@ class HistoryViewModel(private val repository: MedicationRepository): BaseViewMo
             _medications.value = medications
             return medications
         } catch (e: Exception) {
-            Log.e(TAG, ERR_FETCHING_MEDS, e)
-            setErrorMessage(ERR_FETCHING_MEDS)
-            return emptyList()
+            throw e
         }
     }
 
@@ -68,9 +63,7 @@ class HistoryViewModel(private val repository: MedicationRepository): BaseViewMo
            if (history.logs.isEmpty() && selectedMonth.isBefore(currentMonth)) { return null }
            else { return getDayLogs(currentMonth, selectedMonth, today, history) }
         } catch (e: Exception) {
-           Log.e(TAG, ERR_FETCHING_MED_HISTORY, e)
-           setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
-           return null
+            throw e
         }
     }
 

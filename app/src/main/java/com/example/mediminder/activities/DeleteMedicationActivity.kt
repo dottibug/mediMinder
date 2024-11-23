@@ -2,6 +2,7 @@ package com.example.mediminder.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -12,6 +13,8 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
 import com.example.mediminder.utils.AppUtils.getMedicationId
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED
+import com.example.mediminder.utils.Constants.ERR_DELETING_MED_USER
 import com.example.mediminder.utils.Constants.HIDE
 import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
@@ -19,7 +22,7 @@ import kotlinx.coroutines.launch
 
 // Activity to delete a medication from the database
 class DeleteMedicationActivity : BaseActivity() {
-    private val viewModel: DeleteMedicationViewModel by viewModels { DeleteMedicationViewModel.Factory }
+    private val deleteViewModel: DeleteMedicationViewModel by viewModels { DeleteMedicationViewModel.Factory }
     private lateinit var binding: ActivityDeleteMedicationBinding
     private var medicationId: Long = -1L
     private var medicationDeleted = false
@@ -59,7 +62,7 @@ class DeleteMedicationActivity : BaseActivity() {
     }
 
     private fun setupUI() {
-        val medicationName = viewModel.medicationName.value
+        val medicationName = appViewModel.medication.name
         binding.deleteMedicationMessage.text = resources.getString(R.string.msg_delete_medication, medicationName)
     }
 
@@ -92,7 +95,7 @@ class DeleteMedicationActivity : BaseActivity() {
 
     // Collect medication name from the view model
     private suspend fun collectMedicationName() {
-        viewModel.medicationName.collect { name ->
+        appViewModel.medication.name.collect { name ->
             val message = resources.getString(R.string.msg_delete_medication, name)
             binding.deleteMedicationMessage.text = message
         }
@@ -100,7 +103,7 @@ class DeleteMedicationActivity : BaseActivity() {
 
     // Collect current medication state
     private suspend fun collectCurrentMedication() {
-        viewModel.currentMedication.collect { med ->
+        appViewModel.medication.current.collect { med ->
             if (med == null) { toggleConfirmContentVisibility(HIDE) }
             else { toggleConfirmContentVisibility(SHOW) }
         }
@@ -108,7 +111,7 @@ class DeleteMedicationActivity : BaseActivity() {
 
     // Collect isDeleting state
     private suspend fun collectIsDeleting() {
-        viewModel.isDeleting.collect { isDeleting ->
+        deleteViewModel.isDeleting.collect { isDeleting ->
             if (isDeleting) toggleSuccessContentVisibility(HIDE)
             else toggleSuccessContentVisibility(SHOW)
         }
@@ -136,7 +139,7 @@ class DeleteMedicationActivity : BaseActivity() {
     // and the error observer for this activity will handle showing the error message)
     private fun fetchMedicationData() {
         lifecycleScope.launch {
-            viewModel.fetchMedication(medicationId)
+            appViewModel.fetchMedicationDetails(medicationId)
         }
     }
 
@@ -163,14 +166,24 @@ class DeleteMedicationActivity : BaseActivity() {
     // Delete medication from the database (cascades to all related entities)
     private fun deleteMedication() {
         lifecycleScope.launch {
-            viewModel.deleteMedication()
-            medicationDeleted = true
-            showSuccessMessage()
+            try {
+                val medId = appViewModel.medication.getId()
+                deleteViewModel.deleteMedication(medId)
+                medicationDeleted = true
+                showSuccessMessage()
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_DELETING_MED, e)
+                appViewModel.setErrorMessage(ERR_DELETING_MED_USER)
+            }
         }
     }
 
     private fun showSuccessMessage() {
         binding.confirmDeleteMedContainer.visibility = View.GONE
         binding.successDeleteMedContainer.visibility = View.VISIBLE
+    }
+
+    companion object {
+        private const val TAG = "DeleteMedicationActivity"
     }
 }

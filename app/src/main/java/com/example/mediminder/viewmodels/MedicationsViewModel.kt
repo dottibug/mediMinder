@@ -1,7 +1,7 @@
 package com.example.mediminder.viewmodels
 
 import android.app.Application
-import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -10,14 +10,13 @@ import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.repositories.MedicationRepository
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MEDS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 // ViewModel for the MedicationsActivity. Fetches medications from the repository for the activity to display.
-class MedicationsViewModel(private val repository: MedicationRepository) : BaseViewModel() {
+class MedicationsViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<MedicationWithDetails>>(emptyList())
     val medications: StateFlow<List<MedicationWithDetails>> = _medications.asStateFlow()
@@ -28,8 +27,7 @@ class MedicationsViewModel(private val repository: MedicationRepository) : BaseV
             try {
                 _medications.value = repository.getAllMedicationsDetailed()
             } catch (e: Exception) {
-                Log.e(TAG, ERR_FETCHING_MEDS, e)
-                setErrorMessage(ERR_FETCHING_MEDS)
+                throw e
             }
         }
     }

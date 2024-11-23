@@ -2,6 +2,7 @@ package com.example.mediminder.viewmodels
 
 import android.app.Application
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
@@ -15,15 +16,7 @@ import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.models.ValidatedAsNeededData
 import com.example.mediminder.utils.AppUtils.createMedicationRepository
 import com.example.mediminder.utils.Constants.ERR_ADDING_MED
-import com.example.mediminder.utils.Constants.ERR_ADDING_MED_USER
-import com.example.mediminder.utils.Constants.ERR_DELETING_MED
-import com.example.mediminder.utils.Constants.ERR_DELETING_MED_USER
-import com.example.mediminder.utils.Constants.ERR_FETCHING_AS_NEEDED_MEDS
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MED
-import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_USER
 import com.example.mediminder.utils.Constants.ERR_SETTING_STATUS
-import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS
-import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS_USER
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +28,7 @@ import java.time.ZoneId
 
 // This view model holds state for the main activity screen.
 // Handles data flow between the medication repository and the main activity UI
-class MainViewModel(private val repository: MedicationRepository) : BaseViewModel() {
+class MainViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<MedicationItem>>(emptyList())
     val medications: StateFlow<List<MedicationItem>> = _medications.asStateFlow()
@@ -71,8 +64,7 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                     med.copy(canUpdateStatus = !date.isAfter(today))
                 }
             } catch (e: Exception) {
-                Log.e(TAG, ERR_FETCHING_MED, e)
-                setErrorMessage(ERR_FETCHING_MED_USER)
+                throw e
             }
         }
     }
@@ -85,7 +77,6 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                 _initialMedStatus.value = status
             } catch (e: Exception) {
                 Log.e(TAG, ERR_SETTING_STATUS, e)
-                setErrorMessage(ERR_SETTING_STATUS)
             }
         }
     }
@@ -97,8 +88,7 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                 repository.updateMedicationLogStatus(logId, newStatus)
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e(TAG, ERR_UPDATING_STATUS, e)
-                setErrorMessage(ERR_UPDATING_STATUS_USER)
+                throw e
             }
         }
     }
@@ -125,8 +115,7 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                 val testResult = repository.getAsNeededMedications()
                 _asNeededMedications.value = testResult
             } catch (e: Exception) {
-                Log.e(TAG, ERR_FETCHING_AS_NEEDED_MEDS, e)
-                setErrorMessage(ERR_FETCHING_AS_NEEDED_MEDS)
+                throw e
             }
         }
     }
@@ -145,8 +134,7 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                 // Refresh medication list for the current date
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e(TAG, ERR_ADDING_MED, e)
-                setErrorMessage(ERR_ADDING_MED_USER)
+                throw Exception(ERR_ADDING_MED, e)
             }
         }
     }
@@ -158,8 +146,7 @@ class MainViewModel(private val repository: MedicationRepository) : BaseViewMode
                 repository.deleteAsNeededMedication(logId)
                 fetchMedicationsForDate(_selectedDate.value)
             } catch (e: Exception) {
-                Log.e(TAG, ERR_DELETING_MED, e)
-                setErrorMessage(ERR_DELETING_MED_USER)
+                throw e
             }
         }
     }

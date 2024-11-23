@@ -21,7 +21,7 @@ import com.example.mediminder.utils.Constants.EMPTY_STRING
 import com.example.mediminder.utils.Constants.INTERVAL
 import com.example.mediminder.utils.Constants.NUM_DAYS
 import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 abstract class BaseScheduleFragment : Fragment() {
     protected lateinit var binding: FragmentBaseScheduleBinding
     open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
-    protected abstract val medicationViewModel: BaseMedicationViewModel
+    protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
     private var prevScheduleWasDaily: Boolean = true
     protected lateinit var selectedDays: String
 
@@ -70,12 +70,12 @@ abstract class BaseScheduleFragment : Fragment() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 with (scheduleViewModel) {
-                    launch { startDate.collect { date -> medicationViewModel.updateStartDate(date) } }
-                    launch { durationType.collect { type -> medicationViewModel.updateDurationType(type) } }
-                    launch { scheduleType.collect { type -> medicationViewModel.updateScheduleType(type) } }
-                    launch { numDays.collect { numDays -> medicationViewModel.updateNumDays(numDays) } }
-                    launch { selectedDays.collect { days -> medicationViewModel.updateSelectedDays(days) } }
-                    launch { daysInterval.collect { interval -> medicationViewModel.updateDaysInterval(interval) } }
+                    launch { startDate.collect { date -> appViewModel.schedule.setStartDate(date) } }
+                    launch { durationType.collect { type -> appViewModel.schedule.setDurationType(type) } }
+                    launch { numDays.collect { numDays -> appViewModel.schedule.setNumDays(numDays) } }
+                    launch { scheduleType.collect { type -> appViewModel.schedule.setScheduleType(type) } }
+                    launch { selectedDays.collect { days -> appViewModel.schedule.setSelectedDays(days) } }
+                    launch { daysInterval.collect { interval -> appViewModel.schedule.setDaysInterval(interval) } }
                 }
             }
         }

@@ -10,6 +10,7 @@ import com.example.mediminder.databinding.ActivityAddMedicationBinding
 import com.example.mediminder.models.MedicationAction
 import com.example.mediminder.utils.AppUtils.cancelActivity
 import com.example.mediminder.utils.AppUtils.createToast
+import com.example.mediminder.utils.Constants.ADD
 import com.example.mediminder.utils.Constants.ADD_AS_NEEDED
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import kotlinx.coroutines.launch
@@ -65,7 +66,7 @@ class AddMedicationActivity : BaseActivity() {
 
     // Collect asScheduled state to show/hide dosage, reminder, and schedule fragments
     private suspend fun collectAsScheduled() {
-        medicationViewModel.asScheduled.collect { scheduled -> setFragmentVisibility(scheduled) }
+        appViewModel.medication.asScheduled.collect { scheduled -> setFragmentVisibility(scheduled) }
     }
 
     // Update visibility of dosage, reminder, and schedule fragments based on asScheduled value
@@ -80,7 +81,7 @@ class AddMedicationActivity : BaseActivity() {
     // Set asScheduled in the view model based on the value of the ADD_AS_NEEDED flag
     private fun getAsNeededIntent() {
         if (intent.getBooleanExtra(ADD_AS_NEEDED, false)) {
-            medicationViewModel.setAsScheduled(false)
+            appViewModel.setAsScheduled(false)
         }
     }
 
@@ -99,20 +100,17 @@ class AddMedicationActivity : BaseActivity() {
                 Log.d("ErrorFlow testcat", "AddMedicationActivity - handleAddMedication started")
 
                 val medData = getMedicationData(MedicationAction.ADD)
-                val asScheduled = medicationViewModel.asScheduled.value
+                val asScheduled = appViewModel.medication.asScheduled.value
                 val dosageData = if (asScheduled) getDosageData(MedicationAction.ADD) else null
-                val reminderData = if (asScheduled) medicationViewModel.getReminderData() else null
-                val scheduleData = if (asScheduled) medicationViewModel.getScheduleData() else null
+                val reminderData = if (asScheduled) appViewModel.reminder.getReminders() else null
+                val scheduleData = if (asScheduled) appViewModel.schedule.getSchedule() else null
 
                 // Add medication if med data is not null (dosage data can be null if it is
                 // an as-needed medication)
                 if (medData != null && (dosageData != null || !asScheduled)) {
-                    val success = medicationViewModel.addMedication(
-                        medData,
-                        dosageData,
-                        reminderData,
-                        scheduleData
-                    )
+
+                    val success = appViewModel.saveMedication(ADD, medData, dosageData,
+                        reminderData, scheduleData)
 
                     if (success) {
                         createToast(this@AddMedicationActivity, MED_ADDED)
@@ -124,7 +122,7 @@ class AddMedicationActivity : BaseActivity() {
                 Log.d("ErrorFlow testcat", "AddMedicationActivity - Exception caught in handleAddMedication")
 
                 Log.e(TAG, ERR_UNEXPECTED, e)
-                baseViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
+                appViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }
         }
     }

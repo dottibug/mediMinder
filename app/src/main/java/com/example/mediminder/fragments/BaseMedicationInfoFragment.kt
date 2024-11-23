@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -14,12 +15,12 @@ import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationStatus
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import com.example.mediminder.viewmodels.AppViewModel
 import kotlinx.coroutines.launch
 
 abstract class BaseMedicationInfoFragment: Fragment() {
     protected lateinit var binding: FragmentBaseMedicationInfoBinding
-    protected abstract val medicationViewModel: BaseMedicationViewModel
+    protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -37,7 +38,7 @@ abstract class BaseMedicationInfoFragment: Fragment() {
 
     private fun setupListener() {
         binding.asScheduledSwitch.setOnCheckedChangeListener { _, isChecked ->
-            medicationViewModel.setAsScheduled(isChecked)
+            appViewModel.setAsScheduled(isChecked)
         }
     }
 
@@ -45,9 +46,9 @@ abstract class BaseMedicationInfoFragment: Fragment() {
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { medicationViewModel.asScheduled.collect { asScheduled ->
+                launch { appViewModel.medication.asScheduled.collect { asScheduled ->
                         setSwitchState(asScheduled)
-                        medicationViewModel.setAsScheduled(asScheduled)
+                        appViewModel.setAsScheduled(asScheduled)
                         updateSwitchUI(asScheduled)
                         toggleSwitchMessage(asScheduled)
                     }

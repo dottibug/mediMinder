@@ -21,10 +21,11 @@ import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.DATE_PICKER_TAG
 import com.example.mediminder.utils.Constants.ERR_ADDING_AS_NEEDED_LOG
+import com.example.mediminder.utils.Constants.ERR_FETCHING_AS_NEEDED_MEDS
 import com.example.mediminder.utils.Constants.ERR_VALIDATING_INPUT
 import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.ValidationUtils.getValidatedAsNeededData
-import com.example.mediminder.viewmodels.BaseViewModel
+import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -32,8 +33,8 @@ import kotlinx.coroutines.launch
 class AddAsNeededMedicationDialog: DialogFragment() {
     private lateinit var binding: FragmentAddAsNeededMedBinding
     private lateinit var adapter: ArrayAdapter<String>
-    private val viewModel: MainViewModel by activityViewModels()
-    private val baseViewModel: BaseViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
     private val asNeededMedIds = mutableListOf<Long?>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +59,14 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     // Fetch medications on resume to update dropdown menu of as-needed medications
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch { viewModel.fetchAsNeededMedications() }
+        lifecycleScope.launch {
+            try {
+                mainViewModel.fetchAsNeededMedications()
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_FETCHING_AS_NEEDED_MEDS, e)
+                appViewModel.setErrorMessage(ERR_FETCHING_AS_NEEDED_MEDS)
+            }
+        }
     }
 
     // Setup UI elements
@@ -79,7 +87,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
 
     // Collect as-needed medications from the view model
     private suspend fun collectAsNeededMeds() {
-        viewModel.asNeededMedications.collect { medications ->
+        mainViewModel.asNeededMedications.collect { medications ->
             if (medications.isEmpty()) { hideAsNeededInputs() }
             else {
                 showAsNeededInputs()
@@ -125,7 +133,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     private fun setupListeners() {
         with (binding) {
             asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
-                viewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
+                mainViewModel.setSelectedAsNeededMedication(asNeededMedIds.getOrNull(position))
             }
 
             addNewButton.setOnClickListener { addNewAsNeededMed() }
@@ -143,11 +151,11 @@ class AddAsNeededMedicationDialog: DialogFragment() {
     // Add as-needed medication to the database
     private fun addAsNeededMedication(): Boolean {
         return try {
-            val selectedMedId = viewModel.selectedAsNeededMedId.value
+            val selectedMedId = mainViewModel.selectedAsNeededMedId.value
             val dosageAmount = binding.asNeededDosageAmount.text.toString()
             val dosageUnits = binding.asNeededDosageUnits.text.toString()
-            val dateTaken = viewModel.dateTaken.value
-            val timeTaken = viewModel.timeTaken.value
+            val dateTaken = mainViewModel.dateTaken.value
+            val timeTaken = mainViewModel.timeTaken.value
 
             // Validate input
             val validatedData = getValidatedAsNeededData(
@@ -158,19 +166,19 @@ class AddAsNeededMedicationDialog: DialogFragment() {
                 timeTaken
             )
 
-            viewModel.addAsNeededLog(validatedData)
-            viewModel.fetchMedicationsForDate(viewModel.selectedDate.value)
+            mainViewModel.addAsNeededLog(validatedData)
+            mainViewModel.fetchMedicationsForDate(mainViewModel.selectedDate.value)
 
             true
         } catch (e: IllegalArgumentException) {
             // Catch validation errors
             Log.e(TAG, ERR_VALIDATING_INPUT, e)
-            baseViewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
+            appViewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {
             // Other errors
             Log.e(TAG, ERR_ADDING_AS_NEEDED_LOG, e)
-            baseViewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
+            appViewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
             false
         }
     }
@@ -189,7 +197,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         timePicker.addOnPositiveButtonClickListener {
             val hour = timePicker.hour
             val minute = timePicker.minute
-            viewModel.setTimeTaken(hour, minute)
+            mainViewModel.setTimeTaken(hour, minute)
             updateTimePickerButtonText(hour, minute, binding.buttonAsNeededTimeTaken)
         }
 
@@ -201,8 +209,8 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         val datePicker = createDatePicker(SELECT_DATE_TAKEN)
 
         datePicker.addOnPositiveButtonClickListener { selection ->
-            viewModel.setDateTaken(selection)
-            updateDatePickerButtonText(viewModel.dateTaken.value, binding.buttonAsNeededDateTaken)
+            mainViewModel.setDateTaken(selection)
+            updateDatePickerButtonText(mainViewModel.dateTaken.value, binding.buttonAsNeededDateTaken)
         }
 
         datePicker.show(parentFragmentManager, DATE_PICKER_TAG)

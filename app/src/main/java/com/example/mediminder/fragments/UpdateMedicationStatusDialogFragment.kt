@@ -1,6 +1,7 @@
 package com.example.mediminder.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.FragmentUpdateMedicationStatusDialogBinding
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS
+import com.example.mediminder.utils.Constants.ERR_UPDATING_STATUS_USER
+import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -19,13 +23,14 @@ import kotlinx.coroutines.launch
 //  correct medicationId is passed to the fragment from the clicked medication in the recycler view
 class UpdateMedicationStatusDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentUpdateMedicationStatusDialogBinding
-    private val viewModel: MainViewModel by activityViewModels { MainViewModel.Factory }
+    private val mainViewModel: MainViewModel by activityViewModels { MainViewModel.Factory }
+    private val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
     private var logId: Long = 0
     private var selectedStatus: MedicationStatus = MedicationStatus.TAKEN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.setInitialMedStatus(logId)
+        mainViewModel.setInitialMedStatus(logId)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -57,8 +62,14 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
 
         // Set button listener
         binding.buttonSetMedStatusDialog.setOnClickListener {
-            viewModel.updateMedicationLogStatus(logId, selectedStatus)
-            dismiss()
+            try {
+                mainViewModel.updateMedicationLogStatus(logId, selectedStatus)
+                dismiss()
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_UPDATING_STATUS, e)
+                appViewModel.setErrorMessage(ERR_UPDATING_STATUS_USER)
+            }
+
         }
     }
 
@@ -73,7 +84,7 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
 
     // Collect initial status and set status radio button
     private suspend fun collectInitialStatus() {
-        viewModel.initialMedStatus.collect { status ->
+        mainViewModel.initialMedStatus.collect { status ->
             status?.let {
                 val radioButtonId = when (it) {
                     MedicationStatus.TAKEN -> binding.radioButtonTaken.id
@@ -88,6 +99,8 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
     }
 
     companion object {
+        private const val TAG = "UpdateMedicationStatusDialogFragment"
+
         fun newInstance(logId: Long): UpdateMedicationStatusDialogFragment {
             return UpdateMedicationStatusDialogFragment().apply { this.logId = logId }
         }

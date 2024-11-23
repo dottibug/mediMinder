@@ -12,7 +12,6 @@ import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.INTERVAL
 import com.example.mediminder.utils.Constants.NUM_DAYS
 import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -22,7 +21,6 @@ import java.time.ZoneId
 // the selected medication
 class EditScheduleFragment : BaseScheduleFragment() {
     override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
-    override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
     private var isInitialSetup = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -32,7 +30,7 @@ class EditScheduleFragment : BaseScheduleFragment() {
 
     private fun observeCurrentMedication() {
         viewLifecycleOwner.lifecycleScope.launch {
-            medicationViewModel.currentMedication.collect { medication ->
+            appViewModel.medication.current.collect { medication ->
                 medication?.let { initSchedule(it) }
             }
         }

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,7 +20,7 @@ import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.Constants.X_TIMES_DAILY
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
+import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
@@ -27,8 +28,8 @@ import kotlinx.coroutines.launch
 // Base fragment for adding or editing a medication's reminder settings
 abstract class BaseReminderFragment : Fragment() {
     protected lateinit var binding: FragmentBaseReminderBinding
-    protected abstract val reminderViewModel: BaseReminderViewModel
-    protected abstract val medicationViewModel: BaseMedicationViewModel
+    protected val reminderViewModel: BaseReminderViewModel by activityViewModels()
+    protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
     protected abstract val scheduleViewModel: BaseScheduleViewModel
 
     override fun onCreateView(
@@ -95,7 +96,7 @@ abstract class BaseReminderFragment : Fragment() {
     private suspend fun collectReminderFrequency() {
         reminderViewModel.reminderFrequency.collect { frequency ->
             showFrequencyOptions(frequency ?: EVERY_X_HOURS)
-            medicationViewModel.updateReminderFrequency(frequency)
+            appViewModel.reminder.setReminderFrequency(frequency)
             binding.reminderFrequencyMenu.setText(frequency, false)
         }
     }
@@ -103,21 +104,21 @@ abstract class BaseReminderFragment : Fragment() {
     // Collect hourly reminder interval from reminder view model
     private suspend fun collectHourlyReminderInterval() {
         reminderViewModel.hourlyReminderInterval.collect { interval ->
-            medicationViewModel.updateHourlyReminderInterval(interval)
+            appViewModel.reminder.setHourlyReminderInterval(interval)
         }
     }
 
     // Collect hourly reminder start time from reminder view model
     private suspend fun collectHourlyReminderStartTime() {
         reminderViewModel.hourlyReminderStartTime.collect { startTime ->
-            medicationViewModel.updateHourlyReminderStartTime(startTime)
+            appViewModel.reminder.setHourlyReminderStartTime(startTime)
         }
     }
 
     // Collect hourly reminder end time from reminder view model
     private suspend fun collectHourlyReminderEndTime() {
         reminderViewModel.hourlyReminderEndTime.collect { endTime ->
-            medicationViewModel.updateHourlyReminderEndTime(endTime)
+            appViewModel.reminder.setHourlyReminderEndTime(endTime)
         }
     }
 
@@ -125,7 +126,7 @@ abstract class BaseReminderFragment : Fragment() {
     private suspend fun collectDailyReminderTimes() {
         reminderViewModel.dailyReminderTimes.collect { times ->
             updateDailyTimePickers(times)
-            medicationViewModel.updateDailyReminderTimes(times)
+            appViewModel.reminder.setDailyReminderTimes(times)
         }
     }
 

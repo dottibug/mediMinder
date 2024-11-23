@@ -25,8 +25,7 @@ import com.example.mediminder.models.MedicationAction
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.NavigationHandler
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
-import com.example.mediminder.viewmodels.BaseViewModel
+import com.example.mediminder.viewmodels.AppViewModel
 import kotlinx.coroutines.launch
 
 /**
@@ -39,11 +38,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private val drawer get() = baseBinding.drawerLayout
     private val navView get() = baseBinding.navView
     private val topAppBar get() = baseBinding.topAppBar
-    protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
-//    protected val baseViewModel: BaseViewModel by viewModels()
-    protected val baseViewModel: BaseViewModel by viewModels { BaseViewModel.Factory }
-
-
+    protected val appViewModel: AppViewModel by viewModels { AppViewModel.Factory }
     private lateinit var navHandler: NavigationHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,25 +46,6 @@ abstract class BaseActivity : AppCompatActivity() {
         enableEdgeToEdge()
         navHandler = NavigationHandler(this)
     }
-
-
-    // test start
-    override fun onStart() {
-        super.onStart()
-        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onStart")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onDestroy")
-    }
-
-    // test end
 
     override fun onResume() {
         super.onResume()
@@ -106,63 +82,53 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-
-    // test start
+    /**
+     * Observes error messages from the base view model to display to the user.
+     */
     private fun setupBaseObservers() {
-        Log.d("ErrorFlow testcat", "Setting up base observers in ${javaClass.simpleName}")
         lifecycleScope.launch {
-            Log.d("ErrorFlow testcat", "${javaClass.simpleName} entering lifecycleScope")
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {  // Add this line
-                Log.d("ErrorFlow testcat", "${javaClass.simpleName} starting error collection")
-                baseViewModel.errorMessage.collect { error ->
-                    Log.d("ErrorFlow testcat", "${javaClass.simpleName} received error: $error")
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                appViewModel.errorMessage.collect { error ->
                     if (error != null) {
                         createToast(this@BaseActivity, error)
-                        baseViewModel.clearError()
+                        appViewModel.clearError()
                     }
                 }
             }
         }
     }
 
-    // test end
-
-
-
-    /**
-     * Observes error messages from the base view model to display to the user.
-     */
-    private fun setupBaseObserversV1() {
-        Log.d("ErrorFlow testcat", "Setting up base observers")
-
-        lifecycleScope.launch {
-            Log.d("ErrorFlow testcat", "Entering lifecycleScope")
-                collectErrors()
-//            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-////                collectErrors()
-//            }
-        }
-    }
+//    private fun setupBaseObserversV1() {
+//        Log.d("ErrorFlow testcat", "Setting up base observers")
+//
+//        lifecycleScope.launch {
+//            Log.d("ErrorFlow testcat", "Entering lifecycleScope")
+//                collectErrors()
+////            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//////                collectErrors()
+////            }
+//        }
+//    }
 
     /**
      * Collects error message state flow from BaseViewModel. Displays errors to user as a toast.
      */
-    private suspend fun collectErrors() {
-        Log.d("ErrorFlow testcat", "Starting error collection in BaseActivity")
-
-        baseViewModel.errorMessage.collect { error ->
-            Log.d("ErrorFlow testcat", "${this@BaseActivity.javaClass.simpleName} received error: $error")
-
-            if (error != null) {
-                val activityContext = this@BaseActivity
-                Log.d("ErrorFlow testcat", "Showing toast in activity: ${activityContext.javaClass.simpleName}")
-
-
-                createToast(activityContext, error)
-                baseViewModel.clearError()
-            }
-        }
-    }
+//    private suspend fun collectErrors() {
+//        Log.d("ErrorFlow testcat", "Starting error collection in BaseActivity")
+//
+//        baseViewModel.errorMessage.collect { error ->
+//            Log.d("ErrorFlow testcat", "${this@BaseActivity.javaClass.simpleName} received error: $error")
+//
+//            if (error != null) {
+//                val activityContext = this@BaseActivity
+//                Log.d("ErrorFlow testcat", "Showing toast in activity: ${activityContext.javaClass.simpleName}")
+//
+//
+//                createToast(activityContext, error)
+//                baseViewModel.clearError()
+//            }
+//        }
+//    }
 
     /**
      * Sets up the top app bar that is displayed in all activities
@@ -218,7 +184,7 @@ abstract class BaseActivity : AppCompatActivity() {
      */
     protected fun getDosageData(action: MedicationAction): DosageData? {
         // Skip dosage data for as-needed medications
-        if (!medicationViewModel.asScheduled.value) return null
+        if (!appViewModel.medication.asScheduled.value) return null
 
         val dosageFragment = when (action) {
             MedicationAction.ADD -> supportFragmentManager.findFragmentById(

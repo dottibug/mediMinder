@@ -1,6 +1,7 @@
 package com.example.mediminder.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
@@ -10,6 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.HistoryAdapter
 import com.example.mediminder.databinding.ActivityHistoryBinding
 import com.example.mediminder.models.DayLogs
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MEDS
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MED_HISTORY_USER
 import com.example.mediminder.utils.HistoryDateUtils
 import com.example.mediminder.utils.HistoryMedicationDropdownUtils
 import com.example.mediminder.viewmodels.HistoryViewModel
@@ -20,7 +24,7 @@ import kotlinx.coroutines.launch
 // Users can also select which month to view history for, via the next/prev date controls or the
 // date picker dialog.
 class HistoryActivity : BaseActivity() {
-    private val viewModel: HistoryViewModel by viewModels { HistoryViewModel.Factory }
+    private val historyViewModel: HistoryViewModel by viewModels { HistoryViewModel.Factory }
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var historyAdapter: HistoryAdapter
     private lateinit var dateUtils: HistoryDateUtils
@@ -46,8 +50,8 @@ class HistoryActivity : BaseActivity() {
     private fun setupActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setupBaseBinding(binding)
-        dateUtils = HistoryDateUtils(binding, viewModel, supportFragmentManager)
-        dropdownUtils = HistoryMedicationDropdownUtils(this, binding, viewModel, resources)
+        dateUtils = HistoryDateUtils(binding, historyViewModel, supportFragmentManager)
+        dropdownUtils = HistoryMedicationDropdownUtils(this, binding, historyViewModel, resources)
     }
 
     private fun setupUI() {
@@ -77,26 +81,31 @@ class HistoryActivity : BaseActivity() {
 
     // Collect the selected medication ID from the view model and refresh the medication history
     private suspend fun collectSelectedMedication() {
-        viewModel.selectedMedicationId.collect { refreshMedicationHistory(it) }
+        historyViewModel.selectedMedicationId.collect { refreshMedicationHistory(it) }
     }
 
     // Collect the selected month from view model and refresh the medication history
     private suspend fun collectSelectedMonth() {
-        viewModel.selectedMonth.collect { month ->
-            refreshMedicationHistory(viewModel.selectedMedicationId.value)
+        historyViewModel.selectedMonth.collect { month ->
+            refreshMedicationHistory(historyViewModel.selectedMedicationId.value)
             dateUtils.updateMonthYearText(month)
         }
     }
 
     // Refresh the medication history based on the selected medication and month
     private suspend fun refreshMedicationHistory(medicationId: Long?) {
-        val dayLogs = viewModel.fetchMedicationHistory(medicationId)
-
-        if (dayLogs == null) { hideHistoryList() }
-
-        else {
-            showHistoryList(dayLogs)
-            historyAdapter.submitList(dayLogs)
+        lifecycleScope.launch {
+            try {
+                val dayLogs = historyViewModel.fetchMedicationHistory(medicationId)
+                if (dayLogs == null) { hideHistoryList() }
+                else {
+                    showHistoryList(dayLogs)
+                    historyAdapter.submitList(dayLogs)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_FETCHING_MED_HISTORY, e)
+                appViewModel.setErrorMessage(ERR_FETCHING_MED_HISTORY_USER)
+            }
         }
     }
 
@@ -113,10 +122,19 @@ class HistoryActivity : BaseActivity() {
     // Fetch list of medications for the dropdown menu
     private fun fetchMedicationsList() {
         lifecycleScope.launch {
-            val medications = viewModel.fetchMedications()
-            dropdownUtils.updateMedicationIds(medications)
-            dropdownUtils.createMedicationDropdown(medications)
-            viewModel.setSelectedMedication(null)
+            try {
+                val medications = historyViewModel.fetchMedications()
+                dropdownUtils.updateMedicationIds(medications)
+                dropdownUtils.createMedicationDropdown(medications)
+                historyViewModel.setSelectedMedication(null)
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_FETCHING_MEDS, e)
+                appViewModel.setErrorMessage(ERR_FETCHING_MEDS)
+            }
         }
+    }
+
+    companion object {
+        private const val TAG = "HistoryActivity"
     }
 }

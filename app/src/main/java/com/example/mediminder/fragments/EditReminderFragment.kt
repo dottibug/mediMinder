@@ -9,16 +9,12 @@ import com.example.mediminder.data.local.classes.MedReminders
 import com.example.mediminder.models.MedicationWithDetails
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
-import com.example.mediminder.viewmodels.BaseMedicationViewModel
-import com.example.mediminder.viewmodels.BaseReminderViewModel
 import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
 // Fragment for editing a medication's reminder settings. Pre-populates the reminder fields with the
 // selected medication data
 class EditReminderFragment : BaseReminderFragment() {
-    override val reminderViewModel: BaseReminderViewModel by activityViewModels()
-    override val medicationViewModel: BaseMedicationViewModel by activityViewModels { BaseMedicationViewModel.Factory }
     override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     private var isInitialSetup = true
 
@@ -29,7 +25,7 @@ class EditReminderFragment : BaseReminderFragment() {
 
     private fun observeCurrentMedication() {
         viewLifecycleOwner.lifecycleScope.launch {
-            medicationViewModel.currentMedication.collect { medication ->
+            appViewModel.medication.current.collect { medication ->
                 medication?.let { initReminders(it) }
             }
         }

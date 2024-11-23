@@ -2,6 +2,7 @@ package com.example.mediminder.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -9,8 +10,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mediminder.adapters.MedicationsAdapter
 import com.example.mediminder.databinding.ActivityMedicationsBinding
+import com.example.mediminder.utils.Constants.ERR_FETCHING_MEDS
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.viewmodels.MedicationsViewModel
+import com.example.mediminder.viewmodels.MedicationsViewModel.Companion.TAG
 import kotlinx.coroutines.launch
 
 // This activity displays a list of medications. It uses the MedicationsViewModel to fetch the list.
@@ -87,7 +90,12 @@ class MedicationsActivity : BaseActivity() {
     // in the ViewModel and the error observer for this activity will handle showing the error message)
     private fun fetchMedications() {
         lifecycleScope.launch {
-            viewModel.fetchMedications()
+            try {
+                viewModel.fetchMedications()
+            } catch (e: Exception) {
+                Log.e(TAG, ERR_FETCHING_MEDS, e)
+                appViewModel.setErrorMessage(ERR_FETCHING_MEDS)
+            }
         }
     }
 }
