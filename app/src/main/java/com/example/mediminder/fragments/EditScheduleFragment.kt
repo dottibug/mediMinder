@@ -19,7 +19,7 @@ import java.time.ZoneId
 
 // Fragment for editing a medication's schedule. Pre-populates the schedule fields with the data for
 // the selected medication
-class EditScheduleFragment : BaseScheduleFragment() {
+class EditScheduleFragment : ScheduleFragment() {
     override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     private var isInitialSetup = true
 

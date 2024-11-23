@@ -11,22 +11,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
-import com.example.mediminder.databinding.FragmentBaseMedicationInfoBinding
+import com.example.mediminder.databinding.FragmentMedicationInfoBinding
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.viewmodels.AppViewModel
 import kotlinx.coroutines.launch
 
-abstract class BaseMedicationInfoFragment: Fragment() {
-    protected lateinit var binding: FragmentBaseMedicationInfoBinding
+open class MedicationInfoFragment: Fragment() {
+    protected lateinit var binding: FragmentMedicationInfoBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentBaseMedicationInfoBinding.inflate(inflater, container, false)
+        binding = FragmentMedicationInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 

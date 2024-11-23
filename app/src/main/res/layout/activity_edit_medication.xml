@@ -44,7 +44,7 @@
                 android:name="com.example.mediminder.fragments.EditMedicationInfoFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_medication_info" />
+                tools:layout="@layout/fragment_medication_info" />
 
             <!-- Medication Dosage -->
             <androidx.fragment.app.FragmentContainerView
@@ -52,7 +52,7 @@
                 android:name="com.example.mediminder.fragments.EditDosageFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_dosage" />
+                tools:layout="@layout/fragment_dosage" />
 
             <!-- Medication Schedule -->
             <androidx.fragment.app.FragmentContainerView
@@ -60,7 +60,7 @@
                 android:name="com.example.mediminder.fragments.EditScheduleFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_schedule" />
+                tools:layout="@layout/fragment_schedule" />
 
             <!-- Medication Reminder -->
             <androidx.fragment.app.FragmentContainerView
@@ -68,7 +68,7 @@
                 android:name="com.example.mediminder.fragments.EditReminderFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_reminder" />
+                tools:layout="@layout/fragment_reminder" />
 
             <!-- Buttons -->
             <Button

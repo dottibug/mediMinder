@@ -9,7 +9,7 @@ import com.example.mediminder.databinding.FragmentDaysIntervalDialogBinding
 
 // Dialog fragment for setting the days interval of a medication schedule
 class DaysIntervalDialogFragment(
-    private val parentFragment: BaseScheduleFragment,
+    private val parentFragment: ScheduleFragment,
     private val editingDaysInterval: Boolean
 ) : DialogFragment() {
     private lateinit var binding: FragmentDaysIntervalDialogBinding

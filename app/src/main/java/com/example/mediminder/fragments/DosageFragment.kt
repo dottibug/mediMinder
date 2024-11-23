@@ -6,21 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.mediminder.databinding.FragmentBaseDosageBinding
+import com.example.mediminder.databinding.FragmentDosageBinding
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.utils.Constants.DOSAGE_DEFAULT_UNIT
 import com.example.mediminder.viewmodels.AppViewModel
 
 // BaseDosageFragment is the base class for all dosage fragments
-abstract class BaseDosageFragment : Fragment() {
-    protected lateinit var binding: FragmentBaseDosageBinding
+open class DosageFragment : Fragment() {
+    protected lateinit var binding: FragmentDosageBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentBaseDosageBinding.inflate(inflater, container, false)
+        binding = FragmentDosageBinding.inflate(inflater, container, false)
         return binding.root
     }
 

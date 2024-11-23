@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 // Fragment for editing a medication's information. Pre-populates the medication fields with the
 // selected medication data
-class EditMedicationInfoFragment : BaseMedicationInfoFragment() {
+class EditMedicationInfoFragment : MedicationInfoFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

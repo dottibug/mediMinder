@@ -13,7 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
-import com.example.mediminder.databinding.FragmentBaseReminderBinding
+import com.example.mediminder.databinding.FragmentReminderBinding
 import com.example.mediminder.utils.AppUtils.createTimePicker
 import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.DAILY
@@ -22,21 +22,19 @@ import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.Constants.X_TIMES_DAILY
 import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.BaseReminderViewModel
-import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
 // Base fragment for adding or editing a medication's reminder settings
-abstract class BaseReminderFragment : Fragment() {
-    protected lateinit var binding: FragmentBaseReminderBinding
-    protected val reminderViewModel: BaseReminderViewModel by activityViewModels()
+open class ReminderFragment : Fragment() {
+    protected lateinit var binding: FragmentReminderBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
-    protected abstract val scheduleViewModel: BaseScheduleViewModel
+    protected val reminderViewModel: BaseReminderViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentBaseReminderBinding.inflate(inflater, container, false)
+        binding = FragmentReminderBinding.inflate(inflater, container, false)
         return binding.root
     }
 

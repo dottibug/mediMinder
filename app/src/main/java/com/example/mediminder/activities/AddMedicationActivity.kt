@@ -27,29 +27,9 @@ class AddMedicationActivity : BaseActivity() {
     }
 
     override fun onStart() {
-        Log.d("ErrorFlow testcat", "AddMedicationActivity - onStart")
-
         super.onStart()
         setupListeners()
     }
-
-    // TEST START
-    override fun onStop() {
-        Log.d("ErrorFlow testcat", "AddMedicationActivity - onStop")
-        super.onStop()
-    }
-
-    override fun onPause() {
-        Log.d("ErrorFlow testcat", "AddMedicationActivity - onPause")
-        super.onPause()
-    }
-
-    override fun onResume() {
-        Log.d("ErrorFlow testcat", "AddMedicationActivity - onResume")
-        super.onResume()
-    }
-
-    // TEST END
 
     // Set up bindings for this activity
     private fun setupActivity() {
@@ -72,7 +52,7 @@ class AddMedicationActivity : BaseActivity() {
     // Update visibility of dosage, reminder, and schedule fragments based on asScheduled value
     private fun setFragmentVisibility(scheduled: Boolean) {
         with (binding) {
-            fragmentAddMedDosage.visibility = if (scheduled) View.VISIBLE else View.GONE
+            fragmentDosage.visibility = if (scheduled) View.VISIBLE else View.GONE
             fragmentAddMedReminder.visibility = if (scheduled) View.VISIBLE else View.GONE
             fragmentAddMedSchedule.visibility = if (scheduled) View.VISIBLE else View.GONE
         }
@@ -93,12 +73,8 @@ class AddMedicationActivity : BaseActivity() {
 
     // Add medication to the database
     private fun handleAddMedication() {
-        Log.d("ErrorFlow testcat", "AddMedicationActivity - handleAddMedication started")
-
         lifecycleScope.launch {
             try {
-                Log.d("ErrorFlow testcat", "AddMedicationActivity - handleAddMedication started")
-
                 val medData = getMedicationData(MedicationAction.ADD)
                 val asScheduled = appViewModel.medication.asScheduled.value
                 val dosageData = if (asScheduled) getDosageData(MedicationAction.ADD) else null
@@ -119,8 +95,6 @@ class AddMedicationActivity : BaseActivity() {
                     }
                 }
             } catch (e: Exception) {
-                Log.d("ErrorFlow testcat", "AddMedicationActivity - Exception caught in handleAddMedication")
-
                 Log.e(TAG, ERR_UNEXPECTED, e)
                 appViewModel.setErrorMessage(e.message ?: ERR_UNEXPECTED)
             }

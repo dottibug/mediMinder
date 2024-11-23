@@ -32,39 +32,37 @@
                 android:text="@string/add_new_medication"
                 style="@style/activity_title" />
 
-            <!-- Loading Spinner -->
-
             <!-- Medication Info -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentAddMedInfo"
-                android:name="com.example.mediminder.fragments.AddMedicationInfoFragment"
+                android:name="com.example.mediminder.fragments.MedicationInfoFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_medication_info" />
+                tools:layout="@layout/fragment_medication_info" />
 
             <!-- Medication Dosage -->
             <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentAddMedDosage"
-                android:name="com.example.mediminder.fragments.AddMedicationDosageFragment"
+                android:id="@+id/fragmentDosage"
+                android:name="com.example.mediminder.fragments.DosageFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_dosage" />
+                tools:layout="@layout/fragment_dosage" />
 
             <!-- Medication Schedule -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentAddMedSchedule"
-                android:name="com.example.mediminder.fragments.AddMedicationScheduleFragment"
+                android:name="com.example.mediminder.fragments.ScheduleFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_schedule" />
+                tools:layout="@layout/fragment_schedule" />
 
             <!-- Medication Reminder -->
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentAddMedReminder"
-                android:name="com.example.mediminder.fragments.AddMedicationReminderFragment"
+                android:name="com.example.mediminder.fragments.ReminderFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_base_reminder" />
+                tools:layout="@layout/fragment_reminder" />
 
             <!-- Buttons -->
             <Button

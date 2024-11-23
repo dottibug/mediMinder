@@ -10,7 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.R
-import com.example.mediminder.databinding.FragmentBaseScheduleBinding
+import com.example.mediminder.databinding.FragmentScheduleBinding
 import com.example.mediminder.utils.AppUtils.createDatePicker
 import com.example.mediminder.utils.AppUtils.daysOfWeekString
 import com.example.mediminder.utils.AppUtils.updateDatePickerButtonText
@@ -26,8 +26,8 @@ import com.example.mediminder.viewmodels.BaseScheduleViewModel
 import kotlinx.coroutines.launch
 
 // Base fragment for adding or editing a medication's schedule
-abstract class BaseScheduleFragment : Fragment() {
-    protected lateinit var binding: FragmentBaseScheduleBinding
+open class ScheduleFragment : Fragment() {
+    protected lateinit var binding: FragmentScheduleBinding
     open val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
     private var prevScheduleWasDaily: Boolean = true
@@ -36,7 +36,7 @@ abstract class BaseScheduleFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        binding = FragmentBaseScheduleBinding.inflate(inflater, container, false)
+        binding = FragmentScheduleBinding.inflate(inflater, container, false)
         return binding.root
     }
 

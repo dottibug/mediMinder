@@ -12,7 +12,7 @@ import java.time.DayOfWeek
 
 // Dialog fragment for selecting the days of the week for a medication schedule
 class DaySelectionDialogFragment(
-    private val parentFragment: BaseScheduleFragment,
+    private val parentFragment: ScheduleFragment,
     private val editingDaySelection: Boolean,
     private val selectedDays: String = EMPTY_STRING
 ) : DialogFragment() {

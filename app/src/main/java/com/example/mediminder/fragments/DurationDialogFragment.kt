@@ -10,7 +10,7 @@ import com.example.mediminder.databinding.FragmentDurationDialogBinding
 
 // Dialog fragment for setting the duration of a medication schedule
 class DurationDialogFragment(
-    private val parentFragment: BaseScheduleFragment,
+    private val parentFragment: ScheduleFragment,
     private val editingNumDays: Boolean
 ) : DialogFragment() {
     private lateinit var binding: FragmentDurationDialogBinding

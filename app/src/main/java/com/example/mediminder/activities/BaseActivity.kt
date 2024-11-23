@@ -16,10 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityBaseBinding
-import com.example.mediminder.fragments.AddMedicationDosageFragment
-import com.example.mediminder.fragments.AddMedicationInfoFragment
-import com.example.mediminder.fragments.EditDosageFragment
-import com.example.mediminder.fragments.EditMedicationInfoFragment
+import com.example.mediminder.fragments.DosageFragment
+import com.example.mediminder.fragments.MedicationInfoFragment
 import com.example.mediminder.models.DosageData
 import com.example.mediminder.models.MedicationAction
 import com.example.mediminder.models.MedicationData
@@ -83,7 +81,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     /**
-     * Observes error messages from the base view model to display to the user.
+     * Observes error messages from the app view model to display to the user as a toast
      */
     private fun setupBaseObservers() {
         lifecycleScope.launch {
@@ -97,38 +95,6 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
     }
-
-//    private fun setupBaseObserversV1() {
-//        Log.d("ErrorFlow testcat", "Setting up base observers")
-//
-//        lifecycleScope.launch {
-//            Log.d("ErrorFlow testcat", "Entering lifecycleScope")
-//                collectErrors()
-////            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//////                collectErrors()
-////            }
-//        }
-//    }
-
-    /**
-     * Collects error message state flow from BaseViewModel. Displays errors to user as a toast.
-     */
-//    private suspend fun collectErrors() {
-//        Log.d("ErrorFlow testcat", "Starting error collection in BaseActivity")
-//
-//        baseViewModel.errorMessage.collect { error ->
-//            Log.d("ErrorFlow testcat", "${this@BaseActivity.javaClass.simpleName} received error: $error")
-//
-//            if (error != null) {
-//                val activityContext = this@BaseActivity
-//                Log.d("ErrorFlow testcat", "Showing toast in activity: ${activityContext.javaClass.simpleName}")
-//
-//
-//                createToast(activityContext, error)
-//                baseViewModel.clearError()
-//            }
-//        }
-//    }
 
     /**
      * Sets up the top app bar that is displayed in all activities
@@ -171,9 +137,9 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun getMedicationData(action: MedicationAction): MedicationData? {
        val medFragment = when (action) {
            MedicationAction.ADD -> supportFragmentManager.findFragmentById(
-               R.id.fragmentAddMedInfo) as AddMedicationInfoFragment?
+               R.id.fragmentAddMedInfo) as MedicationInfoFragment?
            MedicationAction.EDIT -> supportFragmentManager.findFragmentById(
-               R.id.fragmentEditMedInfo) as EditMedicationInfoFragment?
+               R.id.fragmentEditMedInfo) as MedicationInfoFragment?
        }
         return medFragment?.getMedicationData()
     }
@@ -188,9 +154,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
         val dosageFragment = when (action) {
             MedicationAction.ADD -> supportFragmentManager.findFragmentById(
-                R.id.fragmentAddMedDosage) as AddMedicationDosageFragment?
+                R.id.fragmentDosage) as DosageFragment?
             MedicationAction.EDIT -> supportFragmentManager.findFragmentById(
-                R.id.fragmentEditMedDosage) as EditDosageFragment?
+                R.id.fragmentEditMedDosage) as DosageFragment?
         }
         return dosageFragment?.getDosageData()
     }

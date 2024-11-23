@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="36dp"
     android:orientation="vertical"
-    tools:context=".fragments.AddMedicationScheduleFragment">
+    tools:context=".fragments.ScheduleFragment">
 
     <!-- Schedule -->
     <TextView
