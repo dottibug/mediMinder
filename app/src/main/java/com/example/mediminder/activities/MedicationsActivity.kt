@@ -40,7 +40,7 @@ class MedicationsActivity : BaseActivity() {
     // Set up bindings for this activity
     private fun setupActivity() {
         binding = ActivityMedicationsBinding.inflate(layoutInflater)
-        setupBaseBinding(binding, binding.loadingSpinner)
+        setupBaseBinding(binding)
     }
 
     // Sets up observers for the view model

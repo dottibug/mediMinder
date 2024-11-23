@@ -72,7 +72,7 @@ class MainActivity : BaseActivity() {
     // Set up bindings for this activity
     private fun setupActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setupBaseBinding(binding, binding.loadingSpinner)
+        setupBaseBinding(binding)
     }
 
 

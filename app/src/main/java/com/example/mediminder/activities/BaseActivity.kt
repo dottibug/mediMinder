@@ -1,15 +1,19 @@
 package com.example.mediminder.activities
 
 import android.content.Intent
+import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
-import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityBaseBinding
 import com.example.mediminder.fragments.AddMedicationDosageFragment
@@ -17,122 +21,187 @@ import com.example.mediminder.fragments.AddMedicationInfoFragment
 import com.example.mediminder.fragments.EditDosageFragment
 import com.example.mediminder.fragments.EditMedicationInfoFragment
 import com.example.mediminder.models.DosageData
+import com.example.mediminder.models.MedicationAction
 import com.example.mediminder.models.MedicationData
 import com.example.mediminder.utils.AppUtils.createToast
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
+import com.example.mediminder.utils.NavigationHandler
 import com.example.mediminder.viewmodels.BaseMedicationViewModel
 import com.example.mediminder.viewmodels.BaseViewModel
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import kotlinx.coroutines.launch
 
-// Base activity for all activities in the app
-// Sets up the top app bar and navigation drawer
+/**
+ * Base activity for all activities in the app. Sets up the top app bar, navigation drawer, and
+ * handles navigation between activities. This activity also observes error messages from the
+ * BaseViewModel and displays them to the user as a toast.
+ */
 abstract class BaseActivity : AppCompatActivity() {
     private lateinit var baseBinding: ActivityBaseBinding
-    private val drawerLayout get() = baseBinding.drawerLayout
+    private val drawer get() = baseBinding.drawerLayout
     private val navView get() = baseBinding.navView
     private val topAppBar get() = baseBinding.topAppBar
     protected val medicationViewModel: BaseMedicationViewModel by viewModels { BaseMedicationViewModel.Factory }
-    protected val baseViewModel: BaseViewModel by viewModels()
+//    protected val baseViewModel: BaseViewModel by viewModels()
+    protected val baseViewModel: BaseViewModel by viewModels { BaseViewModel.Factory }
 
-    // Set up the error and loading observers
+
+    private lateinit var navHandler: NavigationHandler
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        navHandler = NavigationHandler(this)
+    }
+
+
+    // test start
+    override fun onStart() {
+        super.onStart()
+        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onStart")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("ErrorFlow testcat", "${javaClass.simpleName} onDestroy")
+    }
+
+    // test end
+
+    override fun onResume() {
+        super.onResume()
+        navHandler.setNavigationSelection(navView)  // Update selected navigation item
+    }
+
+    /**
+     * Sets up layout bindings, top app bar, navigation drawer, and error observer.
+     * Call this function in child activities AFTER inflating the child activity layout
+     * (the child is added to the base layout).
+     *
+     * @param viewBinding The view binding for the child activity
+     */
+    protected fun setupBaseBinding(viewBinding: ViewBinding) {
+        Log.d("ErrorFlow testcat", "setupBaseBinding called in BaseActivity")
+        baseBinding = ActivityBaseBinding.inflate(layoutInflater)  // Inflate base activity layout
+        super.setContentView(baseBinding.root)
+        baseBinding.contentContainer.addView(viewBinding.root)  // Add child layout
+        setupWindowInsets(viewBinding.root)
+        setupBaseObservers()
+        setupAppBar()
+        setupNavigationView()
+    }
+
+    /**
+     * Sets up window insets for the given view.
+     * @param rootView The view to set insets for
+     */
+    private fun setupWindowInsets(rootView: View) {
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+
+    // test start
     private fun setupBaseObservers() {
+        Log.d("ErrorFlow testcat", "Setting up base observers in ${javaClass.simpleName}")
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                launch { collectErrors() }
+            Log.d("ErrorFlow testcat", "${javaClass.simpleName} entering lifecycleScope")
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {  // Add this line
+                Log.d("ErrorFlow testcat", "${javaClass.simpleName} starting error collection")
+                baseViewModel.errorMessage.collect { error ->
+                    Log.d("ErrorFlow testcat", "${javaClass.simpleName} received error: $error")
+                    if (error != null) {
+                        createToast(this@BaseActivity, error)
+                        baseViewModel.clearError()
+                    }
+                }
             }
         }
     }
 
-    // Collects changes in the error message state flow
+    // test end
+
+
+
+    /**
+     * Observes error messages from the base view model to display to the user.
+     */
+    private fun setupBaseObserversV1() {
+        Log.d("ErrorFlow testcat", "Setting up base observers")
+
+        lifecycleScope.launch {
+            Log.d("ErrorFlow testcat", "Entering lifecycleScope")
+                collectErrors()
+//            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+////                collectErrors()
+//            }
+        }
+    }
+
+    /**
+     * Collects error message state flow from BaseViewModel. Displays errors to user as a toast.
+     */
     private suspend fun collectErrors() {
+        Log.d("ErrorFlow testcat", "Starting error collection in BaseActivity")
+
         baseViewModel.errorMessage.collect { error ->
+            Log.d("ErrorFlow testcat", "${this@BaseActivity.javaClass.simpleName} received error: $error")
+
             if (error != null) {
-                createToast(this, error)
+                val activityContext = this@BaseActivity
+                Log.d("ErrorFlow testcat", "Showing toast in activity: ${activityContext.javaClass.simpleName}")
+
+
+                createToast(activityContext, error)
                 baseViewModel.clearError()
             }
         }
     }
 
-    // Set up the base activity bindings and inflate the child activity into the base layout
-    // Call this only after inflating the child activity layout
-    // Accepts an optional loading spinner to show while data is loading
-    protected fun setupBaseBinding(
-        binding: ViewBinding,
-        loadingSpinner: CircularProgressIndicator
-    ) {
-        setupBaseLayout()
-        baseBinding.contentContainer.addView(binding.root)
-        setupWindowInsets(binding.root)
-        setupBaseObservers()
-    }
-
-    // Set up the base layout, including the top app bar, navigation drawer, and edge-to-edge display
-    protected fun setupBaseLayout() {
-        enableEdgeToEdge()
-        baseBinding = ActivityBaseBinding.inflate(layoutInflater)
-        super.setContentView(baseBinding.root)
-        setupBaseUI(drawerLayout, navView, topAppBar)
-    }
-
-    protected fun setupBaseUI(drawer: DrawerLayout, navView: NavigationView, topAppBar: MaterialToolbar) {
-        setupAppBar(drawer, topAppBar)
-        setupNavigationView(drawer, navView)
-    }
-
-    // Set up the top app bar
-    private fun setupAppBar(drawer: DrawerLayout, topAppBar: MaterialToolbar) {
+    /**
+     * Sets up the top app bar that is displayed in all activities
+     */
+    private fun setupAppBar() {
         topAppBar.setNavigationOnClickListener { drawer.open() }
+        topAppBar.setOnMenuItemClickListener { menuItem -> startAddMedicationActivity(menuItem) }
+    }
 
-        topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.quickAdd -> {
-                    if (this is AddMedicationActivity) { false }
-                    else {
-                        startActivity(ADD)
-                        true
-                    }
-                }
-                else -> false
+    /**
+     * Start AddMedicationActivity if it is not the current activity
+     */
+    private fun startAddMedicationActivity(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.quickAdd -> {
+                if (this is AddMedicationActivity) { return false }
+                startActivity(Intent(this, AddMedicationActivity::class.java))
+                return true
             }
+            else -> return false
         }
     }
 
-    // Set up the navigation drawer
-    private fun setupNavigationView(drawer: DrawerLayout, navView: NavigationView) {
+    /**
+     * Sets up the navigation drawer for navigation between activities
+     */
+    private fun setupNavigationView() {
         navView.setNavigationItemSelectedListener { menuItem ->
-            handleNavigationItemSelected(menuItem)
+            navHandler.handleNavigationItemSelected(menuItem)
             menuItem.isChecked = true
             drawer.close()
             true
         }
     }
 
-    // Handle navigation item selection
-    private fun handleNavigationItemSelected(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.nav_home -> if (this !is MainActivity) startActivity(HOME)
-            R.id.nav_medications -> if (this !is MedicationsActivity) startActivity(MEDS)
-            R.id.nav_history -> if (this !is HistoryActivity) { startActivity(HISTORY) }
-            R.id.nav_add_medication -> if (this !is AddMedicationActivity) { startActivity(ADD)}
-            R.id.nav_settings -> startActivity(SETTINGS)
-        }
-    }
-
-    // Start activity based on the name
-    private fun startActivity(name: String) {
-        when (name) {
-            HOME -> startActivity(Intent(this, MainActivity::class.java))
-            MEDS -> startActivity(Intent(this, MedicationsActivity::class.java))
-            HISTORY -> startActivity(Intent(this, HistoryActivity::class.java))
-            ADD -> startActivity(Intent(this, AddMedicationActivity::class.java))
-            SETTINGS -> startActivity(Intent(this, SettingsActivity::class.java))
-        }
-    }
-
-    // Get medication data based on the action (add or edit)
+    /**
+     * Get medication data from the relevant fragment based on the action (add or edit).
+     * @param action The action that triggered this function (add or edit)
+     */
     protected fun getMedicationData(action: MedicationAction): MedicationData? {
        val medFragment = when (action) {
            MedicationAction.ADD -> supportFragmentManager.findFragmentById(
@@ -143,7 +212,10 @@ abstract class BaseActivity : AppCompatActivity() {
         return medFragment?.getMedicationData()
     }
 
-    // Get dosage data based on the action (add or edit)
+    /**
+     * Get dosage data from the relevant fragment based on the action (add or edit).
+     * @param action The action that triggered this function (add or edit)
+     */
     protected fun getDosageData(action: MedicationAction): DosageData? {
         // Skip dosage data for as-needed medications
         if (!medicationViewModel.asScheduled.value) return null
@@ -155,19 +227,5 @@ abstract class BaseActivity : AppCompatActivity() {
                 R.id.fragmentEditMedDosage) as EditDosageFragment?
         }
         return dosageFragment?.getDosageData()
-    }
-
-    // Medication action enum
-    protected enum class MedicationAction {
-        ADD,
-        EDIT
-    }
-
-    companion object {
-        private const val HOME = "home"
-        private const val MEDS = "medications"
-        private const val HISTORY = "history"
-        private const val ADD = "add"
-        private const val SETTINGS = "settings"
     }
 }

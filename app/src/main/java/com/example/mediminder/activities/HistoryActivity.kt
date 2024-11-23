@@ -45,7 +45,7 @@ class HistoryActivity : BaseActivity() {
     // Set up bindings and utilities for this activity
     private fun setupActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
-        setupBaseBinding(binding, binding.loadingSpinner)
+        setupBaseBinding(binding)
         dateUtils = HistoryDateUtils(binding, viewModel, supportFragmentManager)
         dropdownUtils = HistoryMedicationDropdownUtils(this, binding, viewModel, resources)
     }

@@ -13,6 +13,7 @@
     <TextView
         android:id="@+id/titleMedStatusDialog"
         style="@style/dialog_title"
+        android:layout_width="0dp"
         android:text="@string/medication_status"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -23,6 +24,7 @@
     <TextView
         android:id="@+id/textViewMedStatusInstructions"
         style="@style/dialog_instructions"
+        android:layout_width="0dp"
         android:text="@string/info_dialog_update_med_status"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -32,7 +34,7 @@
     <!-- Radio Group -->
     <RadioGroup
         android:id="@+id/radioGroupMedStatus"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:checkedButton="@+id/radioButtonTaken"
@@ -72,6 +74,8 @@
     <LinearLayout
         android:id="@+id/layoutMedStatusDialogButtons"
         style="@style/dialog_button_wrapper"
+        android:layout_width="0dp"
+        android:gravity="end"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"

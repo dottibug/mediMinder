@@ -48,7 +48,7 @@ class ViewMedicationActivity(): BaseActivity() {
     // Set up bindings for this activity
     private fun setupActivity() {
         binding = ActivityViewMedicationBinding.inflate(layoutInflater)
-        setupBaseBinding(binding, binding.loadingSpinner)
+        setupBaseBinding(binding)
         setupUI = ViewMedicationSetupUtils(binding, resources)
     }
 

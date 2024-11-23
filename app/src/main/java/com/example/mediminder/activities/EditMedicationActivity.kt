@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
+import com.example.mediminder.models.MedicationAction
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
@@ -42,7 +43,7 @@ class EditMedicationActivity : BaseActivity() {
     // Set up bindings for this activity
     private fun setupActivity() {
         binding = ActivityEditMedicationBinding.inflate(layoutInflater)
-        setupBaseBinding(binding, binding.loadingSpinner)
+        setupBaseBinding(binding)
     }
 
     // Click listeners for buttons

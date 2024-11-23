@@ -13,7 +13,6 @@ import com.example.mediminder.AlarmPermissionManager
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityPermissionBinding
-import com.example.mediminder.utils.AppUtils.setupWindowInsets
 
 class PermissionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPermissionBinding
@@ -41,7 +40,6 @@ class PermissionActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupWindowInsets(binding.root)
         permissionManager = AlarmPermissionManager(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

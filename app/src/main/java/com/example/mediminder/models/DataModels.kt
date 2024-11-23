@@ -15,6 +15,12 @@ import java.time.LocalTime
 
 // DataModels contains data classes and enum classes used throughout the app
 
+// Medication action enum
+enum class MedicationAction {
+    ADD,
+    EDIT
+}
+
 enum class MedicationStatus {
     PENDING,        // Initial state when created
     TAKEN,          // User marked as taken

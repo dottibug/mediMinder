@@ -2,11 +2,9 @@ package com.example.mediminder.utils
 
 import android.app.Activity
 import android.content.Context
-import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.appcompat.app.AppCompatActivity.RESULT_CANCELED
 import com.example.mediminder.R
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.data.local.classes.Schedules
@@ -37,6 +35,11 @@ import java.util.Locale
 
 // Various utility functions used throughout the app
 object AppUtils {
+
+    fun cancelActivity(activity: Activity) {
+        activity.setResult(RESULT_CANCELED)
+        activity.finish()
+    }
 
     // Check if medication ID exists from the intent.
     // Returns the id if it exists; otherwise finishes the activity
@@ -196,15 +199,6 @@ object AppUtils {
     private fun isScheduledForInterval(schedule: Schedules, date: LocalDate): Boolean {
         val daysSinceStart = ChronoUnit.DAYS.between(schedule.startDate, date).toInt()
         return daysSinceStart % (schedule.daysInterval ?: 1) == 0
-    }
-
-    // Set up window insets
-    fun setupWindowInsets(rootView: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
     }
 
     // Create time picker

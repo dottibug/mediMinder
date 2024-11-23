@@ -57,9 +57,6 @@ class BaseMedicationViewModel(
     private val applicationContext: Context
 ) : BaseViewModel() {
 
-    private val _isAdding = MutableStateFlow(false)
-    val isAdding: StateFlow<Boolean> = _isAdding.asStateFlow()
-
     private val _currentMedication = MutableStateFlow<MedicationWithDetails?>(null)
     val currentMedication: StateFlow<MedicationWithDetails?> = _currentMedication.asStateFlow()
 
@@ -153,8 +150,6 @@ class BaseMedicationViewModel(
         scheduleData: ScheduleData?
     ): Boolean {
         return try {
-            _isAdding.value = true
-
             // Validate medication data
             val updatedMedicationData = medicationData.copy(asNeeded = !_asScheduled.value)
 
@@ -178,6 +173,9 @@ class BaseMedicationViewModel(
             true
         } catch (e: IllegalArgumentException) {
             // Catch validation errors
+            Log.d("ErrorFlow testcat", "Setting error for empty name")
+
+            Log.e(TAG, ERR_ADDING_MED_USER, e)
             setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {

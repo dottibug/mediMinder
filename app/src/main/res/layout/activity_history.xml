@@ -114,17 +114,6 @@
         tools:visibility="gone" />
 
     <!-- Loading Spinner -->
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loadingSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:indicatorSize="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- History List -->
     <androidx.recyclerview.widget.RecyclerView

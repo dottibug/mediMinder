@@ -37,16 +37,6 @@
                 android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
             <!-- Loading Spinner -->
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/loadingSpinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="72dp"
-                android:indeterminate="true"
-                android:visibility="gone"
-                app:indicatorSize="72dp"
-                tools:visibility="visible" />
 
             <!-- Medication Info -->
             <androidx.fragment.app.FragmentContainerView

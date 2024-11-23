@@ -21,19 +21,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/loadingSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:indicatorSize="72dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/medicationTitle"
-        tools:visibility="visible" />
-
     <LinearLayout
         android:id="@+id/layoutMedSummary"
         android:layout_width="0dp"
