@@ -5,6 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.example.mediminder.R
 
+/**
+ * Settings activity for the application. Uses AndroidX Preference to display settings.
+ * Settings are stored in SharedPreferences and can be accessed throughout the app
+ * Settings include:
+ * - Show/hide medication name in notifications
+ * - Show/hide medication dosage in notifications
+ * - Grace period to mark medication as missed
+ */
 class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

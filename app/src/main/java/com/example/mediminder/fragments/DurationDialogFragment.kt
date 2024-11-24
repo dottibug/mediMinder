@@ -8,7 +8,9 @@ import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDurationDialogBinding
 
 
-// Dialog fragment for setting the duration of a medication schedule
+/**
+ * Dialog fragment for setting the duration of a medication schedule.
+ */
 class DurationDialogFragment(
     private val parentFragment: ScheduleFragment,
     private val editingNumDays: Boolean

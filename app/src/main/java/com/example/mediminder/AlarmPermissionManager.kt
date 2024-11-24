@@ -4,7 +4,9 @@ import android.app.AlarmManager
 import android.content.Context
 import android.os.Build
 
-// Helper class to check if exact alarm permission has been granted
+/**
+ * This class is used to check if the user has granted the exact alarm permission.
+ */
 class AlarmPermissionManager(private val context: Context) {
     fun hasAlarmPermission(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

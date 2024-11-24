@@ -6,12 +6,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneOffset
 
-// Room does not persist DATETIME data types, so we need to define type converters
-// https://developer.android.com/training/data-storage/room/referencing-data
+/**
+ * Converters for Room database. Room does not persist DATETIME data types, so we need to define type converters
+ * https://developer.android.com/training/data-storage/room/referencing-data
+ */
 class Converters {
-    // -------------------------------------------------------------
-    // Converters for LocalDate
-    // -------------------------------------------------------------
+    // ------ Converters for LocalDate ------
     @TypeConverter
     fun fromLongToLocalDate(dbValue: Long?): LocalDate? {
         return dbValue?.let { LocalDate.ofEpochDay(it) }
@@ -22,9 +22,7 @@ class Converters {
         return localDate?.toEpochDay()
     }
 
-    // -------------------------------------------------------------
-    // Converters for LocalTime
-    // -------------------------------------------------------------
+    // ------ Converters for LocalTime ------
     @TypeConverter
     fun fromStringToLocalTime(dbValue: String?): LocalTime? {
         return dbValue?.let { LocalTime.parse(it) }
@@ -35,9 +33,7 @@ class Converters {
         return localTime?.toString()
     }
 
-    // ----------------------------------------------------------------------
-    // Converters for LocalDateTime (epochSecond: seconds since epoch)
-    // ----------------------------------------------------------------------
+    // ------ Converters for LocalDateTime (epochSecond: seconds since epoch) ------
     @TypeConverter
     fun fromLongToLocalDateTime(dbValue: Long?): LocalDateTime? {
         return dbValue?.let { LocalDateTime.ofEpochSecond(it, 0, ZoneOffset.UTC) }
@@ -48,9 +44,7 @@ class Converters {
         return localDateTime?.toEpochSecond(ZoneOffset.UTC)
     }
 
-    // ----------------------------------------------------------------------
-    // Converters for LocalTime List
-    // ----------------------------------------------------------------------
+    // ------ Converters for LocalTime List ------
     @TypeConverter
     fun fromStringToLocalTimeList(value: String?): List<LocalTime> {
         if (value.isNullOrEmpty()) return emptyList()

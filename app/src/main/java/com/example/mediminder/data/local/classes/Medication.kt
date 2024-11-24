@@ -5,8 +5,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.mediminder.models.MedicationIcon
 
-// Represents a medication entity (row) in the database medications table
-// https://developer.android.com/training/data-storage/room/defining-data
+/**
+ * Represents a medication row in the medications table.
+ */
 @Entity(tableName = "medications")
 data class Medication (
     @PrimaryKey (autoGenerate = true) val id: Long = 0,

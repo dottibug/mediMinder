@@ -5,7 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-// Represents a dosage row in the dosages table (associated with a medication)
+/**
+ * Represents a dosage row in the dosages table (associated with a medication).
+ */
 @Entity(tableName = "dosages",
     foreignKeys = [ForeignKey(
             entity = Medication::class,

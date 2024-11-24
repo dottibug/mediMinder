@@ -10,7 +10,9 @@ import com.example.mediminder.utils.AppUtils.getDayNames
 import com.example.mediminder.utils.Constants.EMPTY_STRING
 import java.time.DayOfWeek
 
-// Dialog fragment for selecting the days of the week for a medication schedule
+/**
+ * Dialog fragment for selecting the days of the week for a medication schedule.
+ */
 class DaySelectionDialogFragment(
     private val parentFragment: ScheduleFragment,
     private val editingDaySelection: Boolean,

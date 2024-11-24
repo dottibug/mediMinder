@@ -7,6 +7,9 @@ import com.example.mediminder.utils.Constants.EMPTY_STRING
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
 
+/**
+ * Schedule state class for holding schedule details
+ */
 class ScheduleState {
     val isScheduled: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(null)

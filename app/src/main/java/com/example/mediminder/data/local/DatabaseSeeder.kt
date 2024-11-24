@@ -25,7 +25,6 @@ import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.Constants.CONTINUOUS
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
-import com.example.mediminder.utils.Constants.ERR_CLEARING_DB
 import com.example.mediminder.utils.Constants.ERR_SEEDING_DB
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.INTERVAL
@@ -40,8 +39,9 @@ import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
-// This class is for "seeding" the database with initial data for testing,
-// development, and demo purposes
+/**
+ * Class for seeding the database with initial data for testing, development, and demo purposes.
+ */
 class DatabaseSeeder(
     private val applicationContext: Context,
     private val medicationDao: MedicationDao,
@@ -390,27 +390,6 @@ class DatabaseSeeder(
             }
             random < 0.95 -> Pair(MedicationStatus.MISSED, null)
             else -> Pair(MedicationStatus.SKIPPED, null)
-        }
-    }
-
-    suspend fun clearDatabase() {
-        try {
-            medicationDao.deleteAll()
-            dosageDao.deleteAll()
-            medRemindersDao.deleteAll()
-            scheduleDao.deleteAll()
-            medicationLogDao.deleteAll()
-
-            medicationDao.resetSequence()
-            dosageDao.resetSequence()
-            medRemindersDao.resetSequence()
-            scheduleDao.resetSequence()
-            medicationLogDao.resetSequence()
-
-            return
-        } catch (e: Exception) {
-            Log.e(TAG, ERR_CLEARING_DB, e)
-            throw e
         }
     }
 

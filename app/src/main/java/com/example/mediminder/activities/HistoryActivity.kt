@@ -19,10 +19,11 @@ import com.example.mediminder.utils.HistoryMedicationDropdownUtils
 import com.example.mediminder.viewmodels.HistoryViewModel
 import kotlinx.coroutines.launch
 
-// This activity displays a list of medication history for a specific month.
-// Users can view all medications taken that month, or filter for a specific medication.
-// Users can also select which month to view history for, via the next/prev date controls or the
-// date picker dialog.
+/**
+ * Activity to display a list of medication history for a specific month. Users can view all
+ * medications taken that month, or filter for a specific medication. Users can also select which
+ * month to view history fo, via the next/prev date controls or the date picker dialog.
+ */
 class HistoryActivity : BaseActivity() {
     private val historyViewModel: HistoryViewModel by viewModels { HistoryViewModel.Factory }
     private lateinit var binding: ActivityHistoryBinding
@@ -46,7 +47,10 @@ class HistoryActivity : BaseActivity() {
         fetchMedicationsList()
     }
 
-    // Set up bindings and utilities for this activity
+    /**
+     * Set up activity bindings and BaseActivity components
+     * (top app bar, navigation drawer, error observer)
+     */
     private fun setupActivity() {
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setupBaseBinding(binding)
@@ -54,13 +58,18 @@ class HistoryActivity : BaseActivity() {
         dropdownUtils = HistoryMedicationDropdownUtils(this, binding, historyViewModel, resources)
     }
 
+    /**
+     * Set up UI components, including medication dropdown, date controls, and recycler view
+     */
     private fun setupUI() {
         dropdownUtils.setupMedicationDropdown()
         dateUtils.setupDateControls()
         setupRecyclerView()
     }
 
-    // Set up the RecyclerView for the medication history list
+    /**
+     * RecyclerView for the medication history list
+     */
     private fun setupRecyclerView() {
         historyAdapter = HistoryAdapter()
         binding.historyList.apply {
@@ -69,7 +78,9 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    // Set up observers to update the UI when state flow changes
+    /**
+     * Set up state flow observers to update UI when medication or month changes
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -79,12 +90,16 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    // Collect the selected medication ID from the view model and refresh the medication history
+    /**
+     * Collect the selected medication ID from the view model and refresh the medication history
+     */
     private suspend fun collectSelectedMedication() {
         historyViewModel.selectedMedicationId.collect { refreshMedicationHistory(it) }
     }
 
-    // Collect the selected month from view model and refresh the medication history
+    /**
+     * Collect the selected month from the view model and refresh the medication history
+     */
     private suspend fun collectSelectedMonth() {
         historyViewModel.selectedMonth.collect { month ->
             refreshMedicationHistory(historyViewModel.selectedMedicationId.value)
@@ -92,7 +107,10 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    // Refresh the medication history based on the selected medication and month
+    /**
+     * Refresh the medication history based on the selected medication and month
+     * @param medicationId The ID of the selected medication (or null)
+     */
     private suspend fun refreshMedicationHistory(medicationId: Long?) {
         lifecycleScope.launch {
             try {
@@ -109,17 +127,9 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-    private fun hideHistoryList() {
-        binding.historyList.visibility = View.GONE
-        binding.noDataMessage.visibility = View.VISIBLE
-    }
-
-    private fun showHistoryList(dayLogs: List<DayLogs>) {
-        binding.historyList.visibility = View.VISIBLE
-        binding.noDataMessage.visibility = if (dayLogs.all { it.logs.isEmpty() }) View.VISIBLE else View.GONE
-    }
-
-    // Fetch list of medications for the dropdown menu
+    /**
+     * Fetch a list of medications from the database and update the medication dropdown
+     */
     private fun fetchMedicationsList() {
         lifecycleScope.launch {
             try {
@@ -132,6 +142,19 @@ class HistoryActivity : BaseActivity() {
                 appViewModel.setErrorMessage(ERR_FETCHING_MEDS)
             }
         }
+    }
+
+    /**
+     * Helper functions to toggle the visibility of the history list and no data message
+     */
+    private fun hideHistoryList() {
+        binding.historyList.visibility = View.GONE
+        binding.noDataMessage.visibility = View.VISIBLE
+    }
+
+    private fun showHistoryList(dayLogs: List<DayLogs>) {
+        binding.historyList.visibility = View.VISIBLE
+        binding.noDataMessage.visibility = if (dayLogs.all { it.logs.isEmpty() }) View.VISIBLE else View.GONE
     }
 
     companion object {

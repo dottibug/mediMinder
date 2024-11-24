@@ -21,9 +21,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// Broadcast receiver for actions (take or skip) in response to medication notifications
-// Updates medication status depending on the user action.
-// Cancels the notification after an action is taken or the notification is dismissed by the user.
+/**
+ * Broadcast receiver for actions (take or skip) in response to medication notifications
+ * Updates medication status depending on the user action.
+ * Cancels the notification after an action is taken or the notification is dismissed by the user.
+ */
 class MedicationActionReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val logId = intent.getLongExtra(LOG_ID, -1L)

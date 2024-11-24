@@ -10,8 +10,10 @@ import com.example.mediminder.utils.Constants.MIDNIGHT_SCHEDULER
 import com.example.mediminder.utils.Constants.SCHEDULE_DAILY_MEDICATIONS
 import java.util.Calendar
 
-// https://developer.android.com/training/scheduling/alarms
-// This service class schedules medication notifications for the next day. It runs every day at midnight.
+/**
+ * Service class for scheduling medication notifications for the next day.
+ * https://developer.android.com/training/scheduling/alarms
+ */
 class MidnightMedicationScheduler(private val context: Context) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 

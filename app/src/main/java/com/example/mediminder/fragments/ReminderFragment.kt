@@ -21,14 +21,16 @@ import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.TIME_PICKER_TAG
 import com.example.mediminder.utils.Constants.X_TIMES_DAILY
 import com.example.mediminder.viewmodels.AppViewModel
-import com.example.mediminder.viewmodels.BaseReminderViewModel
+import com.example.mediminder.viewmodels.ReminderViewModel
 import kotlinx.coroutines.launch
 
-// Base fragment for adding or editing a medication's reminder settings
+/**
+ * Base fragment for adding or editing a medication's reminder settings.
+ */
 open class ReminderFragment : Fragment() {
     protected lateinit var binding: FragmentReminderBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
-    protected val reminderViewModel: BaseReminderViewModel by activityViewModels()
+    protected val reminderViewModel: ReminderViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -68,7 +70,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Reset hourly frequency buttons to default values
+    /**
+     * Reset the hourly frequency buttons to their default values
+     */
     private fun resetDailyFrequencyButtonText() {
         with (binding) {
             buttonHourlyRemindEvery.text = resources.getString(R.string.hourly_30)
@@ -77,7 +81,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Collect state flow from reminder view model when the fragment is in the STARTED state
+    /**
+     * Collect state flow from reminder view model when the fragment is in the STARTED state
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -90,7 +96,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Collect reminder frequency from reminder view model
+    /**
+     * Collect reminder frequency from reminder view model
+     */
     private suspend fun collectReminderFrequency() {
         reminderViewModel.reminderFrequency.collect { frequency ->
             showFrequencyOptions(frequency ?: EVERY_X_HOURS)
@@ -99,28 +107,36 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Collect hourly reminder interval from reminder view model
+    /**
+     * Collect hourly reminder interval from reminder view model
+     */
     private suspend fun collectHourlyReminderInterval() {
         reminderViewModel.hourlyReminderInterval.collect { interval ->
             appViewModel.reminder.setHourlyReminderInterval(interval)
         }
     }
 
-    // Collect hourly reminder start time from reminder view model
+    /**
+     * Collect hourly reminder start time from reminder view model
+     */
     private suspend fun collectHourlyReminderStartTime() {
         reminderViewModel.hourlyReminderStartTime.collect { startTime ->
             appViewModel.reminder.setHourlyReminderStartTime(startTime)
         }
     }
 
-    // Collect hourly reminder end time from reminder view model
+    /**
+     * Collect hourly reminder end time from reminder view model
+     */
     private suspend fun collectHourlyReminderEndTime() {
         reminderViewModel.hourlyReminderEndTime.collect { endTime ->
             appViewModel.reminder.setHourlyReminderEndTime(endTime)
         }
     }
 
-    // Collect daily reminder times from reminder view model
+    /**
+     * Collect daily reminder times from reminder view model
+     */
     private suspend fun collectDailyReminderTimes() {
         reminderViewModel.dailyReminderTimes.collect { times ->
             updateDailyTimePickers(times)
@@ -128,10 +144,14 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Add a new time picker button to the list of daily reminder times (defaults to 12:00 PM)
+    /**
+     * Add a new time picker button to the list of daily reminder times (defaults to 12:00 PM)
+     */
     private fun addDailyTimePicker() { reminderViewModel.addDailyReminderTime(12, 0) }
 
-    // Update the time picker buttons in the list of daily reminder times
+    /**
+     * Update the time picker buttons in the list of daily reminder times
+     */
     private fun updateDailyTimePickers(times: List<Pair<Int, Int>>) {
         binding.dailyTimePickersContainer.removeAllViews()
 
@@ -153,7 +173,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Show the relevant frequency options based on the selected frequency
+    /**
+     * Show the relevant frequency options based on the selected frequency
+     */
     private fun showFrequencyOptions(frequency: String) {
         with (binding) {
             hourlyReminderOptions.visibility = if (frequency == EVERY_X_HOURS) View.VISIBLE else View.GONE
@@ -165,8 +187,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Show hourly reminder popup menu
-    // https://github.com/material-components/material-components-android/blob/master/docs/components/Menu.md
+    /**
+     * Show the hourly reminder popup menu
+     */
     private fun showHourlyReminderPopupMenu() {
         val popup = PopupMenu(requireContext(), binding.buttonHourlyRemindEvery)
         popup.menuInflater.inflate(R.menu.hourly_reminder_popup_menu, popup.menu)
@@ -181,11 +204,12 @@ open class ReminderFragment : Fragment() {
         popup.show()
     }
 
-    // https://github.com/material-components/material-components-android/blob/master/docs/components/TimePicker.md
-    // Note: hour is 0 to 23 regardless of which time format you choose for the time picker
-    // Shows a time picker dialog to the user
-    // If the reminderType is "daily" and the index is -1, then a new time picker button will be
-    // added. If the index is >= 0, then the time picker button at that index will be updated
+    /**
+     * Show the time picker dialog to the user
+     * Note: hour is 0 to 23 regardless of which time format you choose for the time picker
+     * If the reminderType is "daily" and the index is -1, then a new time picker button will be
+     * added. If the index is >= 0, then the time picker button at that index will be updated
+     */
     private fun showTimePickerDialog(reminderType: String, index: Int = -1, isEndTime: Boolean = false) {
         val titleText = if (isEndTime) SELECT_END_TIME else SELECT_START_TIME
         val timePicker = createTimePicker(titleText)
@@ -203,7 +227,9 @@ open class ReminderFragment : Fragment() {
         timePicker.show(parentFragmentManager, TIME_PICKER_TAG)
     }
 
-    // Update the reminder times in the view model based on the selected time
+    /**
+     * Update the reminder times in the view model based on the selected time
+     */
     private fun setReminderTimes(isEndTime: Boolean, hour: Int, minute: Int) {
         if (isEndTime) {
             updateTimePickerButtonText(hour, minute, binding.buttonReminderEndTime)
@@ -214,7 +240,9 @@ open class ReminderFragment : Fragment() {
         }
     }
 
-    // Update the daily reminder times in the view model based on the selected time
+    /**
+     * Update the daily reminder times in the view model based on the selected time
+     */
     private fun setDailyReminderTimes(index: Int, hour: Int, minute: Int) {
         if (index >= 0) { reminderViewModel.updateDailyReminderTime(index, hour, minute) }
         else { reminderViewModel.addDailyReminderTime(hour, minute) }

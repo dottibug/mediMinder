@@ -7,8 +7,9 @@ import androidx.room.PrimaryKey
 import com.example.mediminder.models.MedicationStatus
 import java.time.LocalDateTime
 
-
-// Represents a medication log row in the medication_logs table (associated with a medication and schedule)
+/**
+ * Represents a medication log row in the medication_logs table (associated with a medication and schedule).
+ */
 @Entity(tableName = "medication_logs",
     foreignKeys = [
         ForeignKey(

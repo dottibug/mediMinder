@@ -13,7 +13,9 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// This object contains helper functions for formatting strings
+/**
+ * Object class with helper functions for formatting strings
+ */
 object StringUtils {
     // Helper function to format daily reminders into a string
     fun getDailyReminderString(remindersList: List<LocalTime>): String {

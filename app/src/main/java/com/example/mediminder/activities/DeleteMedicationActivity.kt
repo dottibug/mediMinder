@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityDeleteMedicationBinding
+import com.example.mediminder.utils.AppUtils.cancelActivity
 import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.ERR_DELETING_MED
 import com.example.mediminder.utils.Constants.ERR_DELETING_MED_USER
@@ -20,7 +21,10 @@ import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.viewmodels.DeleteMedicationViewModel
 import kotlinx.coroutines.launch
 
-// Activity to delete a medication from the database
+/**
+ * Activity to delete a medication from the database. Shows a confirmation dialog before deleting,
+ * deletes medication, and gives navigation option after deletion (MainActivity or MedicationsActivity).
+ */
 class DeleteMedicationActivity : BaseActivity() {
     private val deleteViewModel: DeleteMedicationViewModel by viewModels { DeleteMedicationViewModel.Factory }
     private lateinit var binding: ActivityDeleteMedicationBinding
@@ -32,30 +36,24 @@ class DeleteMedicationActivity : BaseActivity() {
         medicationId = getMedicationId(this) ?: return
         setupActivity()
         setupObservers()
-
-        // Handle back press
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (medicationDeleted) { navigateToMain() }
-                else { finish() }
-            }
-        })
+        setupBackNavigation()
     }
 
-    // Set up listeners and observers before data is fetched
     override fun onStart() {
         super.onStart()
         setupUI()
         setupListeners()
     }
 
-    // Fetch medication data when the activity is resumed
     override fun onResume() {
         super.onResume()
         fetchMedicationData()
     }
 
-    // Set up bindings for this activity
+    /**
+     * Setup activity binding and BaseActivity components
+     * (top app bar, navigation drawer, error observer)
+     */
     private fun setupActivity() {
         binding = ActivityDeleteMedicationBinding.inflate(layoutInflater)
         setupBaseBinding(binding)
@@ -66,23 +64,18 @@ class DeleteMedicationActivity : BaseActivity() {
         binding.deleteMedicationMessage.text = resources.getString(R.string.msg_delete_medication, medicationName)
     }
 
-    // Click listeners
     private fun setupListeners() {
         with (binding) {
             buttonConfirmDeleteMed.setOnClickListener { deleteMedication() }
-            buttonCancelDeleteMed.setOnClickListener { cancelActivity() }
+            buttonCancelDeleteMed.setOnClickListener { cancelActivity(this@DeleteMedicationActivity) }
             buttonGoToMain.setOnClickListener { navigateToMain() }
             buttonGoToMedications.setOnClickListener { navigateToMedications() }
         }
     }
 
-    // Cancel the activity
-    private fun cancelActivity() {
-        setResult(RESULT_CANCELED)
-        finish()
-    }
-
-    // Set up observers to update the UI when state flow changes
+    /**
+     * Set up state flow observers to update UI
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -93,7 +86,9 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Collect medication name from the view model
+    /**
+     * Update deletion confirmation message when medication name is collected
+     */
     private suspend fun collectMedicationName() {
         appViewModel.medication.name.collect { name ->
             val message = resources.getString(R.string.msg_delete_medication, name)
@@ -101,7 +96,9 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Collect current medication state
+    /**
+     * Show/hide the confirmation UI based on the current medication state
+     */
     private suspend fun collectCurrentMedication() {
         appViewModel.medication.current.collect { med ->
             if (med == null) { toggleConfirmContentVisibility(HIDE) }
@@ -109,7 +106,9 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Collect isDeleting state
+    /**
+     * Show/hide the success UI based on the isDeleting state
+     */
     private suspend fun collectIsDeleting() {
         deleteViewModel.isDeleting.collect { isDeleting ->
             if (isDeleting) toggleSuccessContentVisibility(HIDE)
@@ -117,7 +116,10 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Toggle the visibility of the confirmation layout and edit/delete buttons based on the action
+    /**
+     * Helper functions to toggle the visibility of the confirmation and success layouts
+     * @param action The action to perform (SHOW or HIDE)
+     */
     private fun toggleConfirmContentVisibility(action: String) {
         with (binding) {
             deleteMedicationMessage.visibility = if (action == HIDE) View.GONE else View.VISIBLE
@@ -126,7 +128,6 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Toggle the visibility of the success layout based on the action
     private fun toggleSuccessContentVisibility(action: String) {
         with (binding) {
             successDeleteMedMessage.visibility = if (action == HIDE) View.GONE else View.VISIBLE
@@ -135,17 +136,29 @@ class DeleteMedicationActivity : BaseActivity() {
         }
     }
 
-    // Fetch medication data (no need to catch errors here, as they are handled in the view model
-    // and the error observer for this activity will handle showing the error message)
-    private fun fetchMedicationData() {
-        lifecycleScope.launch {
-            appViewModel.fetchMedicationDetails(medicationId)
-        }
+    /**
+     * Sets up navigation behaviour based on medicationDelete state. If medication was deleted,
+     * navigate to MainActivity on back press. Otherwise, finish the activity.
+     */
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (medicationDeleted) { navigateToMain() } else { finish() }
+            }
+        })
     }
 
-    // Navigate to MainActivity
-    // This will not launch a new instance; all other activities will be closed and the old instance
-    // will be resumed with a new intent
+     /**
+     * Fetch medication data from the database (errors are handled in AppViewModel)
+     */
+    private fun fetchMedicationData() {
+        lifecycleScope.launch { appViewModel.fetchMedicationDetails(medicationId) }
+    }
+
+    /**
+     * Navigation helper functions to navigate to MainActivity or MedicationsActivity
+     * Flags are set to prevent multiple instances of the same activity in the back stack
+     */
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -153,9 +166,6 @@ class DeleteMedicationActivity : BaseActivity() {
         finish()
     }
 
-    // Navigate to MedicationsActivity
-    // This will not launch a new instance; all other activities will be closed and the old instance
-    // of MedicationsActivity will be resumed with a new intent
     private fun navigateToMedications() {
         val intent = Intent(this, MedicationsActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -163,7 +173,13 @@ class DeleteMedicationActivity : BaseActivity() {
         finish()
     }
 
-    // Delete medication from the database (cascades to all related entities)
+    /**
+     * Delete medication from the database. Handles both scheduled and as-needed medications.
+     * - Gets medication ID
+     * - Deletes medication from the database
+     * - Updates UI on success
+     * - Shows errors via the error observer in BaseActivity
+     */
     private fun deleteMedication() {
         lifecycleScope.launch {
             try {

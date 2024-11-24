@@ -15,7 +15,13 @@ import com.example.mediminder.utils.AppUtils.formatLocalTimeTo12Hour
 import com.example.mediminder.utils.AppUtils.getStatusIcon
 import com.example.mediminder.utils.Constants.DOSAGE_DEFAULT_UNIT
 
-// Medication adapter for MainActivity. Displays a list of medications to be taken for a given date.
+/**
+ * Medication adapter for MainActivity. Displays a list of medications to be taken for a given date.
+ * Users can update the status of scheduled medications to taken, skipped, or missed. Users can also
+ * delete as-needed medications.
+ * @param onUpdateStatusClick Callback for clicking the update status button
+ * @param onDeleteAsNeededClick Callback for clicking the delete as-needed button
+ */
 class MainMedicationAdapter(
     private val onUpdateStatusClick: (Long) -> Unit,
     private val onDeleteAsNeededClick: (Long) -> Unit
@@ -31,6 +37,12 @@ class MainMedicationAdapter(
         holder.bind(currentItem)
     }
 
+    /**
+     * ViewHolder for medication items
+     * @param binding Binding for the medication item layout
+     * @param onUpdateStatusClick Callback for clicking the update status button
+     * @param onDeleteAsNeededClick Callback for clicking the delete as-needed button
+     */
     class MedicationViewHolder(
         private val binding: ItemScheduledMedicationBinding,
         private val onUpdateStatusClick: (Long) -> Unit,
@@ -56,6 +68,11 @@ class MainMedicationAdapter(
             setupButtons(item)
         }
 
+        /**
+         * Gets the dosage string for the medication
+         * @param dosage Dosage of the medication
+         * @return Dosage string
+         */
         private fun getDosageString(dosage: Dosage?): String {
             if (dosage == null) return DOSAGE_NOT_SET
             if (dosage.amount === null) return DOSAGE_NOT_SET
@@ -64,6 +81,10 @@ class MainMedicationAdapter(
             return "$amount $units"
         }
 
+        /**
+         * Gets the color of the status icon based on the medication status
+         * @param status Medication status
+         */
         private fun getStatusIconTintColor(status: MedicationStatus): Int {
             return when (status) {
                 MedicationStatus.MISSED -> R.color.red
@@ -71,11 +92,19 @@ class MainMedicationAdapter(
             }
         }
 
+        /**
+         * Sets up the buttons based on the medication type
+         * As-needed: Show delete button
+         * Scheduled: Show update button
+         */
         private fun setupButtons(item: MedicationItem) {
             if (item.medication.asNeeded) { setupDeleteButton(item) }
             else { setupUpdateButton(item) }
         }
 
+        /**
+         * Sets up the delete button for as-needed medications
+         */
         private fun setupDeleteButton(item: MedicationItem) {
             updateButton.visibility = View.GONE
             deleteButton.apply {
@@ -84,6 +113,9 @@ class MainMedicationAdapter(
             }
         }
 
+        /**
+         * Sets up the update button for scheduled medications
+         */
         private fun setupUpdateButton(item: MedicationItem) {
             deleteButton.visibility = View.GONE
             updateButton.apply {

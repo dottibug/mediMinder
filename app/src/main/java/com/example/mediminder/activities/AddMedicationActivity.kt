@@ -15,7 +15,11 @@ import com.example.mediminder.utils.Constants.ADD_AS_NEEDED
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
 import kotlinx.coroutines.launch
 
-// Activity to add a new medication
+/**
+ * Activity for adding a new medication to the database. Handles both scheduled and as-needed
+ * medications, collecting the relevant date from the MedicationInfo, Dosage, Schedule, and Reminder
+ * fragments.
+ */
 class AddMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityAddMedicationBinding
 
@@ -31,25 +35,34 @@ class AddMedicationActivity : BaseActivity() {
         setupListeners()
     }
 
-    // Set up bindings for this activity
+    /**
+     * Set up activity bindings and BaseActivity components
+     * (top app bar, navigation drawer, error observer)
+     */
     private fun setupActivity() {
         binding = ActivityAddMedicationBinding.inflate(layoutInflater)
         setupBaseBinding(binding)
     }
 
-    // Observe changes in state flow that are used to update UI
+    /**
+     * Sets up state flow observers to update UI based on medication type (scheduled vs as-needed)
+     * Dynamically shows/hides dosage, reminder, and schedule fragments based on asScheduled value
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { collectAsScheduled() }
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                appViewModel.medication.asScheduled.collect {
+                    scheduled -> setFragmentVisibility(scheduled)
+                }
+            }
         }
     }
 
-    // Collect asScheduled state to show/hide dosage, reminder, and schedule fragments
-    private suspend fun collectAsScheduled() {
-        appViewModel.medication.asScheduled.collect { scheduled -> setFragmentVisibility(scheduled) }
-    }
-
-    // Update visibility of dosage, reminder, and schedule fragments based on asScheduled value
+    /**
+     * Update fragment visibility based on medication type (scheduled vs as-needed)
+     * As-needed medications hide the dosage, reminder, and schedule fragments
+     * @param scheduled Whether the medication is scheduled or not
+     */
     private fun setFragmentVisibility(scheduled: Boolean) {
         with (binding) {
             fragmentDosage.visibility = if (scheduled) View.VISIBLE else View.GONE
@@ -58,20 +71,31 @@ class AddMedicationActivity : BaseActivity() {
         }
     }
 
-    // Set asScheduled in the view model based on the value of the ADD_AS_NEEDED flag
+    /**
+     * Check if the ADD_AS_NEEDED flag is set in the intent. If it is, set asScheduled to false
+     */
     private fun getAsNeededIntent() {
         if (intent.getBooleanExtra(ADD_AS_NEEDED, false)) {
             appViewModel.setAsScheduled(false)
         }
     }
 
-    // Click listeners
+    /**
+     * Click listeners for the add medication and cancel buttons
+     */
     private fun setupListeners() {
         binding.buttonAddMed.setOnClickListener { handleAddMedication() }
         binding.buttonCancelAddMed.setOnClickListener { cancelActivity(this) }
     }
 
-    // Add medication to the database
+    /**
+     * Add medication to the database. Handles both scheduled and as-needed medications.
+     * - Collects data from the relevant fragments
+     * - Validates data
+     * - Saves medication to the database if valid
+     * - Creates workers to set up reminders
+     * - Shows errors and success messages
+     */
     private fun handleAddMedication() {
         lifecycleScope.launch {
             try {
@@ -81,8 +105,6 @@ class AddMedicationActivity : BaseActivity() {
                 val reminderData = if (asScheduled) appViewModel.reminder.getReminders() else null
                 val scheduleData = if (asScheduled) appViewModel.schedule.getSchedule() else null
 
-                // Add medication if med data is not null (dosage data can be null if it is
-                // an as-needed medication)
                 if (medData != null && (dosageData != null || !asScheduled)) {
 
                     val success = appViewModel.saveMedication(ADD, medData, dosageData,

@@ -15,7 +15,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// ViewModel for the MedicationsActivity. Fetches medications from the repository for the activity to display.
+/**
+ * ViewModel for the MedicationsActivity. Fetches medications from the repository for the
+ * activity to display.
+ */
 class MedicationsViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<MedicationWithDetails>>(emptyList())

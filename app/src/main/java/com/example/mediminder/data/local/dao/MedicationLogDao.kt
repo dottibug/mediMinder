@@ -9,9 +9,9 @@ import com.example.mediminder.models.MedicationStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-// Abstraction layer for the medication_logs table in the database
-// https://developer.android.com/training/data-storage/room/accessing-data
-
+/**
+ * Data Access Object (DAO) for medication log-related database operations.
+ */
 @Dao
 interface MedicationLogDao {
     // Insert a medication log entity

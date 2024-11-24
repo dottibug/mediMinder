@@ -14,8 +14,11 @@ import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.Constants.SCHEDULE_NEW_MEDICATION
 import java.util.UUID
 
+/**
+ * Manager class for background workers. Creates and observes workers for future medication logs
+ * and missed medication checks.
+ */
 class WorkerManager(private val context: Context) {
-
     // Create workers to check for missed medications and create future medication logs
     fun createWorkers(workerPrefix: String, medicationId: Long) {
         val workManager = WorkManager.getInstance(context)

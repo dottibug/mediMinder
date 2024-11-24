@@ -7,8 +7,10 @@ import com.example.mediminder.R
 import com.example.mediminder.data.local.classes.Medication
 import kotlinx.coroutines.launch
 
-// Fragment for editing a medication's information. Pre-populates the medication fields with the
-// selected medication data
+/**
+ * Fragment for editing a medication's information. Pre-populates the medication fields with the
+ * selected medication data
+ */
 class EditMedicationInfoFragment : MedicationInfoFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -17,8 +19,10 @@ class EditMedicationInfoFragment : MedicationInfoFragment() {
         setupObserver()
     }
 
-    // Hide the switch (users cannot change an as-needed med to scheduled and vice versa)
-    // Show/hide the as-needed message based on the state of the switch
+    /**
+     * Hide the switch (users cannot change an as-needed med to scheduled and vice versa)
+     * Show/hide the as-needed message based on the state of the switch
+     */
     private fun setupAsNeededUI() {
         val asScheduled = appViewModel.medication.asScheduled.value
         binding.asScheduledSwitch.visibility = View.GONE
@@ -29,7 +33,9 @@ class EditMedicationInfoFragment : MedicationInfoFragment() {
         }
     }
 
-    // Observe the current medication and update the UI with the medication data
+    /**
+     * Observe the current medication and update the UI with the medication data
+     */
     private fun setupObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             appViewModel.medication.current.collect { medication ->
@@ -38,7 +44,6 @@ class EditMedicationInfoFragment : MedicationInfoFragment() {
         }
     }
 
-    // Update the UI with the medication data
     private fun updateUIWithMedicationData(medication: Medication) {
         with (binding) {
             inputMedName.setText(medication.name)

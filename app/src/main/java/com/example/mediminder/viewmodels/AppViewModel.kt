@@ -34,9 +34,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// Handles adding or updating scheduled and as-needed medications, as well as creating the workers
-// that check for missed medications and create future medication logs.
-// Handles error checking
+/**
+ * Handles adding or updating scheduled and as-needed medications, as well as creating the workers
+ * that check for missed medications and create future medication logs.
+ * Handles error checking
+ */
 open class AppViewModel(
     private val repository: MedicationRepository,
     private val applicationContext: Context

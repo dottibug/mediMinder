@@ -11,7 +11,9 @@ import com.example.mediminder.models.DosageData
 import com.example.mediminder.utils.Constants.DOSAGE_DEFAULT_UNIT
 import com.example.mediminder.viewmodels.AppViewModel
 
-// BaseDosageFragment is the base class for all dosage fragments
+/**
+ * Base class for dosage fragments.
+ */
 open class DosageFragment : Fragment() {
     protected lateinit var binding: FragmentDosageBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
@@ -24,7 +26,9 @@ open class DosageFragment : Fragment() {
         return binding.root
     }
 
-    // Get dosage data from the UI
+    /**
+     * Get dosage data from the UI.
+     */
     fun getDosageData(): DosageData {
         return DosageData(
             dosageAmount = binding.inputDosage.text.toString(),
@@ -32,7 +36,9 @@ open class DosageFragment : Fragment() {
         )
     }
 
-    // Get dosage units as string (set default to "units" if not specified)
+    /**
+     * Get dosage units as string (set default to "units" if not specified).
+     */
     private fun getDosageUnits(): String {
         val units = binding.dosageUnitsDropdown.text.toString()
         return if (units.isEmpty()) { DOSAGE_DEFAULT_UNIT } else { units }

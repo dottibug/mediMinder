@@ -18,8 +18,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-// Validation utilities help validate medication, dose, reminder, and schedule data before saving
-// or updating medications in the database
+/**
+ * Object class with helper functions for validating medication data, dose, reminder, and
+ * schedule data before adding or updating medications
+ */
 object ValidationUtils {
 
     // Main validation function

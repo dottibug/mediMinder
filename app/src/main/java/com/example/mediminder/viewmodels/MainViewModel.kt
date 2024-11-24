@@ -25,9 +25,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-
-// This view model holds state for the main activity screen.
-// Handles data flow between the medication repository and the main activity UI
+/**
+ * ViewModel for the MainActivity
+ * Handles data flow between the medication repository and the main activity UI
+ */
 class MainViewModel(private val repository: MedicationRepository) : ViewModel() {
 
     private val _medications = MutableStateFlow<List<MedicationItem>>(emptyList())

@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.mediminder.databinding.FragmentDaysIntervalDialogBinding
 
-// Dialog fragment for setting the days interval of a medication schedule
+/**
+ * Dialog fragment for setting the days interval of a medication schedule.
+ */
 class DaysIntervalDialogFragment(
     private val parentFragment: ScheduleFragment,
     private val editingDaysInterval: Boolean

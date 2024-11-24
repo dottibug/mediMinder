@@ -12,7 +12,9 @@ import com.example.mediminder.models.DayLogs
 import com.example.mediminder.utils.Constants.DATE_PATTERN_DAY
 import java.time.format.DateTimeFormatter
 
-// Adapter for the medication log list RecyclerView in the HistoryActivity.
+/**
+ * Adapter for the medication log list RecyclerView in the HistoryActivity.
+ */
 class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
@@ -24,6 +26,9 @@ class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCa
         holder.bind(getItem(position))
     }
 
+    /**
+     * ViewHolder for the medication log list items
+     */
     class DayViewHolder(private val binding: ItemHistoryDayBinding) : RecyclerView.ViewHolder(binding.root) {
         private val dateFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN_DAY) // Mon, Jan 1
         private val logsAdapter = LogsAdapter()
@@ -45,6 +50,9 @@ class HistoryAdapter : ListAdapter<DayLogs, HistoryAdapter.DayViewHolder>(DiffCa
             }
         }
 
+        /**
+         * Shows or hides the medication log list based on whether there are any logs for the day
+         */
         private fun showLogs(show: Boolean) {
             binding.noMedicationsText.visibility = if (show) View.GONE else View.VISIBLE
             binding.logsList.visibility = if (show) View.VISIBLE else View.GONE

@@ -29,9 +29,11 @@ import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
-// Main activity of the application. Displays a list of scheduled medications for the selected date.
-// Users can add new medications and update the status of a scheduled medication, as well as add
-// as-needed medications.
+/**
+ * Main activity of the application. Displays a list of scheduled medications for the selected date.
+ * Users can add new medications and update the status of a scheduled medication, as well as add
+ * as-needed medications.
+ */
 class MainActivity : BaseActivity() {
     private val mainViewModel: MainViewModel by viewModels { MainViewModel.Factory }
     private lateinit var binding: ActivityMainBinding

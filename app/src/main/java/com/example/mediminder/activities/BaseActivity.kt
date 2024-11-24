@@ -32,12 +32,12 @@ import kotlinx.coroutines.launch
  * BaseViewModel and displays them to the user as a toast.
  */
 abstract class BaseActivity : AppCompatActivity() {
+    protected val appViewModel: AppViewModel by viewModels { AppViewModel.Factory }
     private lateinit var baseBinding: ActivityBaseBinding
+    private lateinit var navHandler: NavigationHandler
     private val drawer get() = baseBinding.drawerLayout
     private val navView get() = baseBinding.navView
     private val topAppBar get() = baseBinding.topAppBar
-    protected val appViewModel: AppViewModel by viewModels { AppViewModel.Factory }
-    private lateinit var navHandler: NavigationHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +54,6 @@ abstract class BaseActivity : AppCompatActivity() {
      * Sets up layout bindings, top app bar, navigation drawer, and error observer.
      * Call this function in child activities AFTER inflating the child activity layout
      * (the child is added to the base layout).
-     *
      * @param viewBinding The view binding for the child activity
      */
     protected fun setupBaseBinding(viewBinding: ViewBinding) {
@@ -81,7 +80,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     /**
-     * Observes error messages from the app view model to display to the user as a toast
+     * Observes error messages from AppViewModel to display as a toast
      */
     private fun setupBaseObservers() {
         lifecycleScope.launch {
@@ -106,6 +105,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     /**
      * Start AddMedicationActivity if it is not the current activity
+     * @param menuItem The top bar menu item that was clicked
      */
     private fun startAddMedicationActivity(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {

@@ -11,6 +11,9 @@ object Constants {
     const val DOSAGE_DEFAULT_UNIT = "units"
     const val ADD = "add"
     const val UPDATE = "update"
+    const val VIEW = "view"
+    const val EDIT = "edit"
+    const val DELETE = "delete"
 
     // Schedule duration
     const val CONTINUOUS = "continuous"
@@ -95,6 +98,9 @@ object Constants {
 
     const val ERR_UNEXPECTED = "Unexpected error occurred."
     const val ERR_SEEDING_DB = "Error seeding database."
-    const val ERR_CLEARING_DB = "Error clearing database."
     const val ERR_SCHEDULING_NOTIFICATIONS = "Error scheduling notifications."
+
+    const val ERR_CREATING_WORKER = "Error creating worker."
+    const val ERR_INSERTING_LOG = "Error inserting log."
+    const val ERR_CHECKING_MISSED_MEDS = "Error checking missed medications."
 }

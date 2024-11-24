@@ -5,8 +5,10 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
-// Fragment for editing a medication's dosage. Pre-populates the dosage fields with the selected
-// medication data
+/**
+ * Fragment for editing a medication's dosage. Pre-populates the dosage fields with the selected
+ * medication data
+ */
 class EditDosageFragment : DosageFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -14,10 +16,9 @@ class EditDosageFragment : DosageFragment() {
         setupObserver()
     }
 
-//    override fun startEditMode() {
-//    }
-
-    // Observe the current medication dosage and update the UI with the medication data
+    /**
+     * Observe the current medication dosage and update the UI with the medication data
+     */
     private fun setupObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             appViewModel.medication.current.collect { medication ->

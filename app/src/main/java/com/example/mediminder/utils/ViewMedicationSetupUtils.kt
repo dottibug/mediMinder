@@ -19,7 +19,9 @@ import com.example.mediminder.utils.StringUtils.getScheduleString
 import java.time.LocalDate
 import java.time.LocalTime
 
-// This class handles the UI setup for the ViewMedicationActivity
+/**
+ * Class to handle the UI setup for the ViewMedicationActivity
+ */
 class ViewMedicationSetupUtils(
     private val binding: ActivityViewMedicationBinding,
     private val resources: Resources

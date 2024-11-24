@@ -17,8 +17,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.YearMonth
 
-// View model for the HistoryActivity
-// Tracks selected medication and month, and provides methods to fetch medication history
+/**
+ * ViewModel for the HistoryActivity
+ * Tracks selected medication and month, and provides methods to fetch medication history
+ */
 class HistoryViewModel(private val repository: MedicationRepository): ViewModel() {
     private val _medications = MutableStateFlow<List<Medication>>(emptyList())
     val medications: StateFlow<List<Medication>> = _medications.asStateFlow()

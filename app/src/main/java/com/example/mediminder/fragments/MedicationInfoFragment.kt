@@ -18,6 +18,9 @@ import com.example.mediminder.models.MedicationStatus
 import com.example.mediminder.viewmodels.AppViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Base fragment for adding or editing a medication's information
+ */
 open class MedicationInfoFragment: Fragment() {
     protected lateinit var binding: FragmentMedicationInfoBinding
     protected val appViewModel: AppViewModel by activityViewModels { AppViewModel.Factory }
@@ -42,7 +45,9 @@ open class MedicationInfoFragment: Fragment() {
         }
     }
 
-    // Collect state flow from medication view model when the fragment is in the STARTED state
+    /**
+     * Collect state flow from medication view model when the fragment is in the STARTED state
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -57,14 +62,18 @@ open class MedicationInfoFragment: Fragment() {
         }
     }
 
-    // Prevent infinite loop while setting the switch state
+    /**
+     * Prevent infinite loop while setting the switch state
+     */
     private fun setSwitchState(asScheduled: Boolean) {
         if (binding.asScheduledSwitch.isChecked != asScheduled) {
             binding.asScheduledSwitch.isChecked = asScheduled
         }
     }
 
-    // Update appearance of the switch based on the switch state
+    /**
+     * Update appearance of the switch based on the switch state
+     */
     private fun updateSwitchUI(asScheduled: Boolean) {
         binding.asScheduledSwitch.apply {
             text = getSwitchString(asScheduled)
@@ -72,7 +81,9 @@ open class MedicationInfoFragment: Fragment() {
         }
     }
 
-    // Helper function to get the switch text based on the switch state
+    /**
+     * Helper function to get the switch text based on the switch state
+     */
     private fun getSwitchString(asScheduled: Boolean): String {
         return if (asScheduled) {
             resources.getString(R.string.switch_take_as_scheduled)
@@ -81,7 +92,9 @@ open class MedicationInfoFragment: Fragment() {
         }
     }
 
-    // Helper function to get the switch tint based on the switch state
+    /**
+     * Helper function to get the switch tint based on the switch state
+     */
     private fun getSwitchTint(asScheduled: Boolean): ColorStateList {
         return if (asScheduled) {
             resources.getColorStateList(R.color.indigoDye, null)
@@ -90,12 +103,13 @@ open class MedicationInfoFragment: Fragment() {
         }
     }
 
-    // Show or hide the message based on the switch state
     private fun toggleSwitchMessage(asScheduled: Boolean) {
         binding.asNeededMessage.visibility = if (asScheduled) View.GONE else View.VISIBLE
     }
 
-    // Get medication data from the UI
+    /**
+     * Get medication data from the UI
+     */
     fun getMedicationData(): MedicationData {
         val iconName = binding.medicationIconDropdown.text.toString().uppercase()
         val icon = getIcon(iconName)
@@ -109,7 +123,9 @@ open class MedicationInfoFragment: Fragment() {
         )
     }
 
-    // Helper function to get the medication icon from the dropdown
+    /**
+     * Helper function to get the medication icon from the dropdown
+     */
     private fun getIcon(iconName: String): MedicationIcon {
         return if (iconName.isEmpty()) { MedicationIcon.TABLET }
         else { MedicationIcon.valueOf(iconName.uppercase()) }

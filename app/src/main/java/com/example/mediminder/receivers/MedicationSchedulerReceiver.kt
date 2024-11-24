@@ -33,7 +33,9 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 
-// Broadcast receiver for scheduling medication reminders
+/**
+ * Broadcast receiver for scheduling medication reminders
+ */
 class MedicationSchedulerReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

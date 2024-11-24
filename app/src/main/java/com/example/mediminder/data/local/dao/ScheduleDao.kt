@@ -7,8 +7,9 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.mediminder.data.local.classes.Schedules
 
-// Abstraction layer for the schedules table in the database
-// https://developer.android.com/training/data-storage/room/accessing-data
+/**
+ * Data Access Object (DAO) for schedule-related database operations.
+ */
 @Dao
 interface ScheduleDao {
     // Insert a schedule entity

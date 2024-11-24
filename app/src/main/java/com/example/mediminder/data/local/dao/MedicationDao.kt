@@ -7,8 +7,9 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.mediminder.data.local.classes.Medication
 
-// Abstraction layer for the medication table in the database
-// https://developer.android.com/training/data-storage/room/accessing-data
+/**
+ * Data Access Object (DAO) for medication-related database operations.
+ */
 @Dao
 interface MedicationDao {
     // Insert medication into the database

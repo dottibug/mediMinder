@@ -17,6 +17,8 @@ import com.example.mediminder.utils.AppUtils.getHourlyReminderTimes
 import com.example.mediminder.utils.AppUtils.isScheduledForDate
 import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.EMPTY_STRING
+import com.example.mediminder.utils.Constants.ERR_CREATING_WORKER
+import com.example.mediminder.utils.Constants.ERR_INSERTING_LOG
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import com.example.mediminder.utils.Constants.MED_ID
 import com.example.mediminder.utils.Constants.NUM_DAYS
@@ -25,11 +27,13 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
-// This background worker creates medication logs for the next 7 days, allowing users to see their
-// upcoming scheduled medications. The worker runs once per day, and also when a medication is
-// added or updated. Duplicate logs are not created.
-// The worker runs in the background even if the app is destroyed, which is important for an app that
-// that is scheduling notifications.
+/**
+ * This background worker creates medication logs for the next 7 days, allowing users to see their
+ * upcoming scheduled medications. The worker runs once per day, and also when a medication is
+ * added or updated. Duplicate logs are not created.
+ * The worker runs in the background even if the app is destroyed, which is important for an app that
+ * that is scheduling notifications.
+ */
 class CreateFutureMedicationLogsWorker(
     context: Context,
     params: WorkerParameters
@@ -45,7 +49,7 @@ class CreateFutureMedicationLogsWorker(
             else { handleAllMedications(database) }
             Result.success()
         } catch (e: Exception) {
-            Log.e("testcat", "Error in CreateFutureMedicationLogsWorker: ${e.message}")
+            Log.e(TAG, ERR_CREATING_WORKER, e)
             Result.retry()
         }
     }
@@ -177,7 +181,7 @@ class CreateFutureMedicationLogsWorker(
                         )
                     )
                 } catch (e: Exception) {
-                    Log.e("testcat", "Failed to insert log: ${e.message}")
+                    Log.e(TAG, ERR_INSERTING_LOG, e)
                     throw e
                 }
             }
@@ -185,6 +189,7 @@ class CreateFutureMedicationLogsWorker(
     }
 
     companion object {
+        private const val TAG = "CreateFutureMedicationLogsWorker"
         private const val MIN_FUTURE_DAYS = 7
         private const val DAYS_TO_CREATE = 7
     }

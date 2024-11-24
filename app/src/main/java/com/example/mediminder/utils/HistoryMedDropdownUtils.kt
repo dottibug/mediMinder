@@ -8,7 +8,9 @@ import com.example.mediminder.data.local.classes.Medication
 import com.example.mediminder.databinding.ActivityHistoryBinding
 import com.example.mediminder.viewmodels.HistoryViewModel
 
-// Medication dropdown utils for the HistoryActivity
+/**
+ * Medication dropdown utils for the HistoryActivity
+ */
 class HistoryMedicationDropdownUtils(
     private val context: Context,
     private val binding: ActivityHistoryBinding,

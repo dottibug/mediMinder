@@ -33,7 +33,9 @@ import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
-// Various utility functions used throughout the app
+/**
+ * Object class for utility functions
+ */
 object AppUtils {
 
     fun cancelActivity(activity: Activity) {

@@ -9,7 +9,9 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-// Date utils for the HistoryActivity
+/**
+ * Date utility functions for the HistoryActivity
+ */
 class HistoryDateUtils(
     private val binding: ActivityHistoryBinding,
     private val viewModel: HistoryViewModel,

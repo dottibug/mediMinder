@@ -8,7 +8,9 @@ import com.example.mediminder.utils.Constants.CONTINUOUS
 import com.example.mediminder.utils.Constants.DAILY
 import java.time.LocalDate
 
-// Represents a schedule row in the schedules table (associated with a medication)
+/**
+ * Represents a schedule row in the schedules table (associated with a medication).
+ */
 @Entity(tableName = "schedules",
     foreignKeys = [ForeignKey(
         entity = Medication::class,

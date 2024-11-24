@@ -3,6 +3,9 @@ package com.example.mediminder.state
 import com.example.mediminder.models.MedicationWithDetails
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/**
+ * Medication state class for holding medication details
+ */
 class MedicationState {
     val current: MutableStateFlow<MedicationWithDetails?> = MutableStateFlow(null)
     val id: MutableStateFlow<Long> = MutableStateFlow(-1L)
@@ -20,5 +23,4 @@ class MedicationState {
     fun getId(): Long { return id.value }
     fun getName(): String { return name.value }
     fun getAsScheduled(): Boolean { return asScheduled.value }
-
 }

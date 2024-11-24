@@ -11,8 +11,10 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-// ViewModel for the BaseScheduleFragment
-class BaseScheduleViewModel: ViewModel() {
+/**
+ * ViewModel for the ScheduleFragment
+ */
+class ScheduleViewModel: ViewModel() {
     private val _startDate = MutableStateFlow<LocalDate?>(LocalDate.now())
     val startDate: StateFlow<LocalDate?> = _startDate.asStateFlow()
 

@@ -13,7 +13,9 @@ import com.example.mediminder.utils.AppUtils.getStatusIcon
 import com.example.mediminder.utils.Constants.TIME_PATTERN
 import java.time.format.DateTimeFormatter
 
-// Adapter for the medication log list RecyclerView in the HistoryActivity.
+/**
+ * Adapter for the medication log list RecyclerView in the HistoryActivity.
+ */
 class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
@@ -25,6 +27,9 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
         holder.bind(getItem(position))
     }
 
+    /**
+     * ViewHolder for the medication log list items
+     */
     class LogViewHolder(private val binding: ItemHistoryLogBinding) : RecyclerView.ViewHolder(binding.root) {
         private val timeFormatter = DateTimeFormatter.ofPattern(TIME_PATTERN)
 
@@ -52,6 +57,9 @@ class LogsAdapter: ListAdapter<MedicationLogWithDetails, LogsAdapter.LogViewHold
             }
         }
 
+        /**
+         * Sets the color of the status icon based on the medication status
+         */
         private fun setStatusIconColor(status: MedicationStatus) {
             val tintColor = when (status) {
                 MedicationStatus.MISSED -> R.color.red

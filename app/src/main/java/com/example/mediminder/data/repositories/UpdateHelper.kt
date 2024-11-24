@@ -25,7 +25,9 @@ import com.example.mediminder.utils.Constants.ERR_UPDATING_REMINDER
 import com.example.mediminder.utils.Constants.ERR_UPDATING_SCHEDULE
 import java.time.LocalDate
 
-// Methods to update medications in the database
+/**
+ * Helper class for updating medication data in the database.
+ */
 class UpdateHelper (
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -48,7 +50,7 @@ class UpdateHelper (
             if (scheduleData != null) { updateSchedule(medicationId, scheduleData) }
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_UPDATING_MED, e)
-            throw Exception(ERR_UPDATING_MED, e) // Throw exception to MedicationRepository
+            throw Exception(ERR_UPDATING_MED, e)
         }
     }
 
@@ -77,7 +79,6 @@ class UpdateHelper (
 
     private suspend fun updateDosage(medicationId: Long, dosageData: DosageData) {
         try {
-            // Get the current dosage id
             val currentDosage = dosageDao.getDosageByMedicationId(medicationId)
 
             if (currentDosage == null) {
@@ -123,7 +124,6 @@ class UpdateHelper (
         }
     }
 
-    // If reminders are disabled, delete any existing reminders and medication logs
     private suspend fun deleteReminders(currentReminder: MedReminders?, medicationId: Long) {
         currentReminder?.let {
             remindersDao.delete(it)
@@ -131,7 +131,9 @@ class UpdateHelper (
         }
     }
 
-    // Create new reminder if none exists
+    /**
+     * Creates a new reminder with the given medication ID and reminder data.
+     */
     private suspend fun createNewReminder(medicationId: Long, reminderData: ReminderData) {
         remindersDao.insert(
             MedReminders(
@@ -150,7 +152,6 @@ class UpdateHelper (
         )
     }
 
-    // Update existing reminder
     private suspend fun updateExistingReminder(
         currentReminder: MedReminders?,
         medicationId: Long,
@@ -178,7 +179,6 @@ class UpdateHelper (
 
     private suspend fun updateSchedule(medicationId: Long, scheduleData: ScheduleData) {
         try {
-            // Get the current schedule id
             val currentSchedule = scheduleDao.getScheduleByMedicationId(medicationId)
 
             scheduleDao.update(

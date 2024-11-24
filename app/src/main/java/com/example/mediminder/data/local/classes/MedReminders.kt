@@ -6,6 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalTime
 
+/**
+ * Represents a reminder row in the medications table.
+ */
 @Entity(tableName = "reminders",
     foreignKeys = [ForeignKey(
         entity = Medication::class,

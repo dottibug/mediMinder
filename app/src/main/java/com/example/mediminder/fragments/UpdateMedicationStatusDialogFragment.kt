@@ -18,9 +18,11 @@ import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
-// Dialog fragment for updating the status of a medication
-// Note: This fragment should only be constructed using the newInstance method to ensure the
-//  correct medicationId is passed to the fragment from the clicked medication in the recycler view
+/**
+ * Dialog fragment for updating the status of a medication
+ * Note: This fragment should only be constructed using the newInstance method to ensure the
+ * correct medicationId is passed to the fragment from the clicked medication in the recycler view
+ */
 class UpdateMedicationStatusDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentUpdateMedicationStatusDialogBinding
     private val mainViewModel: MainViewModel by activityViewModels { MainViewModel.Factory }
@@ -73,16 +75,20 @@ class UpdateMedicationStatusDialogFragment: DialogFragment() {
         }
     }
 
-    // Observe initial status and set radio button
+    /**
+     * Collect state flow from main view model when the fragment is in the STARTED state
+     */
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { collectInitialStatus() }
+                collectInitialStatus()
             }
         }
     }
 
-    // Collect initial status and set status radio button
+    /**
+     * Collect the initial medication status from the main view model and set the status radio button
+     */
     private suspend fun collectInitialStatus() {
         mainViewModel.initialMedStatus.collect { status ->
             status?.let {

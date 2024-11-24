@@ -11,7 +11,10 @@ import com.google.android.material.card.MaterialCardView
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-// Adapter for the date selector RecyclerView in the MainActivity.
+/**
+ * Adapter for the horizontal date selector RecyclerView in the MainActivity. The selected date is
+ * highlighted. The current date is selected by default.
+ */
 class MainDateSelectorAdapter(
     private val onDateSelected: (LocalDate) -> Unit
 ): ListAdapter<LocalDate, MainDateSelectorAdapter.DateViewHolder>(DiffCallback) {
@@ -34,6 +37,9 @@ class MainDateSelectorAdapter(
         }
     }
 
+    /**
+     * Updates the selected position to the current date.
+     */
     fun updateSelectedPosition() {
         selectedPosition = currentList.indexOfFirst { it == LocalDate.now() }
             .takeIf { it != -1 } ?: RecyclerView.NO_POSITION
@@ -54,6 +60,11 @@ class MainDateSelectorAdapter(
             }
         }
 
+        /**
+         * Updates the visual state of the date item.
+         * - Selected: Thick border
+         * - Not selected: No border
+         */
         private fun updateDateItem(card: MaterialCardView, isSelected: Boolean) {
             with(card) {
                 val indigoDye = context.getColor(R.color.indigoDye)

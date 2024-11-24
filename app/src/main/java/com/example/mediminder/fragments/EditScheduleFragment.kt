@@ -12,15 +12,17 @@ import com.example.mediminder.utils.Constants.DAILY
 import com.example.mediminder.utils.Constants.INTERVAL
 import com.example.mediminder.utils.Constants.NUM_DAYS
 import com.example.mediminder.utils.Constants.SPECIFIC_DAYS
-import com.example.mediminder.viewmodels.BaseScheduleViewModel
+import com.example.mediminder.viewmodels.ScheduleViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZoneId
 
-// Fragment for editing a medication's schedule. Pre-populates the schedule fields with the data for
-// the selected medication
+/**
+ * Fragment for editing a medication's schedule. Pre-populates the schedule fields with the data for
+ * the selected medication
+ */
 class EditScheduleFragment : ScheduleFragment() {
-    override val scheduleViewModel: BaseScheduleViewModel by activityViewModels()
+    override val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private var isInitialSetup = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,7 +38,9 @@ class EditScheduleFragment : ScheduleFragment() {
         }
     }
 
-    // Initialize schedule fields with medication details
+    /**
+     * Initialize schedule fields with medication details
+     */
     private fun initSchedule(medicationDetails: MedicationWithDetails) {
         isInitialSetup = true
 
@@ -52,14 +56,18 @@ class EditScheduleFragment : ScheduleFragment() {
         isInitialSetup = false
     }
 
-    // Set start date for scheduled medication
+    /**
+     * Set start date for scheduled medication
+     */
     private fun initStartDate(startDate: LocalDate) {
         val initialStartDate = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
         scheduleViewModel.setStartDate(initialStartDate)
         updateDatePickerButtonText(startDate, binding.buttonMedStartDate)
     }
 
-    // Set duration for scheduled medication
+    /**
+     * Set duration for the scheduled medication
+     */
     private fun initDuration(numDays : Int) {
         val durationType = if (numDays != 0) NUM_DAYS else CONTINUOUS
         isInitialSetup = true
@@ -73,7 +81,9 @@ class EditScheduleFragment : ScheduleFragment() {
         }
     }
 
-    // Set days for scheduled medication
+    /**
+     * Set days for the scheduled medication
+     */
     private fun initScheduleDays(schedule: Schedules) {
         val scheduleType = schedule.scheduleType
         isInitialSetup = true
@@ -93,20 +103,23 @@ class EditScheduleFragment : ScheduleFragment() {
         }
     }
 
-    // Set radio button selection based on schedule type
+    /**
+     * Set radio button selection based on schedule type
+     */
     private fun setRadioButtons(scheduleType: String) {
         binding.radioDaysSpecificDays.isChecked = scheduleType == SPECIFIC_DAYS
         binding.radioDaysInterval.isChecked = scheduleType == INTERVAL
         binding.radioDaysEveryDay.isChecked = scheduleType == DAILY
     }
 
-    // Prevent duration dialog from showing on initial setup
+    /**
+     * Helper function to prevent dialogs from showing on initial setup
+     */
     override fun handleDurationSettings() {
         if (isInitialSetup) { return }
         super.handleDurationSettings()
     }
 
-    // Prevent day selection dialog from showing on initial setup
     override fun handleScheduleSettings() {
         if (isInitialSetup) { return }
         super.handleScheduleSettings()

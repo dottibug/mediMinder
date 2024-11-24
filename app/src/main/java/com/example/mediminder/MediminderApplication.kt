@@ -11,10 +11,12 @@ import com.example.mediminder.workers.CheckMissedMedicationsWorker
 import com.example.mediminder.workers.CreateFutureMedicationLogsWorker
 import java.util.concurrent.TimeUnit
 
-// Application class for the app.
-// Initializes the midnight scheduler (creates alarms for the next day)
-// Initializes a worker to check for and mark missed medications at set intervals
-// Initializes a worker to create future medication logs
+/**
+ * Application class for the app.
+ * Initializes the midnight scheduler (creates alarms for the next day)
+ * Initializes a worker to check for and mark missed medications at set intervals
+ * Initializes a worker to create future medication logs
+ */
 class MediminderApplication: Application() {
 
     override fun onCreate() {

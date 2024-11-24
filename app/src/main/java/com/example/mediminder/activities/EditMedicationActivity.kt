@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.mediminder.databinding.ActivityEditMedicationBinding
 import com.example.mediminder.models.MedicationAction
+import com.example.mediminder.utils.AppUtils.cancelActivity
 import com.example.mediminder.utils.AppUtils.createToast
 import com.example.mediminder.utils.AppUtils.getMedicationId
 import com.example.mediminder.utils.Constants.ERR_UNEXPECTED
@@ -15,13 +16,14 @@ import com.example.mediminder.utils.Constants.SHOW
 import com.example.mediminder.utils.Constants.UPDATE
 import kotlinx.coroutines.launch
 
-// This activity allows the user to edit an existing medication. It uses the MedicationViewModel to
-// fetch and update medication data.
+/**
+ * Activity for editing an existing medication. Users can edit medication information, dosage,
+ * schedule, and reminders.
+ */
 class EditMedicationActivity : BaseActivity() {
     private lateinit var binding: ActivityEditMedicationBinding
     private var medicationId: Long = -1L
 
-    // Initialize the ViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         medicationId = getMedicationId(this) ?: return
@@ -29,35 +31,33 @@ class EditMedicationActivity : BaseActivity() {
         setupObservers()
     }
 
-    // Set up listeners and observers before data is fetched
     override fun onStart() {
         super.onStart()
         setupListeners()
     }
 
-    // Fetch medication data when the activity is resumed
     override fun onResume() {
         super.onResume()
         fetchMedicationData()
     }
 
-    // Set up bindings for this activity
+    /**
+     * Set up activity bindings and BaseActivity components
+     * (top app bar, navigation drawer, error observer)
+     */
     private fun setupActivity() {
         binding = ActivityEditMedicationBinding.inflate(layoutInflater)
         setupBaseBinding(binding)
     }
 
-    // Click listeners for buttons
     private fun setupListeners() {
         binding.buttonUpdateMed.setOnClickListener { handleUpdateMedication(medicationId) }
-
-        binding.buttonCancelUpdateMed.setOnClickListener {
-            setResult(RESULT_CANCELED)
-            finish()
-        }
+        binding.buttonCancelUpdateMed.setOnClickListener { cancelActivity(this) }
     }
 
-    // Update UI when asScheduled changes
+    /**
+     * Set up state flow observers to update UI based on medication type (scheduled vs as-needed)
+     */
     private fun setupObservers() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -67,14 +67,17 @@ class EditMedicationActivity : BaseActivity() {
         }
     }
 
-    // Collect asScheduled state
+    /**
+     * Collect asScheduled state from AppViewModel to show/hide relevant fragments
+     * (dosage, reminder, and schedule fragments are hidden for as-needed medications)
+     */
     private suspend fun collectAsScheduled() {
-        appViewModel.medication.asScheduled.collect { asScheduled ->
-            updateFragmentVisibility(asScheduled)
-        }
+        appViewModel.medication.asScheduled.collect { asScheduled -> updateFragmentVisibility(asScheduled) }
     }
 
-    // Collect current medication state
+    /**
+     * Collect current medication state from AppViewModel to show/hide the content layout
+     */
     private suspend fun collectCurrentMedication() {
         appViewModel.medication.current.collect { med ->
             if (med == null) { toggleContentVisibility(HIDE) }
@@ -82,7 +85,10 @@ class EditMedicationActivity : BaseActivity() {
         }
     }
 
-    // Toggle the visibility of the layout and edit/delete buttons based on the action
+    /**
+     * Helper function to toggle the visibility of the content layout and edit/delete buttons
+     * @param action The action to perform (SHOW or HIDE)
+     */
     private fun toggleContentVisibility(action: String) {
         with (binding) {
             fragmentEditMedInfo.visibility = if (action == HIDE) View.GONE else View.VISIBLE
@@ -94,7 +100,10 @@ class EditMedicationActivity : BaseActivity() {
         }
     }
 
-    // Update visibility of dosage, reminder, and schedule fragments based on asScheduled value
+    /**
+     * Helper function to toggle the visibility of the dosage, reminder, and schedule fragments
+     * @param asScheduled Whether the medication is scheduled or not
+     */
     private fun updateFragmentVisibility(asScheduled: Boolean) {
         with (binding) {
             fragmentEditMedDosage.visibility = if (asScheduled) View.VISIBLE else View.GONE
@@ -103,7 +112,14 @@ class EditMedicationActivity : BaseActivity() {
         }
     }
 
-    // Update medication data and finish the activity
+    /**
+     * Update medication in the database.
+     * - Collect medication data from the relevant fragments
+     * - Validate data
+     * - Update medication in the database if valid
+     * - Show errors and success messages
+     * @param medicationId The ID of the medication to update
+     */
     private fun handleUpdateMedication(medicationId: Long) {
         lifecycleScope.launch {
             try {
@@ -113,8 +129,6 @@ class EditMedicationActivity : BaseActivity() {
                 val reminderData = if (asScheduled) appViewModel.reminder.getReminders() else null
                 val scheduleData = if (asScheduled) appViewModel.schedule.getSchedule() else null
 
-                // Update medication if med data is not null (dosage data can be null if it is
-                // an as-needed medication)
                 if (medData != null && (dosageData != null || !asScheduled)) {
                     val success = appViewModel.saveMedication(UPDATE, medData, dosageData,
                         reminderData, scheduleData, medicationId)
@@ -131,12 +145,12 @@ class EditMedicationActivity : BaseActivity() {
         }
     }
 
-    // Fetch medication data from the ViewModel (no need to catch errors here, as they are handled
-    // in the ViewModel and the error observer for this activity will handle showing the error message)
+    /**
+     * Fetch medication details from the database. Errors are handled by the error observer in
+     * BaseActivity
+     */
     private fun fetchMedicationData() {
-        lifecycleScope.launch {
-            appViewModel.fetchMedicationDetails(medicationId)
-        }
+        lifecycleScope.launch { appViewModel.fetchMedicationDetails(medicationId) }
     }
 
     companion object {

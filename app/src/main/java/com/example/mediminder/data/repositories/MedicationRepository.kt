@@ -28,7 +28,9 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
 
-// This repository interacts with the database access objects to perform CRUD operations
+/**
+ * Medication repository class that interacts with the database access objects to perform CRUD operations.
+ */
 class MedicationRepository(
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -39,17 +41,23 @@ class MedicationRepository(
     private val insertHelper = InsertHelper(medicationDao, dosageDao, remindersDao, scheduleDao)
     private val updateHelper = UpdateHelper(medicationDao, dosageDao, remindersDao, scheduleDao, medicationLogDao)
 
-    // Get a simple list of all medications (no dosage, reminders, or schedules)
+    /**
+     * Get a simple list of all medications (no dosage, reminders, or schedules).
+     */
     suspend fun getAllMedicationsSimple(): List<Medication> {
         return medicationDao.getAll()
     }
 
-    // Get specific medication by ID
+    /**
+     * Get a medication by its ID.
+     */
     suspend fun getMedicationById(medicationId: Long): Medication {
         return medicationDao.getMedicationById(medicationId)
     }
 
-    // Get a detailed list of all medications, including dosage, reminders, and schedules
+    /**
+     * Get a detailed list of all medications, including dosage, reminders, and schedules.
+     */
     suspend fun getAllMedicationsDetailed(): List<MedicationWithDetails> {
         return medicationDao.getAll().map { medication ->
             MedicationWithDetails(
@@ -61,7 +69,9 @@ class MedicationRepository(
         }
     }
 
-    // Get detailed medication data by ID, including dosage, reminders, and schedules
+    /**
+     * Get detailed medication data by ID, including dosage, reminders, and schedules.
+     */
     suspend fun getMedicationDetailsById(medicationId: Long): MedicationWithDetails {
         return MedicationWithDetails(
             medication = medicationDao.getMedicationById(medicationId),
@@ -79,7 +89,9 @@ class MedicationRepository(
         return medicationDao.getAsNeededMedications()
     }
 
-    // Add medication to the database
+    /**
+     * Add medication to the database.
+     */
     suspend fun addMedication(
         medicationData: MedicationData,
         dosageData: DosageData?,
@@ -90,11 +102,13 @@ class MedicationRepository(
             return insertHelper.addMedicationData(medicationData, dosageData, reminderData, scheduleData)
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_ADDING_MED_USER, e)
-            throw e     // Throw exception for BaseMedicationViewModel to handle
+            throw e
         }
     }
 
-    // Update an existing medication in the database
+    /**
+     * Update medication data in the database.
+     */
     suspend fun updateMedication(
         medicationId: Long,
         medicationData: MedicationData,
@@ -106,27 +120,32 @@ class MedicationRepository(
             updateHelper.updateMedicationData(medicationId, medicationData, dosageData, reminderData, scheduleData)
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_UPDATING_MED, e)
-            throw e     // Throw exception for BaseMedicationViewModel to handle
+            throw e
         }
     }
 
-    // Delete a medication from the database (cascades to other tables)
     suspend fun deleteMedication(medicationId: Long) {
         medicationDao.deleteById(medicationId)
     }
 
-    // Delete future medication logs of a specific medication
+    /**
+     * Delete future medication logs of a specific medication.
+     */
     suspend fun deleteFutureLogs(medicationId: Long) {
         val currentDateTime = LocalDateTime.now()
         medicationLogDao.deleteFutureLogs(medicationId, currentDateTime)
     }
 
-    // Update the status of a medication log
+    /**
+     * Update the status of a medication log.
+     */
     suspend fun updateMedicationLogStatus(logId: Long, newStatus: MedicationStatus) {
         medicationLogDao.updateStatus(logId, newStatus)
     }
 
-    // Get medication history for a specific medication (or all medications if medicationId is null)
+    /**
+     * Get medication history for a specific medication (or all medications if medicationId is null)
+     */
     suspend fun getMedicationHistory(medicationId: Long?, selectedYearMonth: YearMonth): MedicationHistory {
         // Convert LocalDate to LocalDateTime for proper comparison to database
         val startDate = selectedYearMonth.atDay(1).atStartOfDay()
@@ -149,7 +168,9 @@ class MedicationRepository(
         return MedicationHistory(logs = logsWithDetails)
     }
 
-    // Helper function to get detailed medication log data
+    /**
+     * Get detailed medication log data for a list of logs.
+     */
     private suspend fun getLogsWithDetails(logs: List<MedicationLogs>): List<MedicationLogWithDetails> {
         return logs.map { log ->
             val medication = medicationDao.getMedicationById(log.medicationId)
@@ -165,7 +186,9 @@ class MedicationRepository(
         }
     }
 
-    // Get logs for specific date
+    /**
+     * Get medication logs for a specific date.
+     */
     suspend fun getLogsForDate(date: LocalDate): List<MedicationItem> {
         val startOfDay = LocalDateTime.of(date, LocalTime.MIN)
         val endOfDay = LocalDateTime.of(date, LocalTime.MAX)
@@ -186,21 +209,24 @@ class MedicationRepository(
         }
     }
 
+    /**
+     * Get dosage data for a medication log.
+     */
     private suspend fun getDosage(log: MedicationLogs): Dosage? {
         if (log.asNeededDosageAmount != null) {
-            // Create Dosage object for as-needed medications
             return Dosage(
                 medicationId = log.medicationId,
                 amount = log.asNeededDosageAmount,
                 units = log.asNeededDosageUnit ?: EMPTY_STRING
             )
         } else {
-            // Retrieve Dosage object from the database
             return dosageDao.getDosageByMedicationId(log.medicationId)
         }
     }
 
-    // Add an as-needed (unscheduled) medication log
+    /**
+     * Add an as-needed (unscheduled) medication log.
+     */
     suspend fun addAsNeededLog(validatedData: ValidatedAsNeededData) {
         try {
             medicationLogDao.insert(
@@ -216,17 +242,19 @@ class MedicationRepository(
             )
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_ADDING_MED, e)
-            throw e     // Throw exception for MainViewModel to handle
+            throw e
         }
     }
 
-    // Delete an as-needed medication log
+    /**
+     * Delete an as-needed (unscheduled) medication log by log id
+     */
     suspend fun deleteAsNeededMedication(logId: Long) {
         try {
             medicationLogDao.deleteById(logId)
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_DELETING_MED, e)
-            throw e     // Throw exception for MainViewModel to handle
+            throw e
         }
     }
 

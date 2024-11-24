@@ -14,11 +14,21 @@ import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.databinding.ActivityPermissionBinding
 
+/**
+ * Activity to request permissions, including:
+ * - Notification permissions for displaying medication reminders
+ * - Exact alarm permissions for scheduling medication reminders
+ * Explains to the user why these permissions are necessary for the app
+ */
 class PermissionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var permissionManager: AlarmPermissionManager
 
-    // Handle the result of the notification permission request
+    /**
+     * Handle the result of the notification permission request
+     * On success: Check for alarm permission
+     * On failure: Show error message
+     */
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
@@ -26,7 +36,11 @@ class PermissionActivity : AppCompatActivity() {
         else { handlePermissionDenied(NOTIFICATION) }
     }
 
-    // Handle the result of the alarm permission request
+    /**
+     * Handle the result of the alarm permission request
+     * On success: Navigate to the MainActivity
+     * On failure: Show error message
+     */
     private val alarmPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
@@ -49,7 +63,9 @@ class PermissionActivity : AppCompatActivity() {
         else { checkAlarmPermissionAndNavigate() }
     }
 
-    // Check for notification permission
+    /**
+     * Check if the notification permission is granted
+     */
     private fun checkNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
@@ -57,14 +73,18 @@ class PermissionActivity : AppCompatActivity() {
         else true
     }
 
-    // Check for alarm permission and navigate to the main activity if granted
+    /**
+     * Check if the alarm permission is granted
+     */
     private fun checkAlarmPermissionAndNavigate() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S
             || permissionManager.hasAlarmPermission()) { navigateToMainActivity() }
         else { handlePermissionDenied(ALARM) }
     }
 
-    // Show the UI for requesting notification permissions
+    /**
+     * Show the UI for requesting notification permissions
+     */
     private fun showNotificationPermissionUI() {
         with (binding) {
             permissionIcon.setImageResource(R.drawable.notification)
@@ -73,14 +93,6 @@ class PermissionActivity : AppCompatActivity() {
             permissionButton.text = getString(R.string.enable_notifications)
             permissionButton.setOnClickListener { handleNotificationPermissionClick() }
         }
-    }
-
-    // Handle the click event for the notification permission button
-    private fun handleNotificationPermissionClick() {
-        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-        }
-        notificationPermissionLauncher.launch(intent)
     }
 
     // Show the UI for requesting alarm permissions
@@ -94,7 +106,16 @@ class PermissionActivity : AppCompatActivity() {
         }
     }
 
-    // Handle the click event for the alarm permission button
+    /**
+     * Helper functions to handle permission requests
+     */
+    private fun handleNotificationPermissionClick() {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        }
+        notificationPermissionLauncher.launch(intent)
+    }
+
     private fun handleAlarmPermissionClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
@@ -102,7 +123,10 @@ class PermissionActivity : AppCompatActivity() {
         }
     }
 
-    // Handle the case where the permission is denied
+    /**
+     * Show error message when permission is denied
+     * @param permissionType The type of permission that was denied
+     */
     private fun handlePermissionDenied(permissionType: String) {
         val message = when (permissionType) {
             NOTIFICATION -> getString(R.string.notification_required)
@@ -112,7 +136,6 @@ class PermissionActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
-    // Navigate to the main activity
     private fun navigateToMainActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()

@@ -29,7 +29,9 @@ import com.example.mediminder.viewmodels.AppViewModel
 import com.example.mediminder.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
 
-// Dialog fragment for adding an as-needed medication
+/**
+ * Dialog fragment for adding an as-needed medication.
+ */
 class AddAsNeededMedicationDialog: DialogFragment() {
     private lateinit var binding: FragmentAddAsNeededMedBinding
     private lateinit var adapter: ArrayAdapter<String>
@@ -56,47 +58,45 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         setupUI()
     }
 
-    // Fetch medications on resume to update dropdown menu of as-needed medications
+    /**
+     * Fetch medications on resume to update dropdown menu of as-needed medications
+     */
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            try {
-                mainViewModel.fetchAsNeededMedications()
-            } catch (e: Exception) {
+            try { mainViewModel.fetchAsNeededMedications() }
+            catch (e: Exception) {
                 Log.e(TAG, ERR_FETCHING_AS_NEEDED_MEDS, e)
                 appViewModel.setErrorMessage(ERR_FETCHING_AS_NEEDED_MEDS)
             }
         }
     }
 
-    // Setup UI elements
     private fun setupUI() {
         binding.asNeededMedDropdown.setAdapter(adapter)
         setupListeners()
     }
 
-    // RepeatOnLifecycle only collects data when the fragment is in the STARTED state to prevent
-    // UI updates when the fragment is not visible
+    /**
+     * Collect as-needed medication data from the view model.
+     */
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { collectAsNeededMeds() }
+                mainViewModel.asNeededMedications.collect { medications ->
+                    if (medications.isEmpty()) { hideAsNeededInputs() }
+                    else {
+                        showAsNeededInputs()
+                        updateAdapter(medications)
+                    }
+                }
             }
         }
     }
 
-    // Collect as-needed medications from the view model
-    private suspend fun collectAsNeededMeds() {
-        mainViewModel.asNeededMedications.collect { medications ->
-            if (medications.isEmpty()) { hideAsNeededInputs() }
-            else {
-                showAsNeededInputs()
-                updateAdapter(medications)
-            }
-        }
-    }
-
-    // Update the dropdown menu adapter
+    /**
+     * Update the dropdown menu adapter with the list of medications.
+     */
     private fun updateAdapter(medications: List<Medication>) {
         adapter.clear()
         adapter.addAll(medications.map { it.name })
@@ -104,7 +104,10 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         asNeededMedIds.addAll(medications.map { it.id })
     }
 
-    // Hide the as-needed medication inputs
+    /**
+     * Helper functions to show/hide the as-needed medication inputs based on whether
+     * there are any medications
+     */
     private fun hideAsNeededInputs() {
         with (binding) {
             layoutAddAsNeededContent.visibility = View.VISIBLE
@@ -118,7 +121,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
-    // Show the as-needed medication inputs
     private fun showAsNeededInputs() {
         with (binding) {
             layoutAddAsNeededMed.visibility = View.VISIBLE
@@ -129,7 +131,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
-    // Setup listeners for the UI elements
     private fun setupListeners() {
         with (binding) {
             asNeededMedDropdown.setOnItemClickListener { _, _, position, _ ->
@@ -148,7 +149,9 @@ class AddAsNeededMedicationDialog: DialogFragment() {
         }
     }
 
-    // Add as-needed medication to the database
+    /**
+     * Add as-needed medication to the database.
+     */
     private fun addAsNeededMedication(): Boolean {
         return try {
             val selectedMedId = mainViewModel.selectedAsNeededMedId.value
@@ -157,7 +160,6 @@ class AddAsNeededMedicationDialog: DialogFragment() {
             val dateTaken = mainViewModel.dateTaken.value
             val timeTaken = mainViewModel.timeTaken.value
 
-            // Validate input
             val validatedData = getValidatedAsNeededData(
                 selectedMedId,
                 dosageAmount,
@@ -168,51 +170,41 @@ class AddAsNeededMedicationDialog: DialogFragment() {
 
             mainViewModel.addAsNeededLog(validatedData)
             mainViewModel.fetchMedicationsForDate(mainViewModel.selectedDate.value)
-
             true
         } catch (e: IllegalArgumentException) {
-            // Catch validation errors
             Log.e(TAG, ERR_VALIDATING_INPUT, e)
             appViewModel.setErrorMessage(e.message ?: ERR_VALIDATING_INPUT)
             false
         } catch (e: Exception) {
-            // Other errors
             Log.e(TAG, ERR_ADDING_AS_NEEDED_LOG, e)
             appViewModel.setErrorMessage(e.message ?: ERR_ADDING_AS_NEEDED_LOG)
             false
         }
     }
 
-    // Start AddMedicationActivity to add a new as-needed medication
     private fun addNewAsNeededMed() {
         val intent = Intent(requireContext(), AddMedicationActivity::class.java)
         intent.putExtra(ADD_AS_NEEDED, true)
         startActivity(intent)
     }
 
-    // Show time picker dialog
     private fun showTimePicker() {
         val timePicker = createTimePicker(SELECT_TIME_TAKEN)
-
         timePicker.addOnPositiveButtonClickListener {
             val hour = timePicker.hour
             val minute = timePicker.minute
             mainViewModel.setTimeTaken(hour, minute)
             updateTimePickerButtonText(hour, minute, binding.buttonAsNeededTimeTaken)
         }
-
         timePicker.show(parentFragmentManager, TIME_PICKER_TAG)
     }
 
-    // Show date picker dialog
     private fun showDatePicker() {
         val datePicker = createDatePicker(SELECT_DATE_TAKEN)
-
         datePicker.addOnPositiveButtonClickListener { selection ->
             mainViewModel.setDateTaken(selection)
             updateDatePickerButtonText(mainViewModel.dateTaken.value, binding.buttonAsNeededDateTaken)
         }
-
         datePicker.show(parentFragmentManager, DATE_PICKER_TAG)
     }
 

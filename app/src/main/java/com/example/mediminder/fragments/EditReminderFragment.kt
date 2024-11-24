@@ -10,8 +10,10 @@ import com.example.mediminder.utils.AppUtils.updateTimePickerButtonText
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import kotlinx.coroutines.launch
 
-// Fragment for editing a medication's reminder settings. Pre-populates the reminder fields with the
-// selected medication data
+/**
+ * Fragment for editing a medication's reminder settings. Pre-populates the reminder fields with the
+ * selected medication data
+ */
 class EditReminderFragment : ReminderFragment() {
     private var isInitialSetup = true
 
@@ -28,7 +30,9 @@ class EditReminderFragment : ReminderFragment() {
         }
     }
 
-    // Initialize reminder fields with medication details
+    /**
+     * Initialize reminder fields with medication details
+     */
     private fun initReminders(medicationDetails: MedicationWithDetails) {
         isInitialSetup = true
 
@@ -40,7 +44,9 @@ class EditReminderFragment : ReminderFragment() {
         isInitialSetup = false
     }
 
-    // Set reminder frequency and update the reminder frequency summary
+    /**
+     * Set reminder frequency and update the reminder frequency summary
+     */
     private fun initReminderSettings(reminders: MedReminders) {
         val reminderFrequency = reminders.reminderFrequency
 
@@ -52,7 +58,9 @@ class EditReminderFragment : ReminderFragment() {
         }
     }
 
-    // Set hourly reminder settings
+    /**
+     * Set hourly reminder settings
+     */
     private fun initHourlyReminderSettings(reminders: MedReminders) {
         val interval = reminders.hourlyReminderInterval
         reminderViewModel.setHourlyReminderInterval(interval)
@@ -70,8 +78,10 @@ class EditReminderFragment : ReminderFragment() {
         }
     }
 
-    // Helper function to get the correct string resource ID for the reminder interval
-    // Two possible formats (ex. "30 minutes" or "30") allow for values during initial setup or editing
+    /**
+     * Helper function to get the correct string resource ID for the reminder interval
+     * Two possible formats (ex. "30 minutes" or "30") allow for values during initial setup or editing
+     */
     private fun getIntervalResourceId(interval: String?): Int {
         return when (interval) {
             "30 minutes", "30" -> R.string.hourly_30
@@ -91,7 +101,9 @@ class EditReminderFragment : ReminderFragment() {
         }
     }
 
-    // Set daily reminder settings
+    /**
+     * Set daily reminder settings
+     */
     private fun initDailyReminderSettings(reminders: MedReminders) {
         // Convert LocalTime list to List<Pair<Int, Int>>
         val reminderTimes = reminders.dailyReminderTimes.map { time -> Pair(time.hour, time.minute) }

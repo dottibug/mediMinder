@@ -7,8 +7,9 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.mediminder.data.local.classes.Dosage
 
-// Abstraction layer for the dosages table in the database
-// https://developer.android.com/training/data-storage/room/accessing-data
+/**
+ * Data Access Object (DAO) for dosage-related database operations.
+ */
 @Dao
 interface DosageDao {
     // Insert dosage into the database

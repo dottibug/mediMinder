@@ -22,9 +22,9 @@ import com.example.mediminder.utils.Constants.MED_REMINDER_CHANNEL_NAME
 import com.example.mediminder.utils.Constants.SKIP_MEDICATION
 import com.example.mediminder.utils.Constants.TAKE_MEDICATION
 
-// https://developer.android.com/develop/ui/views/notifications
-// https://developer.android.com/develop/ui/views/notifications/build-notification
-// Broadcast receiver for medication reminders
+/**
+ * Broadcast receiver for medication reminders
+ */
 class MedicationReminderReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

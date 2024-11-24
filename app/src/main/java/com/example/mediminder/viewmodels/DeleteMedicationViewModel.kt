@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// ViewModel for the DeleteMedicationActivity
+/**
+ * ViewModel for the DeleteMedicationActivity
+ */
 class DeleteMedicationViewModel(
     private val repository: MedicationRepository,
 ) : ViewModel() {

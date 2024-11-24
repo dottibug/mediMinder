@@ -2,23 +2,27 @@ package com.example.mediminder.workers
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.mediminder.data.local.AppDatabase
 import com.example.mediminder.models.MedicationStatus
+import com.example.mediminder.utils.Constants.ERR_CHECKING_MISSED_MEDS
 import com.example.mediminder.utils.Constants.LOG_ID
 import com.example.mediminder.utils.Constants.MED_STATUS_CHANGED
 import com.example.mediminder.utils.Constants.NEW_STATUS
 import java.time.LocalDateTime
 
-// https://developer.android.com/reference/androidx/work/Worker
-// Notes: Workers are the modern implementation of deprecated asyncTask. An important distinction is
-// that asyncTask will stop when the app is killed, while workers will not.
-
-// This background worker checks for missed medications and marks them as missed. The worker runs at
-// set intervals, depending on the user's grace period setting. The worker will run in the background
-// even if the app is destroyed.
+/**
+ * https://developer.android.com/reference/androidx/work/Worker
+ * Workers are the modern implementation of deprecated asyncTask. An important distinction is
+ * that asyncTask will stop when the app is killed, while workers will not.
+ *
+ * This background worker checks for missed medications and marks them as missed. The worker runs at
+ * set intervals, depending on the user's grace period setting. The worker will run in the background
+ * even if the app is destroyed.
+ */
 class CheckMissedMedicationsWorker(
     context: Context,
     params: WorkerParameters
@@ -53,6 +57,7 @@ class CheckMissedMedicationsWorker(
             }
             Result.success()
         } catch (e: Exception) {
+            Log.e(TAG, ERR_CHECKING_MISSED_MEDS, e)
             Result.retry()
         }
     }
@@ -63,6 +68,7 @@ class CheckMissedMedicationsWorker(
     }
 
     companion object {
+        private const val TAG = "CheckMissedMedicationsWorker"
         private const val GRACE_PERIOD_KEY = "grace_period"
         private const val GRACE_PERIOD_DEFAULT = "1"
     }

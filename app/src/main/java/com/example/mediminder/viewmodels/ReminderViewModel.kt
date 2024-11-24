@@ -7,8 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-// ViewModel for the BaseReminderFragment
-class BaseReminderViewModel: ViewModel() {
+/**
+ * ViewModel for the ReminderFragment
+ */
+class ReminderViewModel: ViewModel() {
     private val _reminderFrequency = MutableStateFlow<String?>(null) // hourly or daily
     val reminderFrequency: StateFlow<String?> = _reminderFrequency.asStateFlow()
 

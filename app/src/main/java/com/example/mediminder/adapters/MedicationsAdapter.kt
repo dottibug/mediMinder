@@ -10,13 +10,21 @@ import com.example.mediminder.databinding.ItemMedicationBinding
 import com.example.mediminder.models.MedicationIcon
 import com.example.mediminder.models.MedicationWithDetails
 
-// Adapter for the medication list RecyclerView in the MedicationsActivity
+/**
+ * Adapter for the medication list RecyclerView in the MedicationsActivity
+ * @param onViewClick Callback for clicking the view button
+ * @param onEditClick Callback for clicking the edit button
+ * @param onDeleteClick Callback for clicking the delete button
+ */
 class MedicationsAdapter(
     private val onViewClick: (Long) -> Unit,
     private val onEditClick: (Long) -> Unit,
     private val onDeleteClick: (Long) -> Unit
 ) : ListAdapter<MedicationWithDetails, MedicationsAdapter.MedicationViewHolder>(DiffCallback) {
 
+    /**
+     * ViewHolder for the medication list items
+     */
     class MedicationViewHolder(
         private val binding: ItemMedicationBinding,
         private val onViewClick: (Long) -> Unit,
@@ -24,6 +32,7 @@ class MedicationsAdapter(
         private val onDeleteClick: (Long) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        // Binds medication data to the view holder
         fun bind(medicationDetails: MedicationWithDetails) {
             binding.medicationName.text = medicationDetails.medication.name
 
@@ -49,6 +58,9 @@ class MedicationsAdapter(
         }
     }
 
+    /**
+     * Creates a new view holder for the medication list items
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
         val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MedicationViewHolder(binding, onViewClick, onEditClick, onDeleteClick)
@@ -59,6 +71,9 @@ class MedicationsAdapter(
     }
 
     companion object {
+        /**
+         * DiffCallback for the medication list updates
+         */
         private val DiffCallback = object : DiffUtil.ItemCallback<MedicationWithDetails>() {
             override fun areItemsTheSame(oldItem: MedicationWithDetails, newItem: MedicationWithDetails): Boolean {
                 return oldItem.medication.id == newItem.medication.id

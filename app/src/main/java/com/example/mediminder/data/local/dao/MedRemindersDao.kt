@@ -8,6 +8,9 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.mediminder.data.local.classes.MedReminders
 
+/**
+ * Data Access Object (DAO) for medication reminder-related database operations.
+ */
 @Dao
 interface MedRemindersDao {
     // Insert a reminder entity

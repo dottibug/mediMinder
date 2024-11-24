@@ -23,7 +23,9 @@ import com.example.mediminder.utils.Constants.ERR_INSERTING_SCHEDULE
 import com.example.mediminder.utils.Constants.ERR_INVALID_TIME_PAIR
 import java.time.LocalDate
 
-// Methods to insert medications into the database
+/**
+ * Helper class to insert medication data into the database.
+ */
 class InsertHelper (
     private val medicationDao: MedicationDao,
     private val dosageDao: DosageDao,
@@ -45,7 +47,7 @@ class InsertHelper (
             return medicationId
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_ADDING_MED, e)
-            throw Exception(ERR_ADDING_MED, e) // Throw exception to MedicationRepository
+            throw Exception(ERR_ADDING_MED, e)
         }
     }
 
@@ -67,7 +69,7 @@ class InsertHelper (
             return medicationId
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_INSERTING_MED, e)
-            throw Exception(ERR_INSERTING_MED, e) // Throw exception to MedicationRepository
+            throw Exception(ERR_INSERTING_MED, e)
         }
     }
 
@@ -82,7 +84,7 @@ class InsertHelper (
             )
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_INSERTING_DOSAGE, e)
-            throw Exception(ERR_INSERTING_DOSAGE, e) // Throw exception to MedicationRepository
+            throw Exception(ERR_INSERTING_DOSAGE, e)
         }
     }
 
@@ -106,7 +108,7 @@ class InsertHelper (
             )
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_INSERTING_REMINDER, e)
-            throw Exception(ERR_INSERTING_REMINDER, e) // Throw exception to MedicationRepository
+            throw Exception(ERR_INSERTING_REMINDER, e)
         }
     }
 
@@ -125,7 +127,7 @@ class InsertHelper (
             )
         } catch (e: Exception) {
             Log.e(TAG, e.message ?: ERR_INSERTING_SCHEDULE, e)
-            throw Exception(ERR_INSERTING_SCHEDULE, e)  // Throw exception to MedicationRepository
+            throw Exception(ERR_INSERTING_SCHEDULE, e)
         }
     }
 

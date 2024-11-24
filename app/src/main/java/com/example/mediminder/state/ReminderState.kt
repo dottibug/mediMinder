@@ -6,6 +6,9 @@ import com.example.mediminder.utils.Constants.EMPTY_STRING
 import com.example.mediminder.utils.Constants.EVERY_X_HOURS
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/**
+ * Reminder state class for holding reminder details
+ */
 class ReminderState {
     val reminderEnabled: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val reminderFrequency: MutableStateFlow<String> = MutableStateFlow(EMPTY_STRING)
