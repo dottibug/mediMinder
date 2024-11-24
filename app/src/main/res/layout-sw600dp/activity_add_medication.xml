@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:background="@color/white"
+    android:maxWidth="800dp"
+    tools:context=".activities.AddMedicationActivity">
+
+    <!-- Content -->
+    <ScrollView
+        android:id="@+id/scrollAddMed"
+        style="@style/activity_scroll"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Medication Form -->
+        <LinearLayout
+            android:id="@+id/layoutAddMed"
+            style="@style/activity_vertical_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.0">
+
+            <TextView
+                android:id="@+id/headlineAddMed"
+                style="@style/activity_title"
+                android:text="@string/add_new_medication" />
+
+            <!-- Medication Info -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentAddMedInfo"
+                android:name="com.example.mediminder.fragments.MedicationInfoFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_medication_info" />
+
+            <!-- Medication Dosage -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentDosage"
+                android:name="com.example.mediminder.fragments.DosageFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_dosage" />
+
+            <!-- Medication Schedule -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentAddMedSchedule"
+                android:name="com.example.mediminder.fragments.ScheduleFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_schedule" />
+
+            <!-- Medication Reminder -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentAddMedReminder"
+                android:name="com.example.mediminder.fragments.ReminderFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_reminder" />
+
+            <!-- Buttons -->
+            <Button
+                android:id="@+id/buttonAddMed"
+                style="@style/button_primary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="24dp"
+                android:text="@string/add_medication" />
+
+            <Button
+                android:id="@+id/buttonCancelAddMed"
+                style="@style/button_primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/cadetGray"
+                android:text="@string/cancel" />
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

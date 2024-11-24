@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    tools:context=".activities.EditMedicationActivity">
+
+    <!-- Content -->
+    <ScrollView
+        android:id="@+id/scrollEditMed"
+        style="@style/activity_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Medication Form -->
+        <LinearLayout
+            android:id="@+id/layoutEditMed"
+            style="@style/activity_vertical_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingStart="54dp"
+            android:paddingEnd="54dp">
+
+            <TextView
+                android:id="@+id/headlineEditMed"
+                style="@style/activity_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_medication"
+                android:textAlignment="textStart"
+                android:textAppearance="?attr/textAppearanceHeadlineLarge" />
+
+            <!-- Loading Spinner -->
+
+            <!-- Medication Info -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedInfo"
+                android:name="com.example.mediminder.fragments.EditMedicationInfoFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_medication_info" />
+
+            <!-- Medication Dosage -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedDosage"
+                android:name="com.example.mediminder.fragments.EditDosageFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_dosage" />
+
+            <!-- Medication Schedule -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedSchedule"
+                android:name="com.example.mediminder.fragments.EditScheduleFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_schedule" />
+
+            <!-- Medication Reminder -->
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragmentEditMedReminder"
+                android:name="com.example.mediminder.fragments.EditReminderFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_reminder" />
+
+            <!-- Buttons -->
+            <Button
+                android:id="@+id/buttonUpdateMed"
+                style="@style/button_primary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="24dp"
+                android:text="@string/update_medication" />
+
+            <Button
+                android:id="@+id/buttonCancelUpdateMed"
+                style="@style/button_primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/cadetGray"
+                android:text="@string/cancel" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

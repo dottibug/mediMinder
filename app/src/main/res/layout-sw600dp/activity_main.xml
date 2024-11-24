@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:maxWidth="800dp">
 
     <!-- Screen Content -->
     <androidx.recyclerview.widget.RecyclerView
@@ -24,7 +26,6 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="18dp"
         android:fontFamily="@font/roboto_medium"
-        tools:text="Selected Date"
         android:textColor="@color/jet"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -33,7 +34,8 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateSelector"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.5"
+        tools:text="Selected Date" />
 
     <!-- Add As-Needed Med Button -->
     <com.google.android.material.button.MaterialButton

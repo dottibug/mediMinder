@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/historyTitle"
+                style="@style/activity_title"
+                android:layout_marginStart="54dp"
+                android:layout_marginEnd="54dp"
+                android:text="@string/medication_history" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/medicationDropdownWrapper"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="54dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="54dp"
+                android:hint="@string/filter_medication"
+                android:labelFor="@id/medicationDropdown">
+
+                <AutoCompleteTextView
+                    android:id="@+id/medicationDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/monthYearSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="42dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="42dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/buttonPreviousMonth"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/button_prev_month"
+                    android:padding="8dp"
+                    android:src="@drawable/arrow_back" />
+
+                <ImageButton
+                    android:id="@+id/buttonCalendar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/select_date"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/calendar"
+                    app:tint="@color/jet" />
+
+                <TextView
+                    android:id="@+id/monthYearText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="September 2024" />
+
+                <ImageButton
+                    android:id="@+id/buttonNextMonth"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/button_next_month"
+                    android:padding="8dp"
+                    android:src="@drawable/arrow_forward" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/noDataMessage"
+                style="@style/dialog_instructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="48dp"
+                android:text="@string/msg_no_logs"
+                android:textAlignment="center"
+                android:textColor="@color/cadetGray"
+                android:textSize="18sp"
+                android:textStyle="bold|italic"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/historyList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="54dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="54dp"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp"
+                android:visibility="visible" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Medication Dropdown -->
+
+    <!-- Month Year Selector -->
+
+    <!-- No Data Message -->
+
+    <!-- Loading Spinner -->
+
+    <!-- History List -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

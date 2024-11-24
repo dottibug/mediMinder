@@ -2,13 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutSpecificDaysDialog"
+    android:id="@+id/layoutDurationDialog"
     style="@style/dialog_box"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".fragments.DaySelectionDialogFragment">
+    android:minWidth="500dp"
+    tools:context=".fragments.DurationDialogFragment">
 
-    <!-- TITLE -->
+    <!-- Title -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,58 +24,57 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/titleIntervalDialog"
+                android:id="@+id/titleDurationDialog"
                 style="@style/dialog_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/title_dialog_interval"
+                android:text="@string/title_dialog_duration"
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/textViewIntervalInstructions"
+                android:id="@+id/textViewDurationInstructions"
                 style="@style/dialog_instructions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/info_dialog_interval"
+                android:text="@string/info_dialog_duration"
                 android:textSize="16sp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutIntervalDays"
+                android:id="@+id/inputLayoutDurationNumOfDays"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="@string/take_every">
+                android:hint="@string/num_days">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputIntervalDays"
+                    android:id="@+id/inputDurationNumOfDays"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
-                android:id="@+id/layoutIntervalDialogButtons"
+                android:id="@+id/layoutDurationDialogButtons"
                 style="@style/dialog_button_wrapper"
                 android:layout_width="match_parent"
                 android:gravity="end">
 
                 <TextView
-                    android:id="@+id/buttonCancelDaysIntervalDialog"
+                    android:id="@+id/buttonCancelDurationDialog"
                     style="@style/dialog_button_cancel" />
 
                 <TextView
-                    android:id="@+id/buttonSetDaysIntervalDialog"
+                    android:id="@+id/buttonSetDurationDialog"
                     style="@style/dialog_button_set" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <!-- INSTRUCTIONS -->
+    <!-- Instructions -->
 
-
-    <!-- NUMBER OF DAYS -->
+    <!-- Number of Days -->
 
     <!-- Buttons -->
 

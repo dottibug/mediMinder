@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:paddingStart="48dp"
+        android:paddingEnd="48dp">
+
+        <!-- Medication Icon -->
+        <ImageView
+            android:id="@+id/medicationIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:contentDescription="@string/medication_icon"
+            app:tint="@color/jet"
+            tools:src="@drawable/tablet" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="18dp"
+            android:orientation="vertical">
+
+            <!-- Medication Name -->
+            <TextView
+                android:id="@+id/medicationName"
+                style="@style/section_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/jet"
+                android:textStyle="bold"
+                tools:text="Medication Name" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- View Button -->
+                <Button
+                    android:id="@+id/buttonViewMedication"
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/view"
+                    android:textColor="@color/cadetGray"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/cadetGray"
+                    app:strokeWidth="2dp" />
+
+                <!-- Edit Button -->
+                <Button
+                    android:id="@+id/buttonEditMedication"
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/edit"
+                    android:textColor="@color/cadetGray"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/cadetGray"
+                    app:strokeWidth="2dp" />
+
+                <!-- Delete Button -->
+                <Button
+                    android:id="@+id/buttonDeleteMedication"
+                    style="@style/button_text"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="@string/delete"
+                    android:textColor="@color/red"
+                    app:cornerRadius="4dp"
+                    app:strokeColor="@color/red"
+                    app:strokeWidth="2dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

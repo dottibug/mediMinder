@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.mediminder.MainActivity
 import com.example.mediminder.R
 import com.example.mediminder.utils.Constants.DOSAGE
@@ -77,7 +78,8 @@ class MedicationReminderReceiver: BroadcastReceiver() {
         // Build notification
         val contentText = getMessage(context, medicationName, dosage)
         val notification = NotificationCompat.Builder(context, MED_REMINDER_CHANNEL_ID)
-            .setSmallIcon(R.drawable.app_icon_small)
+            .setSmallIcon(R.drawable.meds)
+            .setColor(ContextCompat.getColor(context, R.color.white))
             .setContentTitle(context.getString(R.string.medication_reminder))
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
