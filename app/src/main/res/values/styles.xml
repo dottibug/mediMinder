@@ -116,11 +116,19 @@
         <item name="android:letterSpacing">0.05</item>
     </style>
 
-    <style name="dialog_box_padding">
+    <style name="dialog_box">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+
+
+
         <item name="android:paddingStart">24dp</item>
         <item name="android:paddingEnd">24dp</item>
         <item name="android:paddingBottom">18dp</item>
-        <item name="android:minWidth">380dp</item>
     </style>
 
     <style name="dialog_button_wrapper">

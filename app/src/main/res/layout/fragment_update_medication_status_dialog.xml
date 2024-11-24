@@ -3,93 +3,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutMedStatusDialog"
-    style="@style/dialog_box_padding"
+    style="@style/dialog_box"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     tools:context=".fragments.UpdateMedicationStatusDialogFragment">
 
     <!-- Title -->
-    <TextView
-        android:id="@+id/titleMedStatusDialog"
-        style="@style/dialog_title"
-        android:layout_width="0dp"
-        android:text="@string/medication_status"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/titleMedStatusDialog"
+                style="@style/dialog_title"
+                android:layout_width="match_parent"
+                android:text="@string/medication_status" />
+
+            <TextView
+                android:id="@+id/textViewMedStatusInstructions"
+                style="@style/dialog_instructions"
+                android:layout_width="match_parent"
+                android:text="@string/info_dialog_update_med_status" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupMedStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:checkedButton="@+id/radioButtonTaken">
+
+                <RadioButton
+                    android:id="@+id/radioButtonTaken"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:enabled="true"
+                    android:text="@string/taken"
+                    android:textSize="18sp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonSkipped"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:enabled="true"
+                    android:text="@string/skipped"
+                    android:textSize="18sp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonMissed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:enabled="true"
+                    android:text="@string/missed"
+                    android:textSize="18sp" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/layoutMedStatusDialogButtons"
+                style="@style/dialog_button_wrapper"
+                android:layout_width="match_parent"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/buttonCancelMedStatusDialog"
+                    style="@style/dialog_button_cancel"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/buttonSetMedStatusDialog"
+                    style="@style/dialog_button_set"
+                    android:gravity="center" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Instructions -->
-    <TextView
-        android:id="@+id/textViewMedStatusInstructions"
-        style="@style/dialog_instructions"
-        android:layout_width="0dp"
-        android:text="@string/info_dialog_update_med_status"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleMedStatusDialog" />
 
     <!-- Radio Group -->
-    <RadioGroup
-        android:id="@+id/radioGroupMedStatus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:checkedButton="@+id/radioButtonTaken"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewMedStatusInstructions">
-
-        <RadioButton
-            android:id="@+id/radioButtonTaken"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:enabled="true"
-            android:text="@string/taken"
-            android:textSize="18sp" />
-
-        <RadioButton
-            android:id="@+id/radioButtonSkipped"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:checked="false"
-            android:enabled="true"
-            android:text="@string/skipped"
-            android:textSize="18sp" />
-
-        <RadioButton
-            android:id="@+id/radioButtonMissed"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:checked="false"
-            android:enabled="true"
-            android:text="@string/missed"
-            android:textSize="18sp" />
-    </RadioGroup>
 
     <!-- Buttons -->
-    <LinearLayout
-        android:id="@+id/layoutMedStatusDialogButtons"
-        style="@style/dialog_button_wrapper"
-        android:layout_width="0dp"
-        android:gravity="end"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroupMedStatus">
-
-        <TextView
-            android:id="@+id/buttonCancelMedStatusDialog"
-            style="@style/dialog_button_cancel"
-            android:gravity="center" />
-
-        <TextView
-            android:id="@+id/buttonSetMedStatusDialog"
-            style="@style/dialog_button_set"
-            android:gravity="center" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

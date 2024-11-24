@@ -126,6 +126,7 @@ class AddAsNeededMedicationDialog: DialogFragment() {
             layoutAddAsNeededMed.visibility = View.VISIBLE
             addNewButton.visibility = View.VISIBLE
             asNeededMedDropdownWrapper.visibility = View.VISIBLE
+            textViewDosage.visibility = View.VISIBLE
             layoutDosage.visibility = View.VISIBLE
             layoutAsNeededDateTime.visibility = View.VISIBLE
         }

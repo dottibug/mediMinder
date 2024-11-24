@@ -3,120 +3,132 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutSpecificDaysDialog"
-    style="@style/dialog_box_padding"
+    style="@style/dialog_box"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".fragments.DaySelectionDialogFragment">
 
     <!--TITLE -->
-    <TextView
-        android:id="@+id/titleSelectDaysDialog"
-        style="@style/dialog_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/title_dialog_days"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/titleSelectDaysDialog"
+                style="@style/dialog_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/title_dialog_days"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/textViewSelectDaysInstructions"
+                style="@style/dialog_instructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/info_dialog_days"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:id="@+id/daysCheckboxContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:id="@+id/checkboxMonday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_monday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxTuesday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_tuesday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxWednesday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_wednesday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxThursday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_thursday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxFriday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_friday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxSaturday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_saturday"
+                    android:textSize="18sp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxSunday"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:text="@string/checkbox_sunday"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSelectedDaysDialogButtons"
+                style="@style/dialog_button_wrapper"
+                android:layout_width="match_parent"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/buttonCancelDaySelectionDialog"
+                    style="@style/dialog_button_cancel" />
+
+                <TextView
+                    android:id="@+id/buttonSetDaySelectionDialog"
+                    style="@style/dialog_button_set" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <!-- INSTRUCTIONS -->
-    <TextView
-        android:id="@+id/textViewSelectDaysInstructions"
-        style="@style/dialog_instructions"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:text="@string/info_dialog_days"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleSelectDaysDialog" />
 
     <!-- CHECKBOXES -->
-    <LinearLayout
-        android:id="@+id/daysCheckboxContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="24dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSelectDaysInstructions">
-
-        <CheckBox
-            android:id="@+id/checkboxMonday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_monday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxTuesday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_tuesday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxWednesday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_wednesday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxThursday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_thursday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxFriday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_friday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxSaturday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_saturday"
-            android:textSize="18sp" />
-
-        <CheckBox
-            android:id="@+id/checkboxSunday"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/checkbox_sunday"
-            android:textSize="18sp" />
-
-    </LinearLayout>
 
     <!-- Buttons -->
-    <LinearLayout
-        android:id="@+id/layoutSelectedDaysDialogButtons"
-        style="@style/dialog_button_wrapper"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/daysCheckboxContainer">
-
-        <TextView
-            android:id="@+id/buttonCancelDaySelectionDialog"
-            style="@style/dialog_button_cancel" />
-
-        <TextView
-            android:id="@+id/buttonSetDaySelectionDialog"
-            style="@style/dialog_button_set" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

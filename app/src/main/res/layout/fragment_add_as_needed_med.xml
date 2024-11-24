@@ -3,206 +3,206 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutAddAsNeededMedDialog"
-    style="@style/dialog_box_padding"
+    style="@style/dialog_box"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".fragments.AddAsNeededMedicationDialog">
 
     <!-- Title -->
-    <TextView
-        android:id="@+id/titleAddAsNeededMedDialog"
-        style="@style/dialog_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/title_dialog_as_needed_med"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Instructions -->
-    <TextView
-        android:id="@+id/textViewAsNeededInstructions"
-        style="@style/dialog_instructions"
-        android:layout_width="0dp"
-        android:text="@string/info_dialog_as_needed_med"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleAddAsNeededMedDialog" />
-
-    <!-- Form -->
-    <LinearLayout
-        android:id="@+id/layoutAddAsNeededContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewAsNeededInstructions">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/layoutAddAsNeededMed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical" >
 
-            <!-- Dropdown Label -->
             <TextView
-                android:id="@+id/textViewAsNeededMedLabel"
-                style="@style/subsection_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/subtitle_dialog_as_needed_dropdown"/>
-
-            <!-- As-Needed Medication Dropdown -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/asNeededMedDropdownWrapper"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/titleAddAsNeededMedDialog"
+                style="@style/dialog_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/hint_as_needed_med"
-                android:labelFor="@id/asNeededMedDropdown">
+                android:layout_marginTop="24dp"
+                android:text="@string/title_dialog_as_needed_med"
+                android:textSize="20sp" />
 
-                <AutoCompleteTextView
-                    android:id="@+id/asNeededMedDropdown"
+            <TextView
+                android:id="@+id/textViewAsNeededInstructions"
+                style="@style/dialog_instructions"
+                android:layout_width="wrap_content"
+                android:text="@string/info_dialog_as_needed_med" />
+
+            <LinearLayout
+                android:id="@+id/layoutAddAsNeededContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/layoutAddAsNeededMed"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical">
 
-            <!-- Add As-Needed Medication Button -->
-            <Button
-                android:id="@+id/addNewButton"
-                style="@style/button_text"
-                android:layout_marginTop="2dp"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:text="@string/button_add_new_as_needed"
-                android:textColor="@color/cadetGray"/>
+                    <!-- Dropdown Label -->
+                    <TextView
+                        android:id="@+id/textViewAsNeededMedLabel"
+                        style="@style/subsection_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/subtitle_dialog_as_needed_dropdown" />
 
-            <!-- Dosage -->
-            <TextView
-                android:id="@+id/textViewDosage"
-                style="@style/subsection_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/dosage" />
-
-            <LinearLayout
-                android:id="@+id/layoutDosage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <!-- Dosage Amount -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/asNeededDosageAmountWrapper"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:hint="@string/hint_amount">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/asNeededDosageAmount"
+                    <!-- As-Needed Medication Dropdown -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/asNeededMedDropdownWrapper"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginTop="8dp"
+                        android:hint="@string/hint_as_needed_med"
+                        android:labelFor="@id/asNeededMedDropdown">
 
-                <!-- Dosage Units -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/asNeededDosageUnitsWrapper"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_weight="2"
-                    android:hint="@string/hint_units"
-                    android:labelFor="@id/asNeededDosageUnits">
+                        <AutoCompleteTextView
+                            android:id="@+id/asNeededMedDropdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <AutoCompleteTextView
-                        android:id="@+id/asNeededDosageUnits"
+                    <!-- Add As-Needed Medication Button -->
+                    <Button
+                        android:id="@+id/addNewButton"
+                        style="@style/button_text"
+                        android:layout_marginTop="2dp"
+                        android:paddingStart="0dp"
+                        android:paddingEnd="0dp"
+                        android:text="@string/button_add_new_as_needed"
+                        android:textColor="@color/cadetGray" />
+
+                    <!-- Dosage -->
+                    <TextView
+                        android:id="@+id/textViewDosage"
+                        style="@style/subsection_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/dosage" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutDosage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:inputType="none"
-                        app:simpleItems="@array/dosage_units_array" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <!-- Dosage Amount -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/asNeededDosageAmountWrapper"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:hint="@string/hint_amount">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/asNeededDosageAmount"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Dosage Units -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/asNeededDosageUnitsWrapper"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_weight="2"
+                            android:hint="@string/hint_units"
+                            android:labelFor="@id/asNeededDosageUnits">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/asNeededDosageUnits"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:inputType="none"
+                                app:simpleItems="@array/dosage_units_array" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutAsNeededDateTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="vertical">
+
+                        <!-- Date Taken -->
+                        <TextView
+                            android:id="@+id/textViewAsNeededDateLabel"
+                            style="@style/subsection_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="@string/date_taken" />
+
+                        <Button
+                            android:id="@+id/buttonAsNeededDateTaken"
+                            style="@style/med_settings_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:width="180dp"
+                            android:text="@string/select_date" />
+
+                        <!-- Time Taken -->
+                        <TextView
+                            android:id="@+id/textViewAsNeededTimeLabel"
+                            style="@style/subsection_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:text="@string/time_taken" />
+
+                        <Button
+                            android:id="@+id/buttonAsNeededTimeTaken"
+                            style="@style/med_settings_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:width="180dp"
+                            android:text="@string/select_time" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- No Medications Message -->
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layoutDurationDialogButtons"
+                style="@style/dialog_button_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical"
-                android:id="@+id/layoutAsNeededDateTime">
+                android:layout_marginTop="24dp"
+                android:gravity="end">
 
-                <!-- Date Taken -->
                 <TextView
-                    android:id="@+id/textViewAsNeededDateLabel"
-                    style="@style/subsection_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/date_taken" />
+                    android:id="@+id/buttonCancelAddAsNeededMed"
+                    style="@style/dialog_button_cancel" />
 
-                <Button
-                    android:id="@+id/buttonAsNeededDateTaken"
-                    style="@style/med_settings_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:width="180dp"
-                    android:text="@string/select_date" />
-
-                <!-- Time Taken -->
                 <TextView
-                    android:id="@+id/textViewAsNeededTimeLabel"
-                    style="@style/subsection_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/time_taken" />
-
-                <Button
-                    android:id="@+id/buttonAsNeededTimeTaken"
-                    style="@style/med_settings_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:width="180dp"
-                    android:text="@string/select_time" />
+                    android:id="@+id/buttonSetAddAsNeededMed"
+                    style="@style/dialog_button_set" />
             </LinearLayout>
         </LinearLayout>
+    </ScrollView>
 
-        <!-- No Medications Message -->
-    </LinearLayout>
+    <!-- Instructions -->
+
+    <!-- Form -->
 
     <!-- Layout for dialog buttons -->
-    <LinearLayout
-        android:id="@+id/layoutDurationDialogButtons"
-        style="@style/dialog_button_wrapper"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutAddAsNeededContent">
-
-        <TextView
-            android:id="@+id/buttonCancelAddAsNeededMed"
-            style="@style/dialog_button_cancel" />
-
-        <TextView
-            android:id="@+id/buttonSetAddAsNeededMed"
-            style="@style/dialog_button_set" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
